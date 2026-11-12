@@ -1,0 +1,16 @@
+<p>Vaultbell turns tasks with a date in your Markdown notes into Android alarms. Works with Obsidian vaults and any folder of Markdown files.</p>
+<p>Write <code>- [ ] Call the dentist (@2026-11-14 18:30)</code> in any note and get a notification on time.</p>
+<p><b>Private by design</b></p>
+<ul>
+<li>No internet permission, no account, no server, no tracking</li>
+<li>Access only to the folder you choose (Storage Access Framework)</li>
+<li>Read-only by default; optional, conflict-safe check-off in the note</li>
+</ul>
+<p><b>Features</b></p>
+<ul>
+<li>Reminder plugin, Dataview and Tasks emoji syntax</li>
+<li>Exact alarms, snooze, early reminder, repeat if ignored</li>
+<li>Overdue / Today / Tomorrow / Upcoming with search and swipe actions</li>
+<li>Material You, dark mode, AMOLED black, tablets and foldables</li>
+</ul>
+<p>Works with Obsidian. Not affiliated with or endorsed by Obsidian.</p>

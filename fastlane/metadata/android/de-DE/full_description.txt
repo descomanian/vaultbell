@@ -1,0 +1,16 @@
+<p>Vaultbell macht aus Aufgaben mit Datum in deinen Markdown-Notizen Android-Alarme. Funktioniert mit Obsidian-Vaults und jedem Ordner voller Markdown-Dateien.</p>
+<p>Schreib <code>- [ ] Zahnarzt anrufen (@2026-11-14 18:30)</code> in eine Notiz und bekomm pünktlich eine Benachrichtigung.</p>
+<p><b>Privat von Grund auf</b></p>
+<ul>
+<li>Keine Internet-Berechtigung, kein Konto, kein Server, kein Tracking</li>
+<li>Zugriff nur auf den Ordner, den du wählst (Storage Access Framework)</li>
+<li>Standardmäßig nur lesend; optional konfliktsicheres Abhaken in der Notiz</li>
+</ul>
+<p><b>Funktionen</b></p>
+<ul>
+<li>Syntax von Reminder-Plugin, Dataview und Tasks-Emoji</li>
+<li>Exakte Alarme, Später, Vorab-Erinnerung, Wiederholung bei Ignorieren</li>
+<li>Überfällig / Heute / Morgen / Demnächst mit Suche und Wisch-Aktionen</li>
+<li>Material You, dunkles Design, AMOLED-Schwarz, Tablets und Foldables</li>
+</ul>
+<p>Funktioniert mit Obsidian. Kein offizielles Produkt von Obsidian.</p>
