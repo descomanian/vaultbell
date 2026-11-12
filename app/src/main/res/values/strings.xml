@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app_name is generated from gradle.properties (vaultbell.appName). -->
     <string name="nav_reminders">Reminders</string>
     <string name="not_affiliated">Works with Obsidian. Not affiliated with or endorsed by Obsidian.</string>
@@ -52,12 +52,12 @@
     <string name="format_reminder_plugin">Reminder plugin</string>
     <string name="format_dataview">Dataview field</string>
     <string name="format_tasks">Tasks emoji</string>
-    <string name="home_summary">%1$d upcoming · scanned %2$s</string>
-    <string name="home_summary_never">%1$d upcoming · not scanned yet</string>
+    <string name="home_summary">%1$s · scanned %2$s</string>
+    <string name="home_summary_never">%1$s · not scanned yet</string>
     <string name="home_exact_warning">Exact alarms are off. Reminders may arrive a few minutes late.</string>
     <string name="search_hint">Search reminders or notes</string>
     <string name="empty_title">All quiet</string>
-    <string name="empty_text">No open reminders. Add a line like - [ ] Call dentist (@2026-11-14 18:30) to any note.</string>
+    <string name="empty_text" tools:ignore="TypographyDashes">No open reminders. Add a line like - [ ] Call dentist (@2026-11-14 18:30) to any note.</string>
     <string name="empty_no_match_title">Nothing found</string>
     <string name="empty_no_match_text">Try another search term or filter.</string>
     <string name="empty_no_vault_title">No vault selected</string>
@@ -176,7 +176,7 @@
     <string name="scan_running">Scanning…</string>
     <string name="scan_error">Last scan failed. Check folder access.</string>
     <string name="scan_never">Not scanned yet</string>
-    <string name="scan_status">Last scan %1$s · %2$d reminders</string>
+    <string name="scan_status">Last scan %1$s · %2$s</string>
     <string name="settings_format_example">Example: %1$s</string>
     <string name="settings_write_done">Write done to note</string>
     <string name="settings_write_done_desc">Checks off the task with [x]. Off by default because of sync conflicts.</string>
@@ -189,4 +189,12 @@
     <string name="status_battery_missing">Optimized: background scans may be delayed</string>
     <string name="status_allowed">Allowed</string>
     <string name="status_not_allowed">Not allowed</string>
+    <plurals name="upcoming_count">
+        <item quantity="one">%d upcoming</item>
+        <item quantity="other">%d upcoming</item>
+    </plurals>
+    <plurals name="reminders_count">
+        <item quantity="one">%d reminder</item>
+        <item quantity="other">%d reminders</item>
+    </plurals>
 </resources>

@@ -70,6 +70,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -161,7 +162,7 @@ private fun ReminderList(
                 if (state.lastScanAt > 0) {
                     stringResource(
                         R.string.home_summary,
-                        state.totalCount,
+                        pluralStringResource(R.plurals.upcoming_count, state.totalCount, state.totalCount),
                         android.text.format.DateUtils.getRelativeTimeSpanString(
                             state.lastScanAt,
                             System.currentTimeMillis(),
@@ -169,7 +170,10 @@ private fun ReminderList(
                         ),
                     )
                 } else {
-                    stringResource(R.string.home_summary_never, state.totalCount)
+                    stringResource(
+                        R.string.home_summary_never,
+                        pluralStringResource(R.plurals.upcoming_count, state.totalCount, state.totalCount),
+                    )
                 }
             Text(
                 summary,

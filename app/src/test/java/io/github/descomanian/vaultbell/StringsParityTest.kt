@@ -25,6 +25,13 @@ class StringsParityTest {
     }
 
     @Test
+    fun samePlurals() {
+        val plurals = Regex("""<plurals name="([^"]+)">""")
+        fun keys(folder: String) = plurals.findAll(File("src/main/res/$folder/strings.xml").readText()).map { it.groupValues[1] }.toSet()
+        assertEquals(keys("values"), keys("values-de"))
+    }
+
+    @Test
     fun sameFormatArguments() {
         val en = load("values")
         val de = load("values-de")

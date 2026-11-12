@@ -75,6 +75,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -620,7 +621,7 @@ private fun ScanNowRow(
                 stringResource(
                     R.string.scan_status,
                     DateUtils.getRelativeTimeSpanString(s.lastScanAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS),
-                    state.activeCount,
+                    pluralStringResource(R.plurals.reminders_count, state.activeCount, state.activeCount),
                 )
         }
     SettingsRow(

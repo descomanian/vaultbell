@@ -1,6 +1,7 @@
 package io.github.descomanian.vaultbell.designsystem.theme
 
 import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -25,6 +26,7 @@ fun ThemeMode.isDark(): Boolean =
         ThemeMode.DARK -> true
     }
 
+@get:ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
 val supportsDynamicColor: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 @Composable

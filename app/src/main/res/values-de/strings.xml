@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app_name is generated from gradle.properties (vaultbell.appName). -->
     <string name="nav_reminders">Erinnerungen</string>
     <string name="not_affiliated">Funktioniert mit Obsidian. Kein offizielles Produkt von Obsidian.</string>
@@ -52,12 +52,12 @@
     <string name="format_reminder_plugin">Reminder-Plugin</string>
     <string name="format_dataview">Dataview-Feld</string>
     <string name="format_tasks">Tasks-Emoji</string>
-    <string name="home_summary">%1$d anstehend · gescannt %2$s</string>
-    <string name="home_summary_never">%1$d anstehend · noch nicht gescannt</string>
+    <string name="home_summary">%1$s · gescannt %2$s</string>
+    <string name="home_summary_never">%1$s · noch nicht gescannt</string>
     <string name="home_exact_warning">Exakte Alarme sind aus. Erinnerungen können einige Minuten zu spät kommen.</string>
     <string name="search_hint">Erinnerungen oder Notizen suchen</string>
     <string name="empty_title">Alles ruhig</string>
-    <string name="empty_text">Keine offenen Erinnerungen. Schreib eine Zeile wie - [ ] Zahnarzt anrufen (@2026-11-14 18:30) in eine Notiz.</string>
+    <string name="empty_text" tools:ignore="TypographyDashes">Keine offenen Erinnerungen. Schreib eine Zeile wie - [ ] Zahnarzt anrufen (@2026-11-14 18:30) in eine Notiz.</string>
     <string name="empty_no_match_title">Nichts gefunden</string>
     <string name="empty_no_match_text">Versuch einen anderen Suchbegriff oder Filter.</string>
     <string name="empty_no_vault_title">Kein Vault gewählt</string>
@@ -176,7 +176,7 @@
     <string name="scan_running">Scan läuft…</string>
     <string name="scan_error">Letzter Scan fehlgeschlagen. Ordnerzugriff prüfen.</string>
     <string name="scan_never">Noch nicht gescannt</string>
-    <string name="scan_status">Letzter Scan %1$s · %2$d Erinnerungen</string>
+    <string name="scan_status">Letzter Scan %1$s · %2$s</string>
     <string name="settings_format_example">Beispiel: %1$s</string>
     <string name="settings_write_done">Erledigt in Notiz schreiben</string>
     <string name="settings_write_done_desc">Hakt die Aufgabe mit [x] ab. Standardmäßig aus wegen Sync-Konflikten.</string>
@@ -189,4 +189,12 @@
     <string name="status_battery_missing">Optimiert: Hintergrund-Scans können sich verzögern</string>
     <string name="status_allowed">Erlaubt</string>
     <string name="status_not_allowed">Nicht erlaubt</string>
+    <plurals name="upcoming_count">
+        <item quantity="one">%d anstehend</item>
+        <item quantity="other">%d anstehend</item>
+    </plurals>
+    <plurals name="reminders_count">
+        <item quantity="one">%d Erinnerung</item>
+        <item quantity="other">%d Erinnerungen</item>
+    </plurals>
 </resources>
