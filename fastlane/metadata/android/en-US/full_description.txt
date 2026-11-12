@@ -11,6 +11,7 @@
 <li>Reminder plugin, Dataview and Tasks emoji syntax</li>
 <li>Exact alarms, snooze, early reminder, repeat if ignored</li>
 <li>Overdue / Today / Tomorrow / Upcoming with search and swipe actions</li>
+<li>Home screen widget in three sizes</li>
 <li>Material You, dark mode, AMOLED black, tablets and foldables</li>
 </ul>
 <p>Works with Obsidian. Not affiliated with or endorsed by Obsidian.</p>

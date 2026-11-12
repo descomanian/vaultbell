@@ -4,6 +4,18 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-12
+
+First stable release after a one-day field test on a Nothing Phone (3a) Lite.
+
+### Added
+- Home screen widget (Glance) in three sizes: next reminder, next three, scrollable list. Dynamic Color or the chosen accent, refresh button, tap opens the reminder. Updates after every scan, done and snooze.
+- Plural-aware texts, Android 12+ data extraction rules (no cloud backup, no device transfer).
+
+### Changed
+- ktlint and detekt are now blocking in CI (detekt with a baseline for existing findings).
+- Version code scheme: `major * 10000 + minor * 100 + patch`.
+
 ## [0.1.0] - 2026-11-12
 
 ### Added
@@ -15,3 +27,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 - Optional write-back of `[x]` guarded by a line hash.
 - Material 3 UI: grouped list with sticky headers, search, filters, swipe actions, container transform, two-pane layout, settings with status checks, privacy and about pages.
 - German and English translations.
+
+[Unreleased]: https://github.com/descomanian/vaultbell/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/descomanian/vaultbell/releases/tag/v1.0.0
+[0.1.0]: https://github.com/descomanian/vaultbell/commits/v1.0.0

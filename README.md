@@ -9,10 +9,9 @@ No account. No server. No tracking. No internet permission.
 [![CI](https://github.com/descomanian/vaultbell/actions/workflows/ci.yml/badge.svg)](https://github.com/descomanian/vaultbell/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-<!-- Screenshots: put PNGs into fastlane/metadata/android/en-US/images/phoneScreenshots/ and reference them here. -->
-| Reminders | Detail | Settings | Onboarding |
+| Reminders | Detail | Onboarding | Settings |
 |---|---|---|---|
-| _screenshot_ | _screenshot_ | _screenshot_ | _screenshot_ |
+| ![](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) | ![](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![](fastlane/metadata/android/en-US/images/phoneScreenshots/4.png) |
 
 </div>
 
@@ -46,7 +45,7 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 - **Storage Access Framework only.** No `MANAGE_EXTERNAL_STORAGE`; access is limited to the folder you choose.
 - **Read-only by default.** Writing `[x]` back into a note is opt-in and guarded by a line hash to avoid sync conflicts.
 
-## Features (0.1)
+## Features
 
 - Guided onboarding: vault, notifications, exact alarms (Android 14+), with clear explanations.
 - Reminder list grouped into Overdue / Today / Tomorrow / Upcoming with sticky headers, search, filters and swipe actions (done / snooze).
@@ -54,6 +53,7 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 - Material 3 with Dynamic Color, own fallback palettes (5 accents), light/dark/system and AMOLED black.
 - Two-pane layout and navigation rail on tablets and foldables.
 - Notification actions: done, snooze short, snooze long. Optional early reminder and repeat-if-ignored.
+- Home screen widget in three sizes with Dynamic Color.
 - Incremental scans (only changed files), alarms restored after reboot, time-zone changes handled.
 - German and English.
 

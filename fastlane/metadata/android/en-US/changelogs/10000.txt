@@ -1,0 +1,1 @@
+Vaultbell 1.0: home screen widget in three sizes, stricter code checks, polished texts. Local-first reminders from your Markdown vault, no internet permission.

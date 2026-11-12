@@ -11,6 +11,7 @@
 <li>Syntax von Reminder-Plugin, Dataview und Tasks-Emoji</li>
 <li>Exakte Alarme, Später, Vorab-Erinnerung, Wiederholung bei Ignorieren</li>
 <li>Überfällig / Heute / Morgen / Demnächst mit Suche und Wisch-Aktionen</li>
+<li>Homescreen-Widget in drei Größen</li>
 <li>Material You, dunkles Design, AMOLED-Schwarz, Tablets und Foldables</li>
 </ul>
 <p>Funktioniert mit Obsidian. Kein offizielles Produkt von Obsidian.</p>
