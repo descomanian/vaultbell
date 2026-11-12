@@ -10,8 +10,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import io.github.descomanian.vaultbell.designsystem.theme.AccentColor
-import io.github.descomanian.vaultbell.designsystem.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -84,7 +82,7 @@ class SettingsRepository(context: Context) {
             writeDoneToFile = this[K.writeDone] ?: d.writeDoneToFile,
             lastScanAt = this[K.lastScanAt] ?: d.lastScanAt,
             lastScanError = this[K.lastScanError],
-            lastParserSignature = this[K.parserSignature] ?: d.lastParserSignature,
+            lastParserSignature = this[K.parserSignature] ?: d.lastParserSignature
         )
     }
 
@@ -120,6 +118,6 @@ class SettingsRepository(context: Context) {
 
     private inline fun <reified E : Enum<E>> enumOr(
         name: String?,
-        fallback: E,
+        fallback: E
     ): E = enumValues<E>().firstOrNull { it.name == name } ?: fallback
 }

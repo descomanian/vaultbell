@@ -12,13 +12,13 @@ enum class ReminderFormat {
     DATAVIEW,
 
     /** Tasks plugin emoji: `- [ ] Text ⏰ 2026-11-14 18:30` or `📅 2026-11-14` */
-    TASKS_EMOJI,
+    TASKS_EMOJI
 }
 
 data class ParserOptions(
     val enabledFormats: Set<ReminderFormat> = setOf(ReminderFormat.REMINDER_PLUGIN),
     /** Time applied to date-only reminders. */
-    val defaultTime: LocalTime = LocalTime.of(9, 0),
+    val defaultTime: LocalTime = LocalTime.of(9, 0)
 )
 
 data class ParsedReminder(
@@ -31,5 +31,5 @@ data class ParsedReminder(
     val format: ReminderFormat,
     val rawLine: String,
     /** Stable hash of the raw line, used to detect edits and sync conflicts. */
-    val lineHash: String,
+    val lineHash: String
 )

@@ -10,6 +10,7 @@ import io.github.descomanian.vaultbell.data.db.VaultbellDatabase
 import io.github.descomanian.vaultbell.data.settings.SettingsRepository
 import io.github.descomanian.vaultbell.scheduler.AlarmScheduler
 import io.github.descomanian.vaultbell.vault.VaultAccess
+import io.github.descomanian.vaultbell.widget.VaultbellWidget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
@@ -33,5 +34,13 @@ class AppContainer(context: Context) {
     val alarmScheduler = AlarmScheduler(context, AlarmReceiver::class.java)
     private val alarms = ReminderAlarms(alarmScheduler)
     private val database = VaultbellDatabase.create(context)
-    val repository = ReminderRepository(database.reminderDao(), settings, vault, alarms, notifications)
+    val repository =
+        ReminderRepository(
+            dao = database.reminderDao(),
+            settings = settings,
+            vault = vault,
+            alarms = alarms,
+            notifications = notifications,
+            onChanged = { VaultbellWidget.refresh(context.applicationContext) }
+        )
 }

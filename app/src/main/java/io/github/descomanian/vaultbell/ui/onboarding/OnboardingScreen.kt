@@ -13,11 +13,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -73,14 +73,14 @@ data class OnboardingActions(
     val onVaultNameChange: (String) -> Unit = {},
     val onRequestNotifications: () -> Unit = {},
     val onRequestExactAlarms: () -> Unit = {},
-    val onFinish: () -> Unit = {},
+    val onFinish: () -> Unit = {}
 )
 
 @Composable
 fun OnboardingScreen(
     state: OnboardingUiState,
     actions: OnboardingActions,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val haptics = rememberHaptics()
     val steps = OnboardingStep.entries
@@ -91,14 +91,14 @@ fun OnboardingScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                .padding(horizontal = Spacing.lg, vertical = Spacing.md)
         ) {
             StepIndicator(current = state.step.ordinal, total = steps.size)
             Spacer(Modifier.height(Spacing.xs))
             Text(
                 stringResource(R.string.onboarding_step, state.step.ordinal + 1, steps.size),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             AnimatedContent(
@@ -109,14 +109,14 @@ fun OnboardingScreen(
                         (slideOutHorizontally { w -> if (forward) -w / 4 else w / 4 } + fadeOut())
                 },
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                label = "onboarding",
+                label = "onboarding"
             ) { step ->
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     Column(
                         Modifier
                             .widthIn(max = 560.dp)
                             .verticalScroll(rememberScrollState())
-                            .padding(top = Spacing.xl),
+                            .padding(top = Spacing.xl)
                     ) {
                         when (step) {
                             OnboardingStep.WELCOME -> WelcomePage()
@@ -141,7 +141,7 @@ fun OnboardingScreen(
                         if (last) actions.onFinish() else actions.onNext()
                     },
                     enabled = state.canContinue,
-                    modifier = Modifier.height(52.dp),
+                    modifier = Modifier.height(52.dp)
                 ) {
                     Text(
                         stringResource(
@@ -149,8 +149,8 @@ fun OnboardingScreen(
                                 last -> R.string.onboarding_start
                                 state.step == OnboardingStep.WELCOME -> R.string.onboarding_lets_go
                                 else -> R.string.action_continue
-                            },
-                        ),
+                            }
+                        )
                     )
                 }
             }
@@ -162,13 +162,13 @@ fun OnboardingScreen(
 private fun PageHeader(
     icon: ImageVector,
     title: String,
-    body: String,
+    body: String
 ) {
     TonalIcon(
         icon,
         size = 72.dp,
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     )
     Spacer(Modifier.height(Spacing.lg))
     Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
@@ -180,12 +180,12 @@ private fun PageHeader(
 @Composable
 private fun FeatureRow(
     icon: ImageVector,
-    text: String,
+    text: String
 ) {
     Row(
         Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
         TonalIcon(icon, size = 40.dp)
         Text(text, style = MaterialTheme.typography.bodyLarge)
@@ -196,13 +196,13 @@ private fun FeatureRow(
 private fun GrantedRow(
     granted: Boolean,
     grantedText: String,
-    missingText: String,
+    missingText: String
 ) {
     Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Row(
             Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
         ) {
             val label = if (granted) grantedText else missingText
             StatusLight(if (granted) StatusLevel.OK else StatusLevel.WARNING, label)
@@ -216,7 +216,7 @@ private fun WelcomePage() {
     PageHeader(
         Icons.Rounded.NotificationsActive,
         stringResource(R.string.onboarding_welcome_title, stringResource(R.string.app_name)),
-        stringResource(R.string.onboarding_welcome_text),
+        stringResource(R.string.onboarding_welcome_text)
     )
     FeatureRow(Icons.Rounded.Description, stringResource(R.string.onboarding_feature_markdown))
     FeatureRow(Icons.Rounded.CloudOff, stringResource(R.string.onboarding_feature_offline))
@@ -225,14 +225,14 @@ private fun WelcomePage() {
     Text(
         stringResource(R.string.not_affiliated),
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 
 @Composable
 private fun VaultPage(
     state: OnboardingUiState,
-    actions: OnboardingActions,
+    actions: OnboardingActions
 ) {
     PageHeader(Icons.Rounded.FolderOpen, stringResource(R.string.onboarding_vault_title), stringResource(R.string.onboarding_vault_text))
     if (state.vaultUri == null) {
@@ -254,11 +254,13 @@ private fun VaultPage(
                         if (state.hasObsidianFolder) Icons.Rounded.CheckCircle else Icons.Rounded.Warning,
                         contentDescription = null,
                         tint = if (state.hasObsidianFolder) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        stringResource(if (state.hasObsidianFolder) R.string.onboarding_vault_detected else R.string.onboarding_vault_not_detected),
-                        style = MaterialTheme.typography.bodyMedium,
+                        stringResource(
+                            if (state.hasObsidianFolder) R.string.onboarding_vault_detected else R.string.onboarding_vault_not_detected
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 OutlinedTextField(
@@ -267,7 +269,7 @@ private fun VaultPage(
                     label = { Text(stringResource(R.string.settings_vault_name)) },
                     supportingText = { Text(stringResource(R.string.onboarding_vault_name_hint)) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -283,12 +285,12 @@ private fun VaultPage(
 @Composable
 private fun NotificationsPage(
     state: OnboardingUiState,
-    actions: OnboardingActions,
+    actions: OnboardingActions
 ) {
     PageHeader(
         Icons.Rounded.Notifications,
         stringResource(R.string.onboarding_notifications_title),
-        stringResource(R.string.onboarding_notifications_text),
+        stringResource(R.string.onboarding_notifications_text)
     )
     GrantedRow(state.notificationsGranted, stringResource(R.string.status_allowed), stringResource(R.string.status_not_allowed))
     Spacer(Modifier.height(Spacing.md))
@@ -304,7 +306,7 @@ private fun NotificationsPage(
 @Composable
 private fun ExactAlarmsPage(
     state: OnboardingUiState,
-    actions: OnboardingActions,
+    actions: OnboardingActions
 ) {
     PageHeader(Icons.Rounded.Alarm, stringResource(R.string.onboarding_exact_title), stringResource(R.string.onboarding_exact_text))
     GrantedRow(state.exactAlarmsGranted, stringResource(R.string.status_allowed), stringResource(R.string.status_not_allowed))
@@ -339,7 +341,7 @@ private fun DonePage(state: OnboardingUiState) {
             fontFamily = FontFamily.Monospace,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.fillMaxWidth().padding(Spacing.md),
-            textAlign = TextAlign.Start,
+            textAlign = TextAlign.Start
         )
     }
 }
@@ -347,12 +349,12 @@ private fun DonePage(state: OnboardingUiState) {
 @Composable
 private fun SummaryRow(
     ok: Boolean,
-    text: String,
+    text: String
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
         StatusLight(
             if (ok) StatusLevel.OK else StatusLevel.WARNING,
-            stringResource(if (ok) R.string.status_allowed else R.string.status_not_allowed),
+            stringResource(if (ok) R.string.status_allowed else R.string.status_not_allowed)
         )
         Text(text, style = MaterialTheme.typography.bodyLarge)
     }
@@ -374,9 +376,9 @@ private fun OnboardingVaultPreview() {
                 vaultUri = "content://x",
                 vaultFolderName = "SebiMain",
                 vaultName = "SebiMain",
-                hasObsidianFolder = true,
+                hasObsidianFolder = true
             ),
-            OnboardingActions(),
+            OnboardingActions()
         )
     }
 }
@@ -395,7 +397,7 @@ private fun OnboardingDonePreview() {
     VaultbellTheme(dynamicColor = false) {
         OnboardingScreen(
             OnboardingUiState(step = OnboardingStep.DONE, vaultName = "SebiMain", notificationsGranted = true),
-            OnboardingActions(),
+            OnboardingActions()
         )
     }
 }

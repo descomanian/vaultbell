@@ -25,12 +25,12 @@ data class SettingsUiState(
     val scanning: Boolean = false,
     val activeCount: Int = 0,
     val language: AppLanguage = AppLanguage.SYSTEM,
-    val vaultFolderName: String? = null,
+    val vaultFolderName: String? = null
 )
 
 class SettingsViewModel(
     private val app: Application,
-    private val container: AppContainer,
+    private val container: AppContainer
 ) : ViewModel() {
     private val repo = container.repository
     private val status = MutableStateFlow(SystemStatus.read(app))
@@ -43,7 +43,7 @@ class SettingsViewModel(
                 st,
                 scanning,
                 count,
-                langAndFolder,
+                langAndFolder
             ->
             SettingsUiState(true, s, st, scanning, count, langAndFolder.first, langAndFolder.second ?: s.vaultName)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())

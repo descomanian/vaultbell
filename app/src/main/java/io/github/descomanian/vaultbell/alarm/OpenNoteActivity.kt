@@ -27,14 +27,14 @@ class OpenNoteActivity : Activity() {
                         tryStart(
                             Intent(Intent.ACTION_VIEW)
                                 .setDataAndType(document, "text/markdown")
-                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
+                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         )
-                )
+                    )
         if (!opened) {
             startActivity(
                 Intent(this, MainActivity::class.java)
                     .putExtra(MainActivity.EXTRA_OPEN_REMINDER, id)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             )
         }
         finish()

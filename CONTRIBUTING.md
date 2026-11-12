@@ -13,7 +13,7 @@ Thanks for helping! Small, focused pull requests are easiest to review.
 
 1. JDK 17+ and Android SDK 35 (Android Studio Ladybug or newer).
 2. `./gradlew build` must pass.
-3. Run `./gradlew ktlintFormat` before committing. ktlint and detekt currently report only; they will become blocking once the codebase is clean.
+3. Run `./gradlew ktlintFormat` before committing. ktlint and detekt are blocking in CI. Existing detekt findings live in `config/detekt/baseline.xml`; please do not add to it.
 
 ## Commits
 

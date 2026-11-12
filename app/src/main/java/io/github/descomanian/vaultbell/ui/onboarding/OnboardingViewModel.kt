@@ -25,7 +25,7 @@ data class OnboardingUiState(
     val hasObsidianFolder: Boolean = false,
     val vaultError: Boolean = false,
     val notificationsGranted: Boolean = false,
-    val exactAlarmsGranted: Boolean = false,
+    val exactAlarmsGranted: Boolean = false
 ) {
     val canContinue: Boolean
         get() = step != OnboardingStep.VAULT || (vaultUri != null && vaultName.isNotBlank())
@@ -33,7 +33,7 @@ data class OnboardingUiState(
 
 class OnboardingViewModel(
     private val app: Application,
-    private val container: AppContainer,
+    private val container: AppContainer
 ) : ViewModel() {
     private val _state = MutableStateFlow(OnboardingUiState())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
@@ -65,7 +65,7 @@ class OnboardingViewModel(
                         vaultFolderName = info.displayName,
                         vaultName = info.displayName,
                         hasObsidianFolder = info.hasObsidianFolder,
-                        vaultError = false,
+                        vaultError = false
                     )
                 }
             }
@@ -76,7 +76,13 @@ class OnboardingViewModel(
 
     fun next() =
         _state.update {
-            if (!it.canContinue) it else it.copy(step = OnboardingStep.entries[(it.step.ordinal + 1).coerceAtMost(OnboardingStep.entries.lastIndex)])
+            if (!it.canContinue) {
+                it
+            } else {
+                it.copy(
+                    step = OnboardingStep.entries[(it.step.ordinal + 1).coerceAtMost(OnboardingStep.entries.lastIndex)]
+                )
+            }
         }
 
     fun back() = _state.update { it.copy(step = OnboardingStep.entries[(it.step.ordinal - 1).coerceAtLeast(0)]) }

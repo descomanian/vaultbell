@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class ScanWorker(
     context: Context,
-    params: WorkerParameters,
+    params: WorkerParameters
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val repo = (applicationContext as VaultbellApplication).container.repository
@@ -37,7 +37,7 @@ object ScanWork {
     /** Minimum interval is 15 minutes (WorkManager limit). No network constraint: we never use it. */
     fun schedulePeriodic(
         context: Context,
-        intervalMinutes: Int,
+        intervalMinutes: Int
     ) {
         val request =
             PeriodicWorkRequestBuilder<ScanWorker>(intervalMinutes.coerceAtLeast(15).toLong(), TimeUnit.MINUTES).build()
@@ -46,7 +46,7 @@ object ScanWork {
 
     fun runNow(
         context: Context,
-        force: Boolean = false,
+        force: Boolean = false
     ) {
         val request = OneTimeWorkRequestBuilder<ScanWorker>().setInputData(workDataOf(ScanWorker.KEY_FORCE to force)).build()
         WorkManager.getInstance(context).enqueueUniqueWork(ONE_SHOT, ExistingWorkPolicy.REPLACE, request)

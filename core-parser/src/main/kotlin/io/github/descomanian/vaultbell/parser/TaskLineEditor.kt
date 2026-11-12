@@ -26,7 +26,7 @@ object TaskLineEditor {
     fun markDoneInContent(
         content: String,
         lineNumber: Int,
-        expectedHash: String,
+        expectedHash: String
     ): EditResult {
         val lines = Lines.split(content).toMutableList()
         val line = lines.getOrNull(lineNumber) ?: return EditResult.Conflict

@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 DisposableEffect(dark) {
                     enableEdgeToEdge(
                         statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark },
-                        navigationBarStyle = SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark },
+                        navigationBarStyle = SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark }
                     )
                     onDispose {}
                 }
@@ -114,14 +114,14 @@ class MainActivity : AppCompatActivity() {
                     themeMode = s.themeMode,
                     dynamicColor = s.dynamicColor,
                     amoledBlack = s.amoledBlack,
-                    accent = s.accent,
+                    accent = s.accent
                 ) {
                     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                         VaultbellNavHost(
                             startOnboarding = startOnboarding,
                             widthClass = windowSize.widthSizeClass,
                             openReminderId = openReminder.value,
-                            onOpenConsumed = { openReminder.value = null },
+                            onOpenConsumed = { openReminder.value = null }
                         )
                     }
                 }
@@ -161,7 +161,7 @@ fun VaultbellNavHost(
     startOnboarding: Boolean,
     widthClass: WindowWidthSizeClass,
     openReminderId: Long?,
-    onOpenConsumed: () -> Unit,
+    onOpenConsumed: () -> Unit
 ) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
@@ -187,14 +187,14 @@ fun VaultbellNavHost(
                     enterTransition = { fadeIn(tween(280)) + scaleIn(tween(280), initialScale = 0.96f) },
                     exitTransition = { fadeOut(tween(200)) },
                     popEnterTransition = { fadeIn(tween(280)) },
-                    popExitTransition = { fadeOut(tween(200)) + scaleOut(tween(280), targetScale = 0.96f) },
+                    popExitTransition = { fadeOut(tween(200)) + scaleOut(tween(280), targetScale = 0.96f) }
                 ) {
                     composable(Routes.ONBOARDING) {
                         CompositionLocalProvider(LocalNavAnimatedScope provides this) {
                             OnboardingRoute(
                                 onFinished = {
                                     nav.navigate(Routes.HOME) { popUpTo(Routes.ONBOARDING) { inclusive = true } }
-                                },
+                                }
                             )
                         }
                     }
@@ -204,7 +204,7 @@ fun VaultbellNavHost(
                                 twoPane = twoPane,
                                 showSettingsAction = !wide,
                                 onOpen = { id -> nav.navigate(Routes.detail(id)) },
-                                onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } },
+                                onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } }
                             )
                         }
                     }
@@ -219,7 +219,7 @@ fun VaultbellNavHost(
                                 showBack = !wide,
                                 onBack = { nav.popBackStack() },
                                 onOpenPrivacy = { nav.navigate(Routes.PRIVACY) },
-                                onOpenAbout = { nav.navigate(Routes.ABOUT) },
+                                onOpenAbout = { nav.navigate(Routes.ABOUT) }
                             )
                         }
                     }
@@ -234,17 +234,17 @@ fun VaultbellNavHost(
 @Composable
 private fun AppRail(
     nav: NavHostController,
-    route: String?,
+    route: String?
 ) {
     NavigationRail(
         header = {
             Icon(
                 Icons.Rounded.NotificationsActive,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(24.dp))
-        },
+        }
     ) {
         Spacer(Modifier.weight(1f))
         val homeSelected = route == Routes.HOME || route == Routes.DETAIL
@@ -257,7 +257,7 @@ private fun AppRail(
                 }
             },
             icon = { Icon(Icons.Rounded.NotificationsActive, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_reminders)) },
+            label = { Text(stringResource(R.string.nav_reminders)) }
         )
         NavigationRailItem(
             selected = !homeSelected,
@@ -268,7 +268,7 @@ private fun AppRail(
                 }
             },
             icon = { Icon(Icons.Rounded.Settings, contentDescription = null) },
-            label = { Text(stringResource(R.string.settings_title)) },
+            label = { Text(stringResource(R.string.settings_title)) }
         )
         Spacer(Modifier.weight(1f))
     }

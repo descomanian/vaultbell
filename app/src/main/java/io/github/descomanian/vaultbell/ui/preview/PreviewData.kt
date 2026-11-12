@@ -15,7 +15,7 @@ object PreviewData {
         path: String,
         explicit: Boolean = true,
         snoozed: Boolean = false,
-        format: ReminderFormat = ReminderFormat.REMINDER_PLUGIN,
+        format: ReminderFormat = ReminderFormat.REMINDER_PLUGIN
     ) = Reminder(
         id = id,
         title = title,
@@ -26,7 +26,7 @@ object PreviewData {
         relativePath = path,
         lineNumber = id.toInt() + 6,
         rawLine = "- [ ] $title (@${due.toLocalDate()} ${due.toLocalTime()})",
-        format = format,
+        format = format
     )
 
     val reminders: List<Reminder> =
@@ -38,6 +38,6 @@ object PreviewData {
             r(5, "Mama zurückrufen", now.withHour(19).withMinute(15), "Daily/2026-11-14.md", snoozed = true),
             r(6, "Atemschutz-Übung", now.plusDays(1).withHour(19).withMinute(0), "Feuerwehr/Termine.md"),
             r(7, "Screenshots für F-Droid", now.plusDays(3).withHour(10).withMinute(15), "Projekte/Vaultbell.md"),
-            r(8, "Coursera Modul 3 abschließen", now.plusDays(6).withHour(20).withMinute(0), "Kurse/Cyber Security.md"),
+            r(8, "Coursera Modul 3 abschließen", now.plusDays(6).withHour(20).withMinute(0), "Kurse/Cyber Security.md")
         )
 }

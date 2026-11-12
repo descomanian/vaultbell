@@ -24,8 +24,8 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Gavel
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.Tag
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -55,7 +55,7 @@ import io.github.descomanian.vaultbell.designsystem.theme.VaultbellTheme
 private fun InfoScaffold(
     title: String,
     onBack: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -68,9 +68,9 @@ private fun InfoScaffold(
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
-                scrollBehavior = scrollBehavior,
+                scrollBehavior = scrollBehavior
             )
-        },
+        }
     ) { padding ->
         Column(
             Modifier
@@ -79,7 +79,7 @@ private fun InfoScaffold(
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(bottom = Spacing.lg),
-            content = content,
+            content = content
         )
     }
 }
@@ -88,12 +88,12 @@ private fun InfoScaffold(
 private fun PromiseRow(
     icon: ImageVector,
     title: String,
-    text: String,
+    text: String
 ) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = Spacing.lg, vertical = Spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.Top
     ) {
         TonalIcon(icon, size = 44.dp)
         Column(Modifier.weight(1f)) {
@@ -110,16 +110,24 @@ fun PrivacyScreen(onBack: () -> Unit) {
         Text(
             stringResource(R.string.privacy_intro, stringResource(R.string.app_name)),
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm)
         )
-        PromiseRow(Icons.Rounded.CloudOff, stringResource(R.string.privacy_no_internet_title), stringResource(R.string.privacy_no_internet_text))
-        PromiseRow(Icons.Rounded.VisibilityOff, stringResource(R.string.privacy_no_account_title), stringResource(R.string.privacy_no_account_text))
+        PromiseRow(
+            Icons.Rounded.CloudOff,
+            stringResource(R.string.privacy_no_internet_title),
+            stringResource(R.string.privacy_no_internet_text)
+        )
+        PromiseRow(
+            Icons.Rounded.VisibilityOff,
+            stringResource(R.string.privacy_no_account_title),
+            stringResource(R.string.privacy_no_account_text)
+        )
         PromiseRow(Icons.Rounded.Folder, stringResource(R.string.privacy_saf_title), stringResource(R.string.privacy_saf_text))
         PromiseRow(Icons.Rounded.Lock, stringResource(R.string.privacy_local_title), stringResource(R.string.privacy_local_text))
         PromiseRow(
             Icons.Rounded.NotificationsActive,
             stringResource(R.string.privacy_permissions_title),
-            stringResource(R.string.privacy_permissions_text),
+            stringResource(R.string.privacy_permissions_text)
         )
     }
 }
@@ -132,7 +140,7 @@ private val licenses =
         License("Jetpack Compose & Material 3", "Apache License 2.0"),
         License("Room, DataStore, WorkManager", "Apache License 2.0"),
         License("Kotlin & kotlinx.coroutines", "Apache License 2.0"),
-        License("Material Symbols / Icons", "Apache License 2.0"),
+        License("Material Symbols / Icons", "Apache License 2.0")
     )
 
 @Composable
@@ -144,13 +152,21 @@ fun AboutScreen(onBack: () -> Unit) {
                 Icons.Rounded.NotificationsActive,
                 size = 72.dp,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(Modifier.height(Spacing.md))
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
-            Text(stringResource(R.string.about_tagline), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(R.string.about_tagline),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(Modifier.height(Spacing.xs))
-            Text(stringResource(R.string.not_affiliated), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(R.string.not_affiliated),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         SettingsGroup(stringResource(R.string.about_group_app)) {
             SettingsRow(title = stringResource(R.string.about_version), description = BuildConfig.VERSION_NAME, icon = Icons.Rounded.Tag)
@@ -168,7 +184,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         // No browser installed: nothing to do.
                     }
                 },
-                trailing = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null) },
+                trailing = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null) }
             )
         }
         SettingsGroup(stringResource(R.string.about_group_licenses)) {

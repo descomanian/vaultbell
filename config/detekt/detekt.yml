@@ -1,5 +1,8 @@
 # Builds on detekt's default config (buildUponDefaultConfig = true). Only deviations are listed.
 naming:
+  # Compose screens keep their Actions/UiState holders next to the screen.
+  MatchingDeclarationName:
+    active: false
   FunctionNaming:
     ignoreAnnotated: ['Composable']
   TopLevelPropertyNaming:

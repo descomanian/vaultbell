@@ -1,13 +1,13 @@
 package io.github.descomanian.vaultbell.parser
 
+import java.time.LocalDateTime
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 class ReminderParserTest {
     private val all = ParserOptions(enabledFormats = ReminderFormat.entries.toSet(), defaultTime = LocalTime.of(9, 0))

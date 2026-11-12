@@ -1,9 +1,9 @@
 package io.github.descomanian.vaultbell.parser
 
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 /** Runs the parser against the fixtures in /sample-vault. */
 class SampleVaultTest {
@@ -11,7 +11,7 @@ class SampleVaultTest {
 
     private fun parse(
         relative: String,
-        options: ParserOptions = ParserOptions(),
+        options: ParserOptions = ParserOptions()
     ) = ReminderParser(options).parse(File(vault, relative).readText())
 
     private val allFormats = ParserOptions(enabledFormats = ReminderFormat.entries.toSet())
@@ -32,7 +32,7 @@ class SampleVaultTest {
     fun projectNoteDefaultFormatsOnly() {
         assertEquals(
             listOf("Mehrere Formate", "Nummerierte Liste", "Im Zitat"),
-            parse("Projekte/Vaultbell.md").map { it.title },
+            parse("Projekte/Vaultbell.md").map { it.title }
         )
     }
 
@@ -46,9 +46,9 @@ class SampleVaultTest {
                 "F-Droid Merge Request",
                 "Mehrere Formate",
                 "Nummerierte Liste",
-                "Im Zitat",
+                "Im Zitat"
             ),
-            result.map { it.title },
+            result.map { it.title }
         )
     }
 

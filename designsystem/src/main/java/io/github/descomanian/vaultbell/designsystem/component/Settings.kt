@@ -37,14 +37,14 @@ import io.github.descomanian.vaultbell.designsystem.theme.Spacing
 fun SettingsGroup(
     title: String,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier.fillMaxWidth().padding(horizontal = Spacing.md)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = Spacing.md, top = Spacing.lg, bottom = Spacing.xs).semantics { heading() },
+            modifier = Modifier.padding(start = Spacing.md, top = Spacing.lg, bottom = Spacing.xs).semantics { heading() }
         )
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
             Column(Modifier.padding(vertical = Spacing.xxs), content = content)
@@ -56,7 +56,7 @@ fun SettingsGroup(
 fun SettingsDivider() {
     HorizontalDivider(
         modifier = Modifier.padding(start = 72.dp, end = Spacing.md),
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     )
 }
 
@@ -69,25 +69,25 @@ fun SettingsRow(
     description: String? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
-    trailing: (@Composable RowScope.() -> Unit)? = null,
+    trailing: (@Composable RowScope.() -> Unit)? = null
 ) {
     val alpha = if (enabled) 1f else 0.45f
     Row(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .heightIn(min = 64.dp)
-                .then(if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier)
-                .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+        modifier
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .then(if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier)
+            .padding(horizontal = Spacing.md, vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
         if (icon != null) {
             Icon(
                 icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha),
-                modifier = Modifier.padding(horizontal = Spacing.xxs).size(24.dp),
+                modifier = Modifier.padding(horizontal = Spacing.xxs).size(24.dp)
             )
         }
         Column(Modifier.weight(1f)) {
@@ -97,7 +97,7 @@ fun SettingsRow(
                 Text(
                     description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
                 )
             }
         }
@@ -114,7 +114,7 @@ fun SettingsSwitchRow(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     description: String? = null,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     val haptics = rememberHaptics()
     SettingsRow(
@@ -123,16 +123,16 @@ fun SettingsSwitchRow(
         description = description,
         enabled = enabled,
         modifier =
-            modifier.toggleable(
-                value = checked,
-                enabled = enabled,
-                role = Role.Switch,
-                onValueChange = {
-                    haptics.toggle(it)
-                    onCheckedChange(it)
-                },
-            ),
-        trailing = { Switch(checked = checked, onCheckedChange = null, enabled = enabled) },
+        modifier.toggleable(
+            value = checked,
+            enabled = enabled,
+            role = Role.Switch,
+            onValueChange = {
+                haptics.toggle(it)
+                onCheckedChange(it)
+            }
+        ),
+        trailing = { Switch(checked = checked, onCheckedChange = null, enabled = enabled) }
     )
 }
 
@@ -145,7 +145,7 @@ fun SettingsValueRow(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     enabled: Boolean = true,
-    trailing: (@Composable RowScope.() -> Unit)? = null,
+    trailing: (@Composable RowScope.() -> Unit)? = null
 ) {
     SettingsRow(
         title = title,
@@ -154,7 +154,7 @@ fun SettingsValueRow(
         enabled = enabled,
         onClick = onClick,
         modifier = modifier.semantics { stateDescription = value },
-        trailing = trailing,
+        trailing = trailing
     )
 }
 
@@ -172,7 +172,7 @@ fun SettingsSliderRow(
     steps: Int = 0,
     enabled: Boolean = true,
     visible: Boolean = true,
-    onValueChangeFinished: (() -> Unit)? = null,
+    onValueChangeFinished: (() -> Unit)? = null
 ) {
     val haptics = rememberHaptics()
     AnimatedVisibility(visible = visible) {
@@ -184,7 +184,7 @@ fun SettingsSliderRow(
                 enabled = enabled,
                 trailing = {
                     Text(valueLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                },
+                }
             )
             Slider(
                 value = value,
@@ -197,9 +197,9 @@ fun SettingsSliderRow(
                 enabled = enabled,
                 onValueChangeFinished = onValueChangeFinished,
                 modifier =
-                    Modifier
-                        .padding(start = 72.dp, end = Spacing.md)
-                        .semantics { stateDescription = valueLabel },
+                Modifier
+                    .padding(start = 72.dp, end = Spacing.md)
+                    .semantics { stateDescription = valueLabel }
             )
         }
     }

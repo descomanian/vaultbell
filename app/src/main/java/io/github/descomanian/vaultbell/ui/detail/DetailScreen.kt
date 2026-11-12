@@ -65,24 +65,24 @@ import io.github.descomanian.vaultbell.ui.common.formatTime
 import io.github.descomanian.vaultbell.ui.common.label
 import io.github.descomanian.vaultbell.ui.common.sharedContainer
 import io.github.descomanian.vaultbell.ui.preview.PreviewData
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 data class DetailUiState(
     val loading: Boolean = true,
     val reminder: Reminder? = null,
     val vaultName: String = "",
     val snoozeShortMinutes: Int = 10,
-    val snoozeLongMinutes: Int = 60,
+    val snoozeLongMinutes: Int = 60
 )
 
 class DetailViewModel(
     private val id: Long,
-    private val container: AppContainer,
+    private val container: AppContainer
 ) : ViewModel() {
     val state: StateFlow<DetailUiState> =
         combine(container.repository.observe(id), container.settings.settings) { r, s ->
@@ -98,7 +98,7 @@ class DetailViewModel(
 
     fun snooze(
         minutes: Int,
-        after: () -> Unit,
+        after: () -> Unit
     ) {
         viewModelScope.launch {
             container.repository.snooze(id, minutes)
@@ -110,7 +110,7 @@ class DetailViewModel(
 data class DetailActions(
     val onBack: () -> Unit = {},
     val onDone: () -> Unit = {},
-    val onSnooze: (Int) -> Unit = {},
+    val onSnooze: (Int) -> Unit = {}
 )
 
 @Composable
@@ -119,7 +119,7 @@ fun DetailScreen(
     actions: DetailActions,
     modifier: Modifier = Modifier,
     showBack: Boolean = true,
-    now: LocalDateTime = LocalDateTime.now(),
+    now: LocalDateTime = LocalDateTime.now()
 ) {
     Scaffold(
         modifier = modifier,
@@ -133,9 +133,9 @@ fun DetailScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
-        },
+        }
     ) { padding ->
         val reminder = state.reminder
         if (reminder == null) {
@@ -144,7 +144,7 @@ fun DetailScreen(
                     icon = Icons.Rounded.Check,
                     title = stringResource(R.string.detail_gone_title),
                     message = stringResource(R.string.detail_gone_text),
-                    modifier = Modifier.padding(padding),
+                    modifier = Modifier.padding(padding)
                 )
             }
         } else {
@@ -159,7 +159,7 @@ private fun DetailContent(
     actions: DetailActions,
     reminder: Reminder,
     now: LocalDateTime,
-    padding: androidx.compose.foundation.layout.PaddingValues,
+    padding: androidx.compose.foundation.layout.PaddingValues
 ) {
     val context = LocalContext.current
     val haptics = rememberHaptics()
@@ -171,13 +171,13 @@ private fun DetailContent(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Spacing.md)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
             HeroCard(reminder, now)
 
             Card(
                 shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
             ) {
                 Column(Modifier.padding(vertical = Spacing.xs)) {
                     InfoRow(Icons.Rounded.Description, stringResource(R.string.detail_file), reminder.relativePath)
@@ -187,7 +187,7 @@ private fun DetailContent(
                         InfoRow(
                             Icons.Rounded.Snooze,
                             stringResource(R.string.detail_original_time),
-                            "${reminder.originalDue.formatDay(context, now)}, ${reminder.originalDue.formatTime()}",
+                            "${reminder.originalDue.formatDay(context, now)}, ${reminder.originalDue.formatTime(context)}"
                         )
                     }
                 }
@@ -200,13 +200,13 @@ private fun DetailContent(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.horizontalScroll(rememberScrollState()).padding(Spacing.md),
-                    softWrap = false,
+                    softWrap = false
                 )
             }
 
             Button(
                 onClick = { openInObsidian(context, state.vaultName, reminder.relativePath) },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null)
                 Spacer(Modifier.size(Spacing.xs))
@@ -217,7 +217,7 @@ private fun DetailContent(
                     haptics.confirm()
                     actions.onDone()
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Icon(Icons.Rounded.Check, contentDescription = null)
                 Spacer(Modifier.size(Spacing.xs))
@@ -230,7 +230,7 @@ private fun DetailContent(
                             haptics.tick()
                             actions.onSnooze(minutes)
                         },
-                        modifier = Modifier.weight(1f).height(52.dp),
+                        modifier = Modifier.weight(1f).height(52.dp)
                     ) {
                         Icon(Icons.Rounded.Snooze, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.size(Spacing.xs))
@@ -246,7 +246,7 @@ private fun DetailContent(
 @Composable
 private fun HeroCard(
     reminder: Reminder,
-    now: LocalDateTime,
+    now: LocalDateTime
 ) {
     val context = LocalContext.current
     val overdue = reminder.due.isBefore(now)
@@ -254,21 +254,21 @@ private fun HeroCard(
         modifier = Modifier.fillMaxWidth().sharedContainer("reminder-${reminder.id}"),
         shape = MaterialTheme.shapes.extraLarge,
         colors =
-            CardDefaults.cardColors(
-                containerColor = if (overdue) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
-                contentColor = if (overdue) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
-            ),
+        CardDefaults.cardColors(
+            containerColor = if (overdue) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+            contentColor = if (overdue) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
+        )
     ) {
         Column(Modifier.padding(Spacing.lg)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                 Icon(Icons.Rounded.Schedule, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text(
-                    "${reminder.due.formatDay(context, now)} · ${reminder.due.formatRelative(now)}",
-                    style = MaterialTheme.typography.labelLarge,
+                    "${reminder.due.formatDay(context, now)} · ${reminder.due.formatRelative(context, now)}",
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
             Spacer(Modifier.height(Spacing.xs))
-            Text(reminder.due.formatTime(), style = MaterialTheme.typography.displaySmall)
+            Text(reminder.due.formatTime(context), style = MaterialTheme.typography.displaySmall)
             Spacer(Modifier.height(Spacing.sm))
             Text(reminder.title, style = MaterialTheme.typography.headlineSmall)
         }
@@ -279,14 +279,19 @@ private fun HeroCard(
 private fun InfoRow(
     icon: ImageVector,
     label: String,
-    value: String,
+    value: String
 ) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = Spacing.md, vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
-        TonalIcon(icon, size = 36.dp, containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+        TonalIcon(
+            icon,
+            size = 36.dp,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(value, style = MaterialTheme.typography.bodyLarge)
@@ -297,7 +302,7 @@ private fun InfoRow(
 fun openInObsidian(
     context: Context,
     vaultName: String,
-    relativePath: String,
+    relativePath: String
 ) {
     try {
         context.startActivity(Intent(Intent.ACTION_VIEW, ObsidianLinks.openNote(vaultName, relativePath)))
@@ -313,7 +318,7 @@ private fun DetailPreview() {
         DetailScreen(
             state = DetailUiState(loading = false, reminder = PreviewData.reminders[3], vaultName = "SebiMain"),
             actions = DetailActions(),
-            now = PreviewData.now,
+            now = PreviewData.now
         )
     }
 }
@@ -325,7 +330,7 @@ private fun DetailOverduePreview() {
         DetailScreen(
             state = DetailUiState(loading = false, reminder = PreviewData.reminders[1], vaultName = "SebiMain"),
             actions = DetailActions(),
-            now = PreviewData.now,
+            now = PreviewData.now
         )
     }
 }
@@ -335,9 +340,13 @@ private fun DetailOverduePreview() {
 private fun DetailSnoozedPreview() {
     VaultbellTheme(dynamicColor = false) {
         DetailScreen(
-            state = DetailUiState(loading = false, reminder = PreviewData.reminders[4].copy(originalDue = PreviewData.now.withHour(18)), vaultName = "SebiMain"),
+            state = DetailUiState(
+                loading = false,
+                reminder = PreviewData.reminders[4].copy(originalDue = PreviewData.now.withHour(18)),
+                vaultName = "SebiMain"
+            ),
             actions = DetailActions(),
-            now = PreviewData.now,
+            now = PreviewData.now
         )
     }
 }

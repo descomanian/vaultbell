@@ -11,12 +11,12 @@ data class VaultFile(
     val documentUri: Uri,
     /** Path relative to the vault root with forward slashes, e.g. `Daily/2026-11-14.md`. */
     val relativePath: String,
-    val lastModified: Long,
+    val lastModified: Long
 )
 
 data class VaultInfo(
     val displayName: String,
-    val hasObsidianFolder: Boolean,
+    val hasObsidianFolder: Boolean
 )
 
 /**
@@ -25,7 +25,7 @@ data class VaultInfo(
  */
 data class ScanFilter(
     val include: List<String> = emptyList(),
-    val exclude: List<String> = emptyList(),
+    val exclude: List<String> = emptyList()
 ) {
     private val inc = include.map(::normalize).filter { it.isNotEmpty() }
     private val exc = exclude.map(::normalize).filter { it.isNotEmpty() }
@@ -65,7 +65,7 @@ class VaultAccess(context: Context) {
         runCatching {
             resolver.releasePersistableUriPermission(
                 treeUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
         }
     }
@@ -89,7 +89,7 @@ class VaultAccess(context: Context) {
     /** Walks the tree and returns all `.md` files accepted by [filter]. Hidden folders (`.obsidian`, `.trash`, `.git`) are skipped. */
     fun listMarkdownFiles(
         treeUri: Uri,
-        filter: ScanFilter = ScanFilter(),
+        filter: ScanFilter = ScanFilter()
     ): List<VaultFile> {
         val result = ArrayList<VaultFile>()
         val stack = ArrayDeque<Pair<String, String>>() // documentId to relative dir
@@ -106,7 +106,7 @@ class VaultAccess(context: Context) {
                         VaultFile(
                             documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, child.id),
                             relativePath = path,
-                            lastModified = child.lastModified,
+                            lastModified = child.lastModified
                         )
                 }
             }
@@ -121,7 +121,7 @@ class VaultAccess(context: Context) {
     /** Overwrites the file (truncate). Only called for explicit user actions with a verified line hash. */
     fun writeText(
         documentUri: Uri,
-        text: String,
+        text: String
     ) {
         val out = resolver.openOutputStream(documentUri, "wt") ?: error("Cannot write $documentUri")
         out.use { it.write(text.toByteArray(Charsets.UTF_8)) }
@@ -131,7 +131,7 @@ class VaultAccess(context: Context) {
 
     private fun children(
         treeUri: Uri,
-        parentId: String,
+        parentId: String
     ): List<Child> {
         val uri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId)
         val projection =

@@ -25,15 +25,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.BatteryAlert
+import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Badge
+import androidx.compose.material.icons.rounded.BatteryAlert
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Notifications
@@ -44,7 +45,6 @@ import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Snooze
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.Timer
-import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.Wallpaper
@@ -104,6 +104,7 @@ import io.github.descomanian.vaultbell.system.AppLanguage
 import io.github.descomanian.vaultbell.system.SystemStatus
 import io.github.descomanian.vaultbell.ui.common.ChoiceDialog
 import io.github.descomanian.vaultbell.ui.common.formatMinutes
+import io.github.descomanian.vaultbell.ui.common.inSentence
 import java.time.LocalTime
 
 data class SettingsActions(
@@ -119,7 +120,7 @@ data class SettingsActions(
     val onOpenExactAlarmSettings: () -> Unit = {},
     val onOpenBatterySettings: () -> Unit = {},
     val onOpenPrivacy: () -> Unit = {},
-    val onOpenAbout: () -> Unit = {},
+    val onOpenAbout: () -> Unit = {}
 )
 
 private enum class SettingsDialog { THEME, LANGUAGE, DEFAULT_TIME, SNOOZE_SHORT, SNOOZE_LONG, VAULT_NAME, INCLUDE, EXCLUDE, WRITE_BACK }
@@ -129,7 +130,7 @@ fun SettingsScreen(
     state: SettingsUiState,
     actions: SettingsActions,
     modifier: Modifier = Modifier,
-    showBack: Boolean = true,
+    showBack: Boolean = true
 ) {
     val s = state.settings
     val context = LocalContext.current
@@ -148,10 +149,10 @@ fun SettingsScreen(
                         }
                     }
                 },
-                scrollBehavior = scrollBehavior,
+                scrollBehavior = scrollBehavior
             )
         },
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets(0)
     ) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = Spacing.lg)) {
             // ---------------------------------------------------------------- Appearance
@@ -161,19 +162,19 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_theme),
                         value = themeLabel(s.themeMode),
                         icon = Icons.Rounded.BrightnessMedium,
-                        onClick = { dialog = SettingsDialog.THEME },
+                        onClick = { dialog = SettingsDialog.THEME }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
                         title = stringResource(R.string.settings_dynamic_color),
                         description =
-                            stringResource(
-                                if (supportsDynamicColor) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported,
-                            ),
+                        stringResource(
+                            if (supportsDynamicColor) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported
+                        ),
                         icon = Icons.Rounded.Wallpaper,
                         checked = s.dynamicColor && supportsDynamicColor,
                         enabled = supportsDynamicColor,
-                        onCheckedChange = { v -> actions.update { it.copy(dynamicColor = v) } },
+                        onCheckedChange = { v -> actions.update { it.copy(dynamicColor = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -181,20 +182,20 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_amoled_desc),
                         icon = Icons.Rounded.DarkMode,
                         checked = s.amoledBlack,
-                        onCheckedChange = { v -> actions.update { it.copy(amoledBlack = v) } },
+                        onCheckedChange = { v -> actions.update { it.copy(amoledBlack = v) } }
                     )
                     SettingsDivider()
                     AccentRow(
                         selected = s.accent,
                         enabled = !(s.dynamicColor && supportsDynamicColor),
-                        onSelect = { a -> actions.update { it.copy(accent = a) } },
+                        onSelect = { a -> actions.update { it.copy(accent = a) } }
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_language),
                         value = languageLabel(state.language),
                         icon = Icons.Rounded.Language,
-                        onClick = { dialog = SettingsDialog.LANGUAGE },
+                        onClick = { dialog = SettingsDialog.LANGUAGE }
                     )
                 }
             }
@@ -206,21 +207,21 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_default_time),
                         value = stringResource(R.string.settings_default_time_value, s.defaultTime.toString()),
                         icon = Icons.Rounded.AccessTime,
-                        onClick = { dialog = SettingsDialog.DEFAULT_TIME },
+                        onClick = { dialog = SettingsDialog.DEFAULT_TIME }
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_snooze_short),
                         value = formatMinutes(context, s.snoozeShortMinutes),
                         icon = Icons.Rounded.Snooze,
-                        onClick = { dialog = SettingsDialog.SNOOZE_SHORT },
+                        onClick = { dialog = SettingsDialog.SNOOZE_SHORT }
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_snooze_long),
                         value = formatMinutes(context, s.snoozeLongMinutes),
                         icon = Icons.Rounded.Snooze,
-                        onClick = { dialog = SettingsDialog.SNOOZE_LONG },
+                        onClick = { dialog = SettingsDialog.SNOOZE_LONG }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -228,7 +229,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_pre_reminder_desc),
                         icon = Icons.Rounded.Timer,
                         checked = s.preReminderEnabled,
-                        onCheckedChange = { v -> actions.updateAndReschedule { it.copy(preReminderEnabled = v) } },
+                        onCheckedChange = { v -> actions.updateAndReschedule { it.copy(preReminderEnabled = v) } }
                     )
                     var preMinutes by remember(s.preReminderMinutes) { mutableFloatStateOf(s.preReminderMinutes.toFloat()) }
                     SettingsSliderRow(
@@ -242,7 +243,7 @@ fun SettingsScreen(
                         },
                         valueRange = 5f..120f,
                         steps = 22,
-                        visible = s.preReminderEnabled,
+                        visible = s.preReminderEnabled
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -250,7 +251,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_repeat_ignored_desc),
                         icon = Icons.Rounded.Repeat,
                         checked = s.repeatIfIgnored,
-                        onCheckedChange = { v -> actions.update { it.copy(repeatIfIgnored = v) } },
+                        onCheckedChange = { v -> actions.update { it.copy(repeatIfIgnored = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -258,7 +259,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_sound_desc),
                         icon = Icons.Rounded.Vibration,
                         checked = s.soundAndVibration,
-                        onCheckedChange = { v -> actions.update { it.copy(soundAndVibration = v) } },
+                        onCheckedChange = { v -> actions.update { it.copy(soundAndVibration = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -266,7 +267,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_show_overdue_desc),
                         icon = Icons.Rounded.Visibility,
                         checked = s.showOverdueOnStart,
-                        onCheckedChange = { v -> actions.update { it.copy(showOverdueOnStart = v) } },
+                        onCheckedChange = { v -> actions.update { it.copy(showOverdueOnStart = v) } }
                     )
                 }
             }
@@ -278,28 +279,28 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_vault_folder),
                         value = state.vaultFolderName?.takeIf { s.vaultUri != null } ?: stringResource(R.string.settings_vault_none),
                         icon = Icons.Rounded.Folder,
-                        onClick = actions.onPickVault,
+                        onClick = actions.onPickVault
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_vault_name),
                         value = s.vaultName.ifBlank { "–" },
                         icon = Icons.Rounded.Badge,
-                        onClick = { dialog = SettingsDialog.VAULT_NAME },
+                        onClick = { dialog = SettingsDialog.VAULT_NAME }
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_include),
                         value = s.includeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_include_all) },
                         icon = Icons.Rounded.Folder,
-                        onClick = { dialog = SettingsDialog.INCLUDE },
+                        onClick = { dialog = SettingsDialog.INCLUDE }
                     )
                     SettingsDivider()
                     SettingsValueRow(
                         title = stringResource(R.string.settings_exclude),
                         value = s.excludeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_exclude_none) },
                         icon = Icons.Rounded.Block,
-                        onClick = { dialog = SettingsDialog.EXCLUDE },
+                        onClick = { dialog = SettingsDialog.EXCLUDE }
                     )
                     SettingsDivider()
                     val intervals = AppSettings.SCAN_INTERVALS
@@ -315,7 +316,7 @@ fun SettingsScreen(
                         onValueChange = { intervalIndex = it },
                         onValueChangeFinished = { actions.onScanInterval(intervals[intervalIndex.toInt()]) },
                         valueRange = 0f..(intervals.size - 1).toFloat(),
-                        steps = intervals.size - 2,
+                        steps = intervals.size - 2
                     )
                     SettingsDivider()
                     ScanNowRow(state, actions.onScanNow)
@@ -330,7 +331,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_format_example, "- [ ] Text (@2026-11-14 18:30)"),
                         icon = Icons.Rounded.Code,
                         checked = s.formatReminderPlugin,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatReminderPlugin = v) } },
+                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatReminderPlugin = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -338,7 +339,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_format_example, "- [ ] Text [due:: 2026-11-14 18:30]"),
                         icon = Icons.Rounded.Code,
                         checked = s.formatDataview,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatDataview = v) } },
+                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatDataview = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -346,7 +347,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.settings_format_example, "- [ ] Text ⏰ 2026-11-14 18:30 · 📅 2026-11-14"),
                         icon = Icons.Rounded.Code,
                         checked = s.formatTasks,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatTasks = v) } },
+                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatTasks = v) } }
                     )
                 }
             }
@@ -361,7 +362,7 @@ fun SettingsScreen(
                         checked = s.writeDoneToFile,
                         onCheckedChange = { v ->
                             if (v) dialog = SettingsDialog.WRITE_BACK else actions.update { it.copy(writeDoneToFile = false) }
-                        },
+                        }
                     )
                 }
             }
@@ -374,7 +375,7 @@ fun SettingsScreen(
                         title = stringResource(R.string.status_notifications),
                         ok = state.status.notificationsAllowed,
                         missingLevel = StatusLevel.ERROR,
-                        onFix = actions.onOpenNotificationSettings,
+                        onFix = actions.onOpenNotificationSettings
                     )
                     SettingsDivider()
                     StatusRow(
@@ -382,7 +383,7 @@ fun SettingsScreen(
                         title = stringResource(R.string.status_exact_alarms),
                         ok = state.status.exactAlarmsAllowed,
                         missingLevel = StatusLevel.WARNING,
-                        onFix = actions.onOpenExactAlarmSettings,
+                        onFix = actions.onOpenExactAlarmSettings
                     )
                     SettingsDivider()
                     StatusRow(
@@ -392,7 +393,7 @@ fun SettingsScreen(
                         missingLevel = StatusLevel.WARNING,
                         okText = stringResource(R.string.status_battery_ok),
                         missingText = stringResource(R.string.status_battery_missing),
-                        onFix = actions.onOpenBatterySettings,
+                        onFix = actions.onOpenBatterySettings
                     )
                     SettingsDivider()
                     SettingsRow(
@@ -400,7 +401,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.privacy_short),
                         icon = Icons.Rounded.PrivacyTip,
                         onClick = actions.onOpenPrivacy,
-                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) },
+                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
                     )
                     SettingsDivider()
                     SettingsRow(
@@ -408,7 +409,7 @@ fun SettingsScreen(
                         description = stringResource(R.string.about_short),
                         icon = Icons.Rounded.Info,
                         onClick = actions.onOpenAbout,
-                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) },
+                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
                     )
                 }
             }
@@ -424,7 +425,7 @@ private fun SettingsDialogs(
     dialog: SettingsDialog?,
     state: SettingsUiState,
     actions: SettingsActions,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val s = state.settings
     val context = LocalContext.current
@@ -437,7 +438,7 @@ private fun SettingsDialogs(
                 selected = s.themeMode,
                 label = { themeLabel(it) },
                 onSelect = { m -> actions.update { it.copy(themeMode = m) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.LANGUAGE ->
             ChoiceDialog(
@@ -446,7 +447,7 @@ private fun SettingsDialogs(
                 selected = state.language,
                 label = { languageLabel(it) },
                 onSelect = actions.onLanguage,
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.SNOOZE_SHORT ->
             ChoiceDialog(
@@ -455,7 +456,7 @@ private fun SettingsDialogs(
                 selected = s.snoozeShortMinutes,
                 label = { formatMinutes(context, it) },
                 onSelect = { m -> actions.update { it.copy(snoozeShortMinutes = m) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.SNOOZE_LONG ->
             ChoiceDialog(
@@ -464,13 +465,13 @@ private fun SettingsDialogs(
                 selected = s.snoozeLongMinutes,
                 label = { formatMinutes(context, it) },
                 onSelect = { m -> actions.update { it.copy(snoozeLongMinutes = m) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.DEFAULT_TIME ->
             TimeDialog(
                 initial = s.defaultTime,
                 onConfirm = { t -> actions.updateAndRescan { it.copy(defaultTimeMinutes = t.hour * 60 + t.minute) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.VAULT_NAME ->
             TextDialog(
@@ -479,7 +480,7 @@ private fun SettingsDialogs(
                 initial = s.vaultName,
                 multiline = false,
                 onConfirm = { v -> actions.update { it.copy(vaultName = v.trim()) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.INCLUDE ->
             TextDialog(
@@ -488,7 +489,7 @@ private fun SettingsDialogs(
                 initial = s.includeFolders.joinToString("\n"),
                 multiline = true,
                 onConfirm = { v -> actions.updateAndRescan { it.copy(includeFolders = v.toFolders()) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.EXCLUDE ->
             TextDialog(
@@ -497,7 +498,7 @@ private fun SettingsDialogs(
                 initial = s.excludeFolders.joinToString("\n"),
                 multiline = true,
                 onConfirm = { v -> actions.updateAndRescan { it.copy(excludeFolders = v.toFolders()) } },
-                onDismiss = onDismiss,
+                onDismiss = onDismiss
             )
         SettingsDialog.WRITE_BACK ->
             AlertDialog(
@@ -511,7 +512,7 @@ private fun SettingsDialogs(
                         onDismiss()
                     }) { Text(stringResource(R.string.action_enable)) }
                 },
-                dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+                dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
             )
     }
 }
@@ -525,7 +526,7 @@ private fun themeLabel(mode: ThemeMode): String =
             ThemeMode.SYSTEM -> R.string.theme_system
             ThemeMode.LIGHT -> R.string.theme_light
             ThemeMode.DARK -> R.string.theme_dark
-        },
+        }
     )
 
 @Composable
@@ -535,7 +536,7 @@ private fun languageLabel(language: AppLanguage): String =
             AppLanguage.SYSTEM -> R.string.language_system
             AppLanguage.GERMAN -> R.string.language_german
             AppLanguage.ENGLISH -> R.string.language_english
-        },
+        }
     )
 
 @Composable
@@ -547,25 +548,25 @@ private fun accentLabel(accent: AccentColor): String =
             AccentColor.AMBER -> R.string.accent_amber
             AccentColor.ROSE -> R.string.accent_rose
             AccentColor.VIOLET -> R.string.accent_violet
-        },
+        }
     )
 
 @Composable
 private fun AccentRow(
     selected: AccentColor,
     enabled: Boolean,
-    onSelect: (AccentColor) -> Unit,
+    onSelect: (AccentColor) -> Unit
 ) {
     val haptics = rememberHaptics()
     SettingsRow(
         title = stringResource(R.string.settings_accent),
         description = stringResource(if (enabled) R.string.settings_accent_desc else R.string.settings_accent_disabled),
         icon = Icons.Rounded.Palette,
-        enabled = enabled,
+        enabled = enabled
     )
     LazyRow(
         contentPadding = PaddingValues(start = 64.dp, end = Spacing.md, bottom = Spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         items(AccentColor.entries) { accent ->
             val isSelected = accent == selected
@@ -581,9 +582,9 @@ private fun AccentRow(
                         onClick = {
                             haptics.tick()
                             onSelect(accent)
-                        },
+                        }
                     ).semantics { contentDescription = label },
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center
             ) {
                 Box(
                     Modifier
@@ -595,9 +596,9 @@ private fun AccentRow(
                                 Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
                             } else {
                                 Modifier
-                            },
+                            }
                         ),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
                 }
@@ -609,7 +610,7 @@ private fun AccentRow(
 @Composable
 private fun ScanNowRow(
     state: SettingsUiState,
-    onScanNow: () -> Unit,
+    onScanNow: () -> Unit
 ) {
     val s = state.settings
     val status =
@@ -620,8 +621,9 @@ private fun ScanNowRow(
             else ->
                 stringResource(
                     R.string.scan_status,
-                    DateUtils.getRelativeTimeSpanString(s.lastScanAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS),
-                    pluralStringResource(R.plurals.reminders_count, state.activeCount, state.activeCount),
+                    DateUtils.getRelativeTimeSpanString(s.lastScanAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
+                        .inSentence(LocalContext.current),
+                    pluralStringResource(R.plurals.reminders_count, state.activeCount, state.activeCount)
                 )
         }
     SettingsRow(
@@ -634,7 +636,7 @@ private fun ScanNowRow(
             } else {
                 FilledTonalButton(onClick = onScanNow, enabled = s.vaultUri != null) { Text(stringResource(R.string.action_scan)) }
             }
-        },
+        }
     )
 }
 
@@ -646,7 +648,7 @@ private fun StatusRow(
     missingLevel: StatusLevel,
     onFix: () -> Unit,
     okText: String = stringResource(R.string.status_allowed),
-    missingText: String = stringResource(R.string.status_not_allowed),
+    missingText: String = stringResource(R.string.status_not_allowed)
 ) {
     val label = if (ok) okText else missingText
     SettingsRow(
@@ -658,7 +660,7 @@ private fun StatusRow(
                 StatusLight(if (ok) StatusLevel.OK else missingLevel, label)
                 TextButton(onClick = onFix) { Text(stringResource(if (ok) R.string.action_open else R.string.action_fix)) }
             }
-        },
+        }
     )
 }
 
@@ -666,7 +668,7 @@ private fun StatusRow(
 private fun TimeDialog(
     initial: LocalTime,
     onConfirm: (LocalTime) -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val picker = rememberTimePickerState(initial.hour, initial.minute, is24Hour = DateFormat.is24HourFormat(context))
@@ -680,7 +682,7 @@ private fun TimeDialog(
                 onDismiss()
             }) { Text(stringResource(R.string.action_ok)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -691,7 +693,7 @@ private fun TextDialog(
     initial: String,
     multiline: Boolean,
     onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     var value by rememberSaveable { mutableStateOf(initial) }
     AlertDialog(
@@ -706,7 +708,7 @@ private fun TextDialog(
                     onValueChange = { value = it },
                     singleLine = !multiline,
                     minLines = if (multiline) 3 else 1,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
@@ -716,7 +718,7 @@ private fun TextDialog(
                 onDismiss()
             }) { Text(stringResource(R.string.action_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -728,18 +730,18 @@ private val previewState =
     SettingsUiState(
         loaded = true,
         settings =
-            AppSettings(
-                onboardingDone = true,
-                vaultUri = "content://preview",
-                vaultName = "SebiMain",
-                excludeFolders = listOf("Archiv", "Templates"),
-                preReminderEnabled = true,
-                lastScanAt = System.currentTimeMillis() - 3 * 60_000,
-                dynamicColor = false,
-            ),
+        AppSettings(
+            onboardingDone = true,
+            vaultUri = "content://preview",
+            vaultName = "SebiMain",
+            excludeFolders = listOf("Archiv", "Templates"),
+            preReminderEnabled = true,
+            lastScanAt = System.currentTimeMillis() - 3 * 60_000,
+            dynamicColor = false
+        ),
         status = SystemStatus(notificationsAllowed = true, exactAlarmsAllowed = false, batteryUnrestricted = false),
         activeCount = 12,
-        vaultFolderName = "SebiMain",
+        vaultFolderName = "SebiMain"
     )
 
 @ThemePreviews

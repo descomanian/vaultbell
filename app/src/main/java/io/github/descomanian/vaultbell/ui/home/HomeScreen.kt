@@ -90,6 +90,7 @@ import io.github.descomanian.vaultbell.designsystem.theme.Spacing
 import io.github.descomanian.vaultbell.designsystem.theme.VaultbellTheme
 import io.github.descomanian.vaultbell.ui.common.formatDay
 import io.github.descomanian.vaultbell.ui.common.formatTime
+import io.github.descomanian.vaultbell.ui.common.inSentence
 import io.github.descomanian.vaultbell.ui.common.label
 import io.github.descomanian.vaultbell.ui.common.sharedContainer
 import io.github.descomanian.vaultbell.ui.preview.PreviewData
@@ -104,7 +105,7 @@ data class HomeActions(
     val onSnooze: (Long) -> Unit = {},
     val onToggleOverdue: () -> Unit = {},
     val onOpenSettings: () -> Unit = {},
-    val onFixExactAlarms: () -> Unit = {},
+    val onFixExactAlarms: () -> Unit = {}
 )
 
 @Composable
@@ -114,7 +115,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     showSettingsAction: Boolean = true,
-    selectedId: Long? = null,
+    selectedId: Long? = null
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -130,16 +131,16 @@ fun HomeScreen(
                     }
                 },
                 scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.largeTopAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.largeTopAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.surface)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets(0)
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.scanning,
             onRefresh = actions.onRefresh,
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding)
         ) {
             ReminderList(state, actions, selectedId)
         }
@@ -150,12 +151,12 @@ fun HomeScreen(
 private fun ReminderList(
     state: HomeUiState,
     actions: HomeActions,
-    selectedId: Long?,
+    selectedId: Long?
 ) {
     val context = LocalContext.current
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = Spacing.lg),
+        contentPadding = PaddingValues(bottom = Spacing.lg)
     ) {
         item(key = "summary") {
             val summary =
@@ -166,20 +167,20 @@ private fun ReminderList(
                         android.text.format.DateUtils.getRelativeTimeSpanString(
                             state.lastScanAt,
                             System.currentTimeMillis(),
-                            android.text.format.DateUtils.MINUTE_IN_MILLIS,
-                        ),
+                            android.text.format.DateUtils.MINUTE_IN_MILLIS
+                        ).inSentence(context)
                     )
                 } else {
                     stringResource(
                         R.string.home_summary_never,
-                        pluralStringResource(R.plurals.upcoming_count, state.totalCount, state.totalCount),
+                        pluralStringResource(R.plurals.upcoming_count, state.totalCount, state.totalCount)
                     )
                 }
             Text(
                 summary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = Spacing.lg).padding(bottom = Spacing.sm),
+                modifier = Modifier.padding(horizontal = Spacing.lg).padding(bottom = Spacing.sm)
             )
         }
         item(key = "search") { SearchField(state.query, actions.onQueryChange) }
@@ -191,7 +192,7 @@ private fun ReminderList(
                     InfoCard(
                         text = stringResource(R.string.home_exact_warning),
                         icon = Icons.Rounded.Warning,
-                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
                     )
                     TextButton(onClick = actions.onFixExactAlarms, modifier = Modifier.align(Alignment.End)) {
                         Text(stringResource(R.string.action_allow))
@@ -208,13 +209,13 @@ private fun ReminderList(
                             icon = Icons.Rounded.FolderOpen,
                             title = stringResource(R.string.empty_no_vault_title),
                             message = stringResource(R.string.empty_no_vault_text),
-                            action = { Button(onClick = actions.onOpenSettings) { Text(stringResource(R.string.action_choose_vault)) } },
+                            action = { Button(onClick = actions.onOpenSettings) { Text(stringResource(R.string.action_choose_vault)) } }
                         )
                     state.query.isNotBlank() || state.filter != HomeFilter.ALL ->
                         EmptyState(
                             icon = Icons.Rounded.Search,
                             title = stringResource(R.string.empty_no_match_title),
-                            message = stringResource(R.string.empty_no_match_text),
+                            message = stringResource(R.string.empty_no_match_text)
                         )
                     else ->
                         EmptyState(
@@ -223,7 +224,7 @@ private fun ReminderList(
                             message = stringResource(R.string.empty_text),
                             action = {
                                 TextButton(onClick = actions.onRefresh) { Text(stringResource(R.string.action_scan_now)) }
-                            },
+                            }
                         )
                 }
             }
@@ -237,18 +238,18 @@ private fun ReminderList(
                     accent = section.group.accent(),
                     onClick = if (section.group == ReminderGroup.OVERDUE) actions.onToggleOverdue else null,
                     trailing =
-                        if (section.group == ReminderGroup.OVERDUE) {
-                            {
-                                Icon(
-                                    if (section.collapsed) Icons.Rounded.ExpandMore else Icons.Rounded.ExpandLess,
-                                    contentDescription =
-                                        stringResource(if (section.collapsed) R.string.action_expand else R.string.action_collapse),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        } else {
-                            null
-                        },
+                    if (section.group == ReminderGroup.OVERDUE) {
+                        {
+                            Icon(
+                                if (section.collapsed) Icons.Rounded.ExpandMore else Icons.Rounded.ExpandLess,
+                                contentDescription =
+                                stringResource(if (section.collapsed) R.string.action_expand else R.string.action_collapse),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        null
+                    }
                 )
             }
             if (!section.collapsed) {
@@ -260,7 +261,7 @@ private fun ReminderList(
                         selected = reminder.id == selectedId,
                         actions = actions,
                         dayLabel = reminder.due.formatDay(context, state.now),
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier.animateItem()
                     )
                 }
             }
@@ -281,7 +282,7 @@ private fun ReminderGroup.accent(): Color =
 @Composable
 private fun SearchField(
     query: String,
-    onChange: (String) -> Unit,
+    onChange: (String) -> Unit
 ) {
     OutlinedTextField(
         value = query,
@@ -298,19 +299,19 @@ private fun SearchField(
         },
         singleLine = true,
         shape = CircleShape,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
     )
 }
 
 @Composable
 private fun FilterRow(
     selected: HomeFilter,
-    onChange: (HomeFilter) -> Unit,
+    onChange: (HomeFilter) -> Unit
 ) {
     val haptics = rememberHaptics()
     LazyRow(
         contentPadding = PaddingValues(horizontal = Spacing.md, vertical = Spacing.xs),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         items(HomeFilter.entries) { f ->
             FilterChip(
@@ -327,16 +328,16 @@ private fun FilterRow(
                                 HomeFilter.TODAY -> R.string.filter_today
                                 HomeFilter.OVERDUE -> R.string.filter_overdue
                                 HomeFilter.SNOOZED -> R.string.filter_snoozed
-                            },
-                        ),
+                            }
+                        )
                     )
                 },
                 leadingIcon =
-                    if (f == selected) {
-                        { Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                    } else {
-                        null
-                    },
+                if (f == selected) {
+                    { Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                } else {
+                    null
+                }
             )
         }
     }
@@ -350,7 +351,7 @@ private fun SwipeableReminder(
     selected: Boolean,
     actions: HomeActions,
     dayLabel: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val haptics = rememberHaptics()
     val doneLabel = stringResource(R.string.action_done)
@@ -371,7 +372,7 @@ private fun SwipeableReminder(
                     }
                     SwipeToDismissBoxValue.Settled -> true
                 }
-            },
+            }
         )
     LaunchedEffect(dismissState.targetValue) {
         if (dismissState.targetValue != SwipeToDismissBoxValue.Settled) haptics.threshold()
@@ -380,29 +381,28 @@ private fun SwipeableReminder(
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier.padding(horizontal = Spacing.md, vertical = Spacing.xxs),
-        backgroundContent = { SwipeBackground(dismissState.dismissDirection, dismissState.targetValue) },
+        backgroundContent = { SwipeBackground(dismissState.dismissDirection, dismissState.targetValue) }
     ) {
         ReminderCard(
             reminder = reminder,
             group = group,
-            now = now,
             selected = selected,
             dayLabel = dayLabel,
             onClick = { actions.onOpen(reminder.id) },
             modifier =
-                Modifier.semantics {
-                    customActions =
-                        listOf(
-                            CustomAccessibilityAction(doneLabel) {
-                                actions.onDone(reminder.id)
-                                true
-                            },
-                            CustomAccessibilityAction(snoozeLabel) {
-                                actions.onSnooze(reminder.id)
-                                true
-                            },
-                        )
-                },
+            Modifier.semantics {
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction(doneLabel) {
+                            actions.onDone(reminder.id)
+                            true
+                        },
+                        CustomAccessibilityAction(snoozeLabel) {
+                            actions.onSnooze(reminder.id)
+                            true
+                        }
+                    )
+            }
         )
     }
 }
@@ -410,7 +410,7 @@ private fun SwipeableReminder(
 @Composable
 private fun SwipeBackground(
     direction: SwipeToDismissBoxValue,
-    target: SwipeToDismissBoxValue,
+    target: SwipeToDismissBoxValue
 ) {
     val done = direction == SwipeToDismissBoxValue.StartToEnd
     val armed = target != SwipeToDismissBoxValue.Settled
@@ -420,7 +420,7 @@ private fun SwipeBackground(
             done -> MaterialTheme.colorScheme.primaryContainer
             else -> MaterialTheme.colorScheme.tertiaryContainer
         },
-        label = "swipeBg",
+        label = "swipeBg"
     )
     val iconScale by animateFloatAsState(if (armed) 1.15f else 0.85f, label = "swipeIcon")
     Box(
@@ -429,7 +429,7 @@ private fun SwipeBackground(
             .clip(MaterialTheme.shapes.large)
             .background(container)
             .padding(horizontal = Spacing.lg),
-        contentAlignment = if (done) Alignment.CenterStart else Alignment.CenterEnd,
+        contentAlignment = if (done) Alignment.CenterStart else Alignment.CenterEnd
     ) {
         if (direction != SwipeToDismissBoxValue.Settled) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
@@ -437,12 +437,12 @@ private fun SwipeBackground(
                     if (done) Icons.Rounded.Check else Icons.Rounded.Snooze,
                     contentDescription = null,
                     tint = if (done) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.scale(iconScale),
+                    modifier = Modifier.scale(iconScale)
                 )
                 Text(
                     stringResource(if (done) R.string.action_done else R.string.action_snooze),
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (done) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onTertiaryContainer,
+                    color = if (done) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
         }
@@ -453,11 +453,10 @@ private fun SwipeBackground(
 fun ReminderCard(
     reminder: Reminder,
     group: ReminderGroup,
-    now: LocalDateTime,
     dayLabel: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    selected: Boolean = false,
+    selected: Boolean = false
 ) {
     val overdue = group == ReminderGroup.OVERDUE
     Card(
@@ -465,23 +464,23 @@ fun ReminderCard(
         modifier = modifier.fillMaxWidth().sharedContainer("reminder-${reminder.id}"),
         shape = MaterialTheme.shapes.large,
         colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-            ),
+        CardDefaults.cardColors(
+            containerColor =
+            if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         Row(Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.widthIn(min = 64.dp), horizontalAlignment = Alignment.Start) {
                 Text(
-                    reminder.due.formatTime(),
+                    reminder.due.formatTime(LocalContext.current),
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (overdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    color = if (overdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     dayLabel,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
+                    maxLines = 1
                 )
             }
             Box(
@@ -490,7 +489,7 @@ fun ReminderCard(
                     .width(3.dp)
                     .height(40.dp)
                     .clip(CircleShape)
-                    .background(if (overdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+                    .background(if (overdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
             )
             Column(Modifier.weight(1f)) {
                 Text(
@@ -498,7 +497,7 @@ fun ReminderCard(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.height(Spacing.xxs))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -506,7 +505,7 @@ fun ReminderCard(
                         Icons.Rounded.Description,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         reminder.fileName,
@@ -514,7 +513,7 @@ fun ReminderCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false),
+                        modifier = Modifier.weight(1f, fill = false)
                     )
                     if (reminder.isSnoozed) SnoozedBadge()
                     if (!reminder.hasExplicitTime) AllDayBadge()
@@ -530,10 +529,19 @@ private fun SnoozedBadge() {
         Row(
             Modifier.padding(horizontal = Spacing.xs, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Icon(Icons.Rounded.Snooze, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onTertiaryContainer)
-            Text(stringResource(R.string.badge_snoozed), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
+            Icon(
+                Icons.Rounded.Snooze,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+            Text(
+                stringResource(R.string.badge_snoozed),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
         }
     }
 }
@@ -544,10 +552,19 @@ private fun AllDayBadge() {
         Row(
             Modifier.padding(horizontal = Spacing.xs, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Icon(Icons.Rounded.AlarmOff, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(stringResource(R.string.badge_default_time), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                Icons.Rounded.AlarmOff,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                stringResource(R.string.badge_default_time),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -559,7 +576,7 @@ fun DetailPlaceholder(modifier: Modifier = Modifier) {
         EmptyState(
             icon = Icons.Rounded.NotificationsNone,
             title = stringResource(R.string.detail_placeholder_title),
-            message = stringResource(R.string.detail_placeholder_text),
+            message = stringResource(R.string.detail_placeholder_text)
         )
     }
 }
@@ -587,7 +604,7 @@ private fun previewState(): HomeUiState {
         totalCount = PreviewData.reminders.size,
         lastScanAt = System.currentTimeMillis() - 4 * 60_000,
         vaultName = "SebiMain",
-        now = now,
+        now = now
     )
 }
 

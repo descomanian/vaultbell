@@ -15,7 +15,7 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
     fun schedule(
         e: ReminderEntity,
         s: AppSettings,
-        now: Long,
+        now: Long
     ): ScheduleMode? {
         cancel(e.id)
         if (e.completedLocally) return null
@@ -32,7 +32,7 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
     fun scheduleRepeat(
         id: Long,
         at: Long,
-        count: Int,
+        count: Int
     ) {
         scheduler.schedule(code(id, KIND_REPEAT), at, extras(id, KIND_REPEAT, count))
     }
@@ -48,7 +48,7 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
     private fun extras(
         id: Long,
         kind: Int,
-        repeat: Int,
+        repeat: Int
     ) = Bundle().apply {
         putLong(EXTRA_ID, id)
         putInt(EXTRA_KIND, kind)
@@ -68,7 +68,7 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
 
         fun code(
             id: Long,
-            kind: Int,
+            kind: Int
         ): Int = (id * 4 + kind).toInt()
     }
 }

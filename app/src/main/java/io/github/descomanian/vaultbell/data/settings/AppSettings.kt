@@ -38,7 +38,7 @@ data class AppSettings(
     val lastScanAt: Long = 0L,
     val lastScanError: String? = null,
     /** Fingerprint of everything that changes parse results; a change forces a full rescan. */
-    val lastParserSignature: String = "",
+    val lastParserSignature: String = ""
 ) {
     val defaultTime: LocalTime get() = LocalTime.of(defaultTimeMinutes / 60, defaultTimeMinutes % 60)
 
@@ -59,7 +59,7 @@ data class AppSettings(
                 defaultTimeMinutes,
                 includeFolders.joinToString("|"),
                 excludeFolders.joinToString("|"),
-                vaultUri,
+                vaultUri
             ).joinToString(";")
 
     companion object {

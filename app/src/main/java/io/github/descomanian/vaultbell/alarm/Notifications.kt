@@ -42,13 +42,13 @@ class Notifications(private val context: Context) {
             (
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-            )
+                )
 
     @SuppressLint("MissingPermission")
     fun show(
         e: ReminderEntity,
         kind: Int,
-        s: AppSettings,
+        s: AppSettings
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -60,7 +60,7 @@ class Notifications(private val context: Context) {
             DateUtils.formatDateTime(
                 context,
                 e.triggerAt,
-                DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL,
+                DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL
             )
         val text =
             if (kind == ReminderAlarms.KIND_PRE) {
@@ -87,15 +87,15 @@ class Notifications(private val context: Context) {
                 .addAction(
                     R.drawable.ic_notification,
                     context.getString(R.string.action_done),
-                    actionIntent(e.id, NotificationActionReceiver.ACTION_DONE, 1),
+                    actionIntent(e.id, NotificationActionReceiver.ACTION_DONE, 1)
                 ).addAction(
                     R.drawable.ic_notification,
                     context.getString(R.string.action_snooze_minutes, s.snoozeShortMinutes),
-                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_SHORT, 2),
+                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_SHORT, 2)
                 ).addAction(
                     R.drawable.ic_notification,
                     context.getString(R.string.action_snooze_minutes, s.snoozeLongMinutes),
-                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_LONG, 3),
+                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_LONG, 3)
                 )
         manager.notify(id, builder.build())
     }
@@ -104,7 +104,7 @@ class Notifications(private val context: Context) {
 
     private fun openIntent(
         e: ReminderEntity,
-        s: AppSettings,
+        s: AppSettings
     ): PendingIntent {
         val intent =
             Intent(context, OpenNoteActivity::class.java)
@@ -116,14 +116,14 @@ class Notifications(private val context: Context) {
             context,
             requestCode(e.id, 4),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
     private fun actionIntent(
         id: Long,
         action: String,
-        slot: Int,
+        slot: Int
     ): PendingIntent =
         PendingIntent.getBroadcast(
             context,
@@ -131,7 +131,7 @@ class Notifications(private val context: Context) {
             Intent(context, NotificationActionReceiver::class.java)
                 .setAction(action)
                 .putExtra(ReminderAlarms.EXTRA_ID, id),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
     companion object {
@@ -142,7 +142,7 @@ class Notifications(private val context: Context) {
 
         private fun requestCode(
             id: Long,
-            slot: Int,
+            slot: Int
         ): Int = (id * 8 + slot).toInt()
     }
 }

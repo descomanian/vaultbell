@@ -11,7 +11,7 @@ enum class AccentColor {
     OCEAN,
     AMBER,
     ROSE,
-    VIOLET,
+    VIOLET
 }
 
 private data class Tones(
@@ -20,7 +20,7 @@ private data class Tones(
     val primaryContainer: Color,
     val onPrimaryContainer: Color,
     val secondaryContainer: Color,
-    val onSecondaryContainer: Color,
+    val onSecondaryContainer: Color
 )
 
 private data class Accent(val light: Tones, val dark: Tones)
@@ -30,36 +30,77 @@ private val accents =
         AccentColor.SAGE to
             Accent(
                 light = Tones(Color(0xFF3F6656), Color.White, Color(0xFFC1ECD8), Color(0xFF002116), Color(0xFFD0E8DC), Color(0xFF0B1F17)),
-                dark = Tones(Color(0xFFA6D0BC), Color(0xFF0F3729), Color(0xFF274E3F), Color(0xFFC1ECD8), Color(0xFF344B41), Color(0xFFD0E8DC)),
+                dark =
+                Tones(
+                    Color(0xFFA6D0BC),
+                    Color(0xFF0F3729),
+                    Color(0xFF274E3F),
+                    Color(0xFFC1ECD8),
+                    Color(0xFF344B41),
+                    Color(0xFFD0E8DC)
+                )
             ),
         AccentColor.OCEAN to
             Accent(
                 light = Tones(Color(0xFF2F628C), Color.White, Color(0xFFCEE5FF), Color(0xFF001D33), Color(0xFFD6E3F2), Color(0xFF101C2B)),
-                dark = Tones(Color(0xFF9BCBFB), Color(0xFF003354), Color(0xFF124A72), Color(0xFFCEE5FF), Color(0xFF3A4857), Color(0xFFD6E3F2)),
+                dark =
+                Tones(
+                    Color(0xFF9BCBFB),
+                    Color(0xFF003354),
+                    Color(0xFF124A72),
+                    Color(0xFFCEE5FF),
+                    Color(0xFF3A4857),
+                    Color(0xFFD6E3F2)
+                )
             ),
         AccentColor.AMBER to
             Accent(
                 light = Tones(Color(0xFF7A5900), Color.White, Color(0xFFFFDEA3), Color(0xFF261900), Color(0xFFF4E0BF), Color(0xFF241A04)),
-                dark = Tones(Color(0xFFF6BE48), Color(0xFF402D00), Color(0xFF5C4300), Color(0xFFFFDEA3), Color(0xFF52452A), Color(0xFFF4E0BF)),
+                dark =
+                Tones(
+                    Color(0xFFF6BE48),
+                    Color(0xFF402D00),
+                    Color(0xFF5C4300),
+                    Color(0xFFFFDEA3),
+                    Color(0xFF52452A),
+                    Color(0xFFF4E0BF)
+                )
             ),
         AccentColor.ROSE to
             Accent(
                 light = Tones(Color(0xFF8E4957), Color.White, Color(0xFFFFD9DF), Color(0xFF3A0716), Color(0xFFF6DDE0), Color(0xFF2B1519)),
-                dark = Tones(Color(0xFFFFB1C0), Color(0xFF561D2A), Color(0xFF713340), Color(0xFFFFD9DF), Color(0xFF5B3F44), Color(0xFFF6DDE0)),
+                dark =
+                Tones(
+                    Color(0xFFFFB1C0),
+                    Color(0xFF561D2A),
+                    Color(0xFF713340),
+                    Color(0xFFFFD9DF),
+                    Color(0xFF5B3F44),
+                    Color(0xFFF6DDE0)
+                )
             ),
         AccentColor.VIOLET to
             Accent(
                 light = Tones(Color(0xFF65558F), Color.White, Color(0xFFE9DDFF), Color(0xFF201047), Color(0xFFE8DEF8), Color(0xFF1D192B)),
-                dark = Tones(Color(0xFFCFBDFE), Color(0xFF36275D), Color(0xFF4D3D75), Color(0xFFE9DDFF), Color(0xFF4A4458), Color(0xFFE8DEF8)),
-            ),
+                dark =
+                Tones(
+                    Color(0xFFCFBDFE),
+                    Color(0xFF36275D),
+                    Color(0xFF4D3D75),
+                    Color(0xFFE9DDFF),
+                    Color(0xFF4A4458),
+                    Color(0xFFE8DEF8)
+                )
+            )
     )
 
 /** Swatch shown in the accent picker. */
 val AccentColor.swatch: Color get() = accents.getValue(this).light.primary
 
-internal fun fallbackColorScheme(
+/** Own palette for [accent]; also used by the home screen widget. */
+fun fallbackColorScheme(
     accent: AccentColor,
-    dark: Boolean,
+    dark: Boolean
 ): ColorScheme {
     val a = accents.getValue(accent)
     return if (dark) {
@@ -95,7 +136,7 @@ internal fun fallbackColorScheme(
             surfaceContainerLow = Color(0xFF191C1B),
             surfaceContainer = Color(0xFF1D201F),
             surfaceContainerHigh = Color(0xFF272B29),
-            surfaceContainerHighest = Color(0xFF323634),
+            surfaceContainerHighest = Color(0xFF323634)
         )
     } else {
         val t = a.light
@@ -130,7 +171,7 @@ internal fun fallbackColorScheme(
             surfaceContainerLow = Color(0xFFF2F4F1),
             surfaceContainer = Color(0xFFECEFEB),
             surfaceContainerHigh = Color(0xFFE6E9E5),
-            surfaceContainerHighest = Color(0xFFE1E3E0),
+            surfaceContainerHighest = Color(0xFFE1E3E0)
         )
     }
 }
@@ -145,7 +186,7 @@ internal fun ColorScheme.toAmoled(): ColorScheme =
         surfaceContainerLow = Color(0xFF0A0A0A),
         surfaceContainer = Color(0xFF111111),
         surfaceContainerHigh = Color(0xFF191919),
-        surfaceContainerHighest = Color(0xFF222222),
+        surfaceContainerHighest = Color(0xFF222222)
     )
 
 /** Semantic status colours (traffic light) with sufficient contrast in both themes. */

@@ -14,7 +14,7 @@ import java.time.LocalTime
  * - The first matching enabled format wins (Reminder plugin, Dataview, Tasks ⏰, Tasks 📅).
  */
 class ReminderParser(
-    private val options: ParserOptions = ParserOptions(),
+    private val options: ParserOptions = ParserOptions()
 ) {
     fun parse(content: String): List<ParsedReminder> {
         val lines = Lines.split(content)
@@ -48,7 +48,7 @@ class ReminderParser(
     /** Parses a single line. Returns null if it is not an open task with a supported date. */
     fun parseLine(
         lineNumber: Int,
-        line: String,
+        line: String
     ): ParsedReminder? {
         val task = TASK.matchEntire(line) ?: return null
         if (task.groups[STATUS]?.value != " ") return null
@@ -68,7 +68,7 @@ class ReminderParser(
                 hasExplicitTime = time != null,
                 format = format.reminderFormat,
                 rawLine = line,
-                lineHash = Lines.hash(line),
+                lineHash = Lines.hash(line)
             )
         }
         return null
@@ -113,10 +113,10 @@ class ReminderParser(
                 FormatSpec(ReminderFormat.REMINDER_PLUGIN, Regex("""\(@$DATE(?:[ T]$TIME)?\)""")),
                 FormatSpec(
                     ReminderFormat.DATAVIEW,
-                    Regex("""[\[(](?:due|remind|reminder)::\s*$DATE(?:[ T]$TIME)?\s*[\])]""", RegexOption.IGNORE_CASE),
+                    Regex("""[\[(](?:due|remind|reminder)::\s*$DATE(?:[ T]$TIME)?\s*[\])]""", RegexOption.IGNORE_CASE)
                 ),
                 FormatSpec(ReminderFormat.TASKS_EMOJI, Regex("""⏰\uFE0F?\s*$DATE(?:[ T]$TIME)?""")),
-                FormatSpec(ReminderFormat.TASKS_EMOJI, Regex("""📅\uFE0F?\s*$DATE""")),
+                FormatSpec(ReminderFormat.TASKS_EMOJI, Regex("""📅\uFE0F?\s*$DATE"""))
             )
     }
 }

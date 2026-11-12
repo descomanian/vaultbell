@@ -28,7 +28,7 @@ val VaultbellTypography =
         bodySmall = base.bodySmall,
         labelLarge = base.labelLarge.copy(fontWeight = FontWeight.SemiBold),
         labelMedium = base.labelMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp),
-        labelSmall = base.labelSmall,
+        labelSmall = base.labelSmall
     )
 
 /** Monospace style for raw Markdown lines. */
@@ -40,7 +40,7 @@ val VaultbellShapes =
         small = RoundedCornerShape(12.dp),
         medium = RoundedCornerShape(20.dp),
         large = RoundedCornerShape(28.dp),
-        extraLarge = RoundedCornerShape(36.dp),
+        extraLarge = RoundedCornerShape(36.dp)
     )
 
 /** Spacing scale (4 dp grid). */

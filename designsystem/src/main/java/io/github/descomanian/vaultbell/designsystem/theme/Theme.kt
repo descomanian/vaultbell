@@ -35,7 +35,7 @@ fun VaultbellTheme(
     dynamicColor: Boolean = true,
     amoledBlack: Boolean = false,
     accent: AccentColor = AccentColor.SAGE,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val dark = themeMode.isDark()
     val context = LocalContext.current
@@ -54,7 +54,7 @@ fun VaultbellTheme(
             colorScheme = colorScheme,
             typography = VaultbellTypography,
             shapes = VaultbellShapes,
-            content = content,
+            content = content
         )
     }
 }

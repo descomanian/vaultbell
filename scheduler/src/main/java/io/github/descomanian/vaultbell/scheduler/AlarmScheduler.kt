@@ -13,7 +13,7 @@ enum class ScheduleMode {
     EXACT,
 
     /** setAndAllowWhileIdle: may be delayed by the system (exact alarms not permitted). */
-    INEXACT,
+    INEXACT
 }
 
 /**
@@ -22,7 +22,7 @@ enum class ScheduleMode {
  */
 class AlarmScheduler(
     context: Context,
-    private val receiver: Class<out BroadcastReceiver>,
+    private val receiver: Class<out BroadcastReceiver>
 ) {
     private val appContext = context.applicationContext
     private val alarmManager = appContext.getSystemService(AlarmManager::class.java)
@@ -36,7 +36,7 @@ class AlarmScheduler(
     fun schedule(
         requestCode: Int,
         triggerAtMillis: Long,
-        extras: Bundle,
+        extras: Bundle
     ): ScheduleMode {
         val pending = pendingIntent(requestCode, extras)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
@@ -58,7 +58,7 @@ class AlarmScheduler(
                 appContext,
                 requestCode,
                 intent,
-                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
             ) ?: return
         alarmManager.cancel(pending)
         pending.cancel()
@@ -72,13 +72,13 @@ class AlarmScheduler(
 
     private fun pendingIntent(
         requestCode: Int,
-        extras: Bundle,
+        extras: Bundle
     ): PendingIntent =
         PendingIntent.getBroadcast(
             appContext,
             requestCode,
             baseIntent(requestCode).putExtras(extras),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
     companion object {

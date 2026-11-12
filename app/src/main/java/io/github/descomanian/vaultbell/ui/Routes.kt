@@ -70,7 +70,7 @@ fun HomeRoute(
     twoPane: Boolean,
     showSettingsAction: Boolean,
     onOpen: (Long) -> Unit,
-    onOpenSettings: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     val app = vaultbellApp()
     val context = LocalContext.current
@@ -90,14 +90,14 @@ fun HomeRoute(
                                 DoneResult.WRITTEN_TO_FILE -> R.string.snackbar_done_written
                                 DoneResult.CONFLICT_NOT_WRITTEN -> R.string.snackbar_done_conflict
                                 DoneResult.LOCAL_ONLY -> R.string.snackbar_done
-                            },
+                            }
                         )
                     val undo = event.result != DoneResult.WRITTEN_TO_FILE
                     val result =
                         snackbar.showSnackbar(
                             message = message,
                             actionLabel = if (undo) context.getString(R.string.action_undo) else null,
-                            duration = SnackbarDuration.Short,
+                            duration = SnackbarDuration.Short
                         )
                     if (result == SnackbarResult.ActionPerformed) vm.undoDone(event.id)
                 }
@@ -120,7 +120,7 @@ fun HomeRoute(
             onSnooze = vm::snooze,
             onToggleOverdue = vm::onToggleOverdue,
             onOpenSettings = onOpenSettings,
-            onFixExactAlarms = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
+            onFixExactAlarms = { context.startSafely(SystemIntents.exactAlarmSettings(context)) }
         )
 
     if (twoPane) {
@@ -145,7 +145,7 @@ fun HomeRoute(
 fun DetailRoute(
     id: Long,
     onBack: () -> Unit,
-    showBack: Boolean = true,
+    showBack: Boolean = true
 ) {
     val app = vaultbellApp()
     val vm: DetailViewModel = viewModel(key = "detail-$id") { DetailViewModel(id, app.container) }
@@ -153,12 +153,12 @@ fun DetailRoute(
     DetailScreen(
         state = state,
         actions =
-            DetailActions(
-                onBack = onBack,
-                onDone = { vm.done(onBack) },
-                onSnooze = { minutes -> vm.snooze(minutes, onBack) },
-            ),
-        showBack = showBack,
+        DetailActions(
+            onBack = onBack,
+            onDone = { vm.done(onBack) },
+            onSnooze = { minutes -> vm.snooze(minutes, onBack) }
+        ),
+        showBack = showBack
     )
 }
 
@@ -184,21 +184,21 @@ fun OnboardingRoute(onFinished: () -> Unit) {
     OnboardingScreen(
         state = state,
         actions =
-            OnboardingActions(
-                onNext = vm::next,
-                onBack = vm::back,
-                onPickVault = { picker.launch(documentsFolderHint()) },
-                onVaultNameChange = vm::onVaultNameChange,
-                onRequestNotifications = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else {
-                        context.startSafely(SystemIntents.notificationSettings(context))
-                    }
-                },
-                onRequestExactAlarms = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
-                onFinish = { vm.finish(onFinished) },
-            ),
+        OnboardingActions(
+            onNext = vm::next,
+            onBack = vm::back,
+            onPickVault = { picker.launch(documentsFolderHint()) },
+            onVaultNameChange = vm::onVaultNameChange,
+            onRequestNotifications = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    context.startSafely(SystemIntents.notificationSettings(context))
+                }
+            },
+            onRequestExactAlarms = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
+            onFinish = { vm.finish(onFinished) }
+        )
     )
 }
 
@@ -207,7 +207,7 @@ fun SettingsRoute(
     showBack: Boolean,
     onBack: () -> Unit,
     onOpenPrivacy: () -> Unit,
-    onOpenAbout: () -> Unit,
+    onOpenAbout: () -> Unit
 ) {
     val app = vaultbellApp()
     val context = LocalContext.current
@@ -223,20 +223,20 @@ fun SettingsRoute(
         state = state,
         showBack = showBack,
         actions =
-            SettingsActions(
-                onBack = onBack,
-                update = vm::update,
-                updateAndRescan = vm::updateAndRescan,
-                updateAndReschedule = vm::updateAndReschedule,
-                onScanInterval = vm::setScanInterval,
-                onLanguage = vm::setLanguage,
-                onPickVault = { picker.launch(state.settings.vaultUri?.let(Uri::parse) ?: documentsFolderHint()) },
-                onScanNow = vm::scanNow,
-                onOpenNotificationSettings = { context.startSafely(SystemIntents.notificationSettings(context)) },
-                onOpenExactAlarmSettings = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
-                onOpenBatterySettings = { context.startSafely(SystemIntents.batterySettings()) },
-                onOpenPrivacy = onOpenPrivacy,
-                onOpenAbout = onOpenAbout,
-            ),
+        SettingsActions(
+            onBack = onBack,
+            update = vm::update,
+            updateAndRescan = vm::updateAndRescan,
+            updateAndReschedule = vm::updateAndReschedule,
+            onScanInterval = vm::setScanInterval,
+            onLanguage = vm::setLanguage,
+            onPickVault = { picker.launch(state.settings.vaultUri?.let(Uri::parse) ?: documentsFolderHint()) },
+            onScanNow = vm::scanNow,
+            onOpenNotificationSettings = { context.startSafely(SystemIntents.notificationSettings(context)) },
+            onOpenExactAlarmSettings = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
+            onOpenBatterySettings = { context.startSafely(SystemIntents.batterySettings()) },
+            onOpenPrivacy = onOpenPrivacy,
+            onOpenAbout = onOpenAbout
+        )
     )
 }

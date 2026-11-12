@@ -30,7 +30,7 @@ data class ReminderEntity(
     val snoozedUntil: Long? = null,
     /** Done inside the app. Stays hidden until the line changes (new hash) or disappears. */
     val completedLocally: Boolean = false,
-    val firedAt: Long? = null,
+    val firedAt: Long? = null
 )
 
 /** When the main alarm should fire: snooze time if snoozed, otherwise the due time. */
@@ -40,7 +40,7 @@ val ReminderEntity.triggerAt: Long get() = snoozedUntil ?: dueAt
 data class FileStateEntity(
     @PrimaryKey val uri: String,
     val relativePath: String,
-    val lastModified: Long,
+    val lastModified: Long
 )
 
 @Dao

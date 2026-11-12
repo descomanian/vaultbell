@@ -2,6 +2,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app_name is generated from gradle.properties (vaultbell.appName). -->
     <string name="nav_reminders">Erinnerungen</string>
+    <string name="widget_name">Nächste Erinnerungen</string>
+    <string name="widget_description">Deine nächsten Erinnerungen aus dem Vault auf einen Blick</string>
+    <string name="widget_empty">Alles ruhig. Keine offenen Erinnerungen.</string>
+    <string name="widget_no_vault">Öffne die App, um deinen Vault zu wählen.</string>
+    <string name="widget_next">Als Nächstes</string>
     <string name="not_affiliated">Funktioniert mit Obsidian. Kein offizielles Produkt von Obsidian.</string>
     <string name="channel_reminders">Erinnerungen</string>
     <string name="channel_reminders_desc">Erinnerungen aus deinem Vault, mit Ton und Vibration.</string>

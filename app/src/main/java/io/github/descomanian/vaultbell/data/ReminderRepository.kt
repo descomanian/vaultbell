@@ -49,6 +49,8 @@ class ReminderRepository(
     private val alarms: ReminderAlarms,
     private val notifications: Notifications,
     private val clock: () -> Long = System::currentTimeMillis,
+    /** Called after the index changed (scan, done, snooze), e.g. to refresh the home screen widget. */
+    private val onChanged: suspend () -> Unit = {}
 ) {
     private val scanMutex = Mutex()
     private val _scanning = MutableStateFlow(false)
@@ -64,7 +66,7 @@ class ReminderRepository(
             withContext(Dispatchers.IO) {
                 _scanning.value = true
                 try {
-                    doScan(force)
+                    doScan(force).also { onChanged() }
                 } catch (e: SecurityException) {
                     recordScan(error = "permission")
                     ScanOutcome.PermissionLost
@@ -117,7 +119,7 @@ class ReminderRepository(
     private suspend fun syncFile(
         file: VaultFile,
         parsed: List<ParsedReminder>,
-        s: AppSettings,
+        s: AppSettings
     ) {
         val uri = file.documentUri.toString()
         val existing = dao.forFile(uri)
@@ -140,7 +142,7 @@ class ReminderRepository(
                         hasExplicitTime = p.hasExplicitTime,
                         format = p.format.name,
                         snoozedUntil = if (dueChanged) null else match.snoozedUntil,
-                        firedAt = if (dueChanged) null else match.firedAt,
+                        firedAt = if (dueChanged) null else match.firedAt
                     )
                 if (updated != match) dao.update(updated)
                 if (dueChanged) alarms.schedule(updated, s, now)
@@ -155,7 +157,7 @@ class ReminderRepository(
                         lineHash = p.lineHash,
                         dueAt = dueAt,
                         hasExplicitTime = p.hasExplicitTime,
-                        format = p.format.name,
+                        format = p.format.name
                     )
                 val id = dao.insert(entity)
                 alarms.schedule(entity.copy(id = id), s, now)
@@ -210,6 +212,7 @@ class ReminderRepository(
                     DoneResult.LOCAL_ONLY
                 }
             dao.update(e.copy(completedLocally = true))
+            onChanged()
             result
         }
 
@@ -235,24 +238,26 @@ class ReminderRepository(
             val restored = e.copy(completedLocally = false)
             dao.update(restored)
             alarms.schedule(restored, settings.current(), clock())
+            onChanged()
         }
 
     suspend fun snooze(
         id: Long,
-        minutes: Int,
+        minutes: Int
     ) = withContext<Unit>(Dispatchers.IO) {
         val e = dao.get(id) ?: return@withContext
         notifications.cancel(id)
         val snoozed = e.copy(snoozedUntil = clock() + minutes * MINUTE, firedAt = null)
         dao.update(snoozed)
         alarms.schedule(snoozed, settings.current(), clock())
+        onChanged()
     }
 
     /** Called by the alarm receiver. */
     suspend fun onAlarmFired(
         id: Long,
         kind: Int,
-        repeatCount: Int,
+        repeatCount: Int
     ) = withContext<Unit>(Dispatchers.IO) {
         val e = dao.get(id) ?: return@withContext
         if (e.completedLocally) return@withContext
@@ -273,6 +278,12 @@ class ReminderRepository(
     fun onNotificationHandled(id: Long) {
         alarms.cancelRepeat(id)
     }
+
+    /** Next active reminders by effective time (overdue first), for the widget. */
+    suspend fun upcoming(limit: Int): List<Reminder> =
+        withContext(Dispatchers.IO) {
+            dao.allActive().sortedBy { it.triggerAt }.take(limit).map { it.toModel() }
+        }
 
     suspend fun get(id: Long): ReminderEntity? = withContext(Dispatchers.IO) { dao.get(id) }
 

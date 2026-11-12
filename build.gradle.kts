@@ -13,8 +13,7 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         android.set(true)
-        // Warnings only until the codebase has been formatted once with `./gradlew ktlintFormat`.
-        ignoreFailures.set(true)
+        ignoreFailures.set(false)
     }
 }
 
@@ -30,8 +29,9 @@ detekt {
             "designsystem/src/main/java",
         ),
     )
-    // Report-only for now, see CONTRIBUTING.md.
-    ignoreFailures = true
+    // Existing findings are frozen in the baseline; anything new fails the build.
+    baseline = file("config/detekt/baseline.xml")
+    ignoreFailures = false
 }
 
 // detekt 1.23.7 is compiled against Kotlin 2.0.10.

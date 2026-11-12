@@ -18,7 +18,7 @@ data class Reminder(
     val relativePath: String,
     val lineNumber: Int,
     val rawLine: String,
-    val format: ReminderFormat,
+    val format: ReminderFormat
 ) {
     val fileName: String get() = relativePath.substringAfterLast('/').removeSuffix(".md")
     val folder: String get() = relativePath.substringBeforeLast('/', missingDelimiterValue = "")
@@ -51,5 +51,5 @@ fun ReminderEntity.toModel(): Reminder =
         relativePath = relativePath,
         lineNumber = lineNumber,
         rawLine = rawLine,
-        format = ReminderFormat.entries.firstOrNull { it.name == format } ?: ReminderFormat.REMINDER_PLUGIN,
+        format = ReminderFormat.entries.firstOrNull { it.name == format } ?: ReminderFormat.REMINDER_PLUGIN
     )

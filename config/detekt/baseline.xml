@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ReminderParser.kt$ReminderParser$fun parseLine( lineNumber: Int, line: String ): ParsedReminder?</ID>
+    <ID>CyclomaticComplexMethod:SettingsRepository.kt$SettingsRepository$private fun Preferences.toSettings(): AppSettings</ID>
+    <ID>LongMethod:Color.kt$fun fallbackColorScheme( accent: AccentColor, dark: Boolean ): ColorScheme</ID>
+    <ID>LoopWithTooManyJumpStatements:ReminderParser.kt$ReminderParser$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ReminderRepository.kt$ReminderRepository$for</ID>
+    <ID>LoopWithTooManyJumpStatements:VaultAccess.kt$VaultAccess$while</ID>
+    <ID>MagicNumber:AppSettings.kt$AppSettings$60</ID>
+    <ID>MagicNumber:AppSettings.kt$AppSettings$9</ID>
+    <ID>MagicNumber:Color.kt$0xFF001F29</ID>
+    <ID>MagicNumber:Color.kt$0xFF073543</ID>
+    <ID>MagicNumber:Color.kt$0xFF0A0A0A</ID>
+    <ID>MagicNumber:Color.kt$0xFF0B0F0D</ID>
+    <ID>MagicNumber:Color.kt$0xFF101412</ID>
+    <ID>MagicNumber:Color.kt$0xFF111111</ID>
+    <ID>MagicNumber:Color.kt$0xFF191919</ID>
+    <ID>MagicNumber:Color.kt$0xFF191C1B</ID>
+    <ID>MagicNumber:Color.kt$0xFF1D201F</ID>
+    <ID>MagicNumber:Color.kt$0xFF20352B</ID>
+    <ID>MagicNumber:Color.kt$0xFF222222</ID>
+    <ID>MagicNumber:Color.kt$0xFF244C5B</ID>
+    <ID>MagicNumber:Color.kt$0xFF272B29</ID>
+    <ID>MagicNumber:Color.kt$0xFF2E312F</ID>
+    <ID>MagicNumber:Color.kt$0xFF323634</ID>
+    <ID>MagicNumber:Color.kt$0xFF363A38</ID>
+    <ID>MagicNumber:Color.kt$0xFF3D6373</ID>
+    <ID>MagicNumber:Color.kt$0xFF404944</ID>
+    <ID>MagicNumber:Color.kt$0xFF4D6358</ID>
+    <ID>MagicNumber:Color.kt$0xFF707974</ID>
+    <ID>MagicNumber:Color.kt$0xFF8A938E</ID>
+    <ID>MagicNumber:Color.kt$0xFFA5CCDF</ID>
+    <ID>MagicNumber:Color.kt$0xFFB4CCBF</ID>
+    <ID>MagicNumber:Color.kt$0xFFBFC9C3</ID>
+    <ID>MagicNumber:Color.kt$0xFFC1E8FB</ID>
+    <ID>MagicNumber:Color.kt$0xFFD8DBD8</ID>
+    <ID>MagicNumber:Color.kt$0xFFDCE5DF</ID>
+    <ID>MagicNumber:Color.kt$0xFFE0E3DF</ID>
+    <ID>MagicNumber:Color.kt$0xFFE1E3E0</ID>
+    <ID>MagicNumber:Color.kt$0xFFE6E9E5</ID>
+    <ID>MagicNumber:Color.kt$0xFFECEFEB</ID>
+    <ID>MagicNumber:Color.kt$0xFFEFF1EE</ID>
+    <ID>MagicNumber:Color.kt$0xFFF2F4F1</ID>
+    <ID>MagicNumber:Color.kt$0xFFF8FAF7</ID>
+    <ID>MagicNumber:Common.kt$60</ID>
+    <ID>MagicNumber:Lines.kt$Lines$8</ID>
+    <ID>MagicNumber:Model.kt$ParserOptions$9</ID>
+    <ID>MagicNumber:Notifications.kt$Notifications$3</ID>
+    <ID>MagicNumber:Notifications.kt$Notifications$4</ID>
+    <ID>MagicNumber:Notifications.kt$Notifications.Companion$8</ID>
+    <ID>MagicNumber:ReminderAlarms.kt$ReminderAlarms$60_000L</ID>
+    <ID>MagicNumber:ReminderAlarms.kt$ReminderAlarms.Companion$4</ID>
+    <ID>MagicNumber:ReminderParser.kt$ReminderParser$23</ID>
+    <ID>MagicNumber:ReminderParser.kt$ReminderParser$3</ID>
+    <ID>MagicNumber:ReminderParser.kt$ReminderParser$59</ID>
+    <ID>MagicNumber:ScanWork.kt$ScanWork$15</ID>
+    <ID>MagicNumber:VaultAccess.kt$VaultAccess$3</ID>
+    <ID>MaxLineLength:Color.kt$dark = Tones(Color(0xFF9BCBFB), Color(0xFF003354), Color(0xFF124A72), Color(0xFFCEE5FF), Color(0xFF3A4857), Color(0xFFD6E3F2))</ID>
+    <ID>MaxLineLength:Color.kt$dark = Tones(Color(0xFFA6D0BC), Color(0xFF0F3729), Color(0xFF274E3F), Color(0xFFC1ECD8), Color(0xFF344B41), Color(0xFFD0E8DC))</ID>
+    <ID>MaxLineLength:Color.kt$dark = Tones(Color(0xFFCFBDFE), Color(0xFF36275D), Color(0xFF4D3D75), Color(0xFFE9DDFF), Color(0xFF4A4458), Color(0xFFE8DEF8))</ID>
+    <ID>MaxLineLength:Color.kt$dark = Tones(Color(0xFFF6BE48), Color(0xFF402D00), Color(0xFF5C4300), Color(0xFFFFDEA3), Color(0xFF52452A), Color(0xFFF4E0BF))</ID>
+    <ID>MaxLineLength:Color.kt$dark = Tones(Color(0xFFFFB1C0), Color(0xFF561D2A), Color(0xFF713340), Color(0xFFFFD9DF), Color(0xFF5B3F44), Color(0xFFF6DDE0))</ID>
+    <ID>NestedBlockDepth:VaultAccess.kt$VaultAccess$fun listMarkdownFiles( treeUri: Uri, filter: ScanFilter = ScanFilter() ): List&lt;VaultFile&gt;</ID>
+    <ID>ReturnCount:ReminderParser.kt$ReminderParser$fun parseLine( lineNumber: Int, line: String ): ParsedReminder?</ID>
+    <ID>ReturnCount:ReminderParser.kt$ReminderParser$private fun parseTime(text: String): LocalTime?</ID>
+    <ID>UnusedParameter:HomeScreen.kt$now: LocalDateTime</ID>
+  </CurrentIssues>
+</SmellBaseline>

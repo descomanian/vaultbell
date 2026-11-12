@@ -98,7 +98,7 @@ kotlin {
             "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
             "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
             "-opt-in=androidx.compose.animation.ExperimentalSharedTransitionApi",
-            "-opt-in=androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi",
+            "-opt-in=androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi"
         )
     }
 }
@@ -125,6 +125,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(platform(libs.compose.bom))

@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 /** Runs [block] off the main thread while keeping the receiver alive (max ~10 s). */
 private fun BroadcastReceiver.runAsync(
     context: Context,
-    block: suspend (VaultbellApplication) -> Unit,
+    block: suspend (VaultbellApplication) -> Unit
 ) {
     val app = context.applicationContext as VaultbellApplication
     val pending = goAsync()
@@ -28,7 +28,7 @@ private fun BroadcastReceiver.runAsync(
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
-        intent: Intent,
+        intent: Intent
     ) {
         if (intent.action != AlarmScheduler.ACTION_FIRE) return
         val id = intent.getLongExtra(ReminderAlarms.EXTRA_ID, -1L)
@@ -42,7 +42,7 @@ class AlarmReceiver : BroadcastReceiver() {
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
-        intent: Intent,
+        intent: Intent
     ) {
         val id = intent.getLongExtra(ReminderAlarms.EXTRA_ID, -1L)
         if (id < 0) return
@@ -71,18 +71,18 @@ class NotificationActionReceiver : BroadcastReceiver() {
 class SystemEventReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
-        intent: Intent,
+        intent: Intent
     ) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
-            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
+            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED
             -> runAsync(context) { app ->
                 app.container.repository.rescheduleAll()
                 ScanWork.schedulePeriodic(context, app.container.settings.current().scanIntervalMinutes)
             }
             Intent.ACTION_TIME_CHANGED,
-            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED
             -> ScanWork.runNow(context, force = true)
         }
     }

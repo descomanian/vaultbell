@@ -47,15 +47,15 @@ fun TonalIcon(
     size: Dp = 40.dp,
     containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    contentDescription: String? = null,
+    contentDescription: String? = null
 ) {
     Box(
         modifier =
-            modifier
-                .size(size)
-                .clip(CircleShape)
-                .background(containerColor),
-        contentAlignment = Alignment.Center,
+        modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(containerColor),
+        contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = contentDescription, tint = contentColor, modifier = Modifier.size(size * 0.5f))
     }
@@ -69,23 +69,23 @@ fun SectionHeader(
     count: Int? = null,
     accent: Color = MaterialTheme.colorScheme.primary,
     trailing: (@Composable () -> Unit)? = null,
-    onClick: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
     Surface(color = MaterialTheme.colorScheme.surface, modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
-                Modifier
-                    .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-                    .padding(horizontal = Spacing.lg, vertical = Spacing.sm)
-                    .semantics { heading() },
-            verticalAlignment = Alignment.CenterVertically,
+            Modifier
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .padding(horizontal = Spacing.lg, vertical = Spacing.sm)
+                .semantics { heading() },
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
             Spacer(Modifier.size(Spacing.sm))
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (count != null) {
                 Spacer(Modifier.size(Spacing.xs))
@@ -94,7 +94,7 @@ fun SectionHeader(
                         text = count.toString(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = Spacing.xs, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = Spacing.xs, vertical = 2.dp)
                     )
                 }
             }
@@ -111,37 +111,37 @@ fun EmptyState(
     title: String,
     message: String,
     modifier: Modifier = Modifier,
-    action: (@Composable () -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = Spacing.xl, vertical = Spacing.xxl),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.Center) {
             Box(
                 Modifier
                     .size(168.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)),
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f))
             )
             Box(
                 Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)),
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f))
             )
             TonalIcon(
                 icon = icon,
                 size = 80.dp,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
         Spacer(Modifier.height(Spacing.lg))
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(Spacing.xs))
         Text(
@@ -149,7 +149,7 @@ fun EmptyState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.widthIn(max = 360.dp),
+            modifier = Modifier.widthIn(max = 360.dp)
         )
         if (action != null) {
             Spacer(Modifier.height(Spacing.lg))
@@ -164,7 +164,7 @@ fun InfoCard(
     text: String,
     modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Rounded.Info,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh
 ) {
     Surface(shape = MaterialTheme.shapes.medium, color = containerColor, modifier = modifier.fillMaxWidth()) {
         Row(Modifier.padding(Spacing.md), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
@@ -181,7 +181,7 @@ enum class StatusLevel { OK, WARNING, ERROR }
 fun StatusLight(
     level: StatusLevel,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val status = VaultbellThemeExtras.status
     val target =
@@ -196,7 +196,7 @@ fun StatusLight(
             .size(12.dp)
             .clip(CircleShape)
             .background(color)
-            .clearAndSetSemantics { contentDescription = label },
+            .clearAndSetSemantics { contentDescription = label }
     )
 }
 
@@ -205,7 +205,7 @@ fun StatusLight(
 fun StepIndicator(
     current: Int,
     total: Int,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(total) { index ->
@@ -215,14 +215,14 @@ fun StepIndicator(
                     .weight(1f)
                     .height(6.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 Box(
                     Modifier
                         .fillMaxWidth(fill)
                         .height(6.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
+                        .background(MaterialTheme.colorScheme.primary)
                 )
             }
         }

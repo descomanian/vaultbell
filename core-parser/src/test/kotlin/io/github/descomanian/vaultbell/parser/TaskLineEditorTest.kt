@@ -23,7 +23,7 @@ class TaskLineEditorTest {
         assertTrue(result is TaskLineEditor.EditResult.Success)
         assertEquals(
             "# T\r\n- [x] a (@2026-11-14 10:00)\r\n- [ ] b\r\n",
-            (result as TaskLineEditor.EditResult.Success).content,
+            (result as TaskLineEditor.EditResult.Success).content
         )
     }
 

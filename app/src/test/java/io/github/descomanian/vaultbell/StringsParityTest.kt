@@ -1,9 +1,9 @@
 package io.github.descomanian.vaultbell
 
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 /** Every string exists in EN and DE with the same format arguments. Runs on the JVM, no device needed. */
 class StringsParityTest {
