@@ -66,6 +66,7 @@ import io.github.descomanian.vaultbell.designsystem.component.TonalIcon
 import io.github.descomanian.vaultbell.designsystem.rememberHaptics
 import io.github.descomanian.vaultbell.designsystem.theme.Spacing
 import io.github.descomanian.vaultbell.designsystem.theme.VaultbellTheme
+import io.github.descomanian.vaultbell.ui.preview.PreviewData
 
 data class OnboardingActions(
     val onNext: () -> Unit = {},
@@ -362,7 +363,7 @@ private fun DonePage(state: OnboardingUiState) {
     Spacer(Modifier.height(Spacing.xs))
     Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Text(
-            "- [ ] Zahnarzt anrufen (@2026-11-14 18:30)\n- [ ] Müll rausbringen (@2026-11-15)",
+            stringResource(R.string.onboarding_syntax_example),
             fontFamily = FontFamily.Monospace,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.fillMaxWidth().padding(Spacing.md),
@@ -399,8 +400,8 @@ private fun OnboardingVaultPreview() {
             OnboardingUiState(
                 step = OnboardingStep.VAULT,
                 vaultUri = "content://x",
-                vaultFolderName = "SebiMain",
-                vaultName = "SebiMain",
+                vaultFolderName = PreviewData.VAULT_NAME,
+                vaultName = PreviewData.VAULT_NAME,
                 hasObsidianFolder = true
             ),
             OnboardingActions()
@@ -421,7 +422,7 @@ private fun OnboardingExactPreview() {
 private fun OnboardingDonePreview() {
     VaultbellTheme(dynamicColor = false) {
         OnboardingScreen(
-            OnboardingUiState(step = OnboardingStep.DONE, vaultName = "SebiMain", notificationsGranted = true),
+            OnboardingUiState(step = OnboardingStep.DONE, vaultName = PreviewData.VAULT_NAME, notificationsGranted = true),
             OnboardingActions()
         )
     }

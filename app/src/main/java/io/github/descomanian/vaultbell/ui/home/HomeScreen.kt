@@ -603,7 +603,7 @@ private fun previewState(): HomeUiState {
         sections = sections,
         totalCount = PreviewData.reminders.size,
         lastScanAt = System.currentTimeMillis() - 4 * 60_000,
-        vaultName = "SebiMain",
+        vaultName = PreviewData.VAULT_NAME,
         now = now
     )
 }

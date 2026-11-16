@@ -316,7 +316,7 @@ fun openInObsidian(
 private fun DetailPreview() {
     VaultbellTheme(dynamicColor = false) {
         DetailScreen(
-            state = DetailUiState(loading = false, reminder = PreviewData.reminders[3], vaultName = "SebiMain"),
+            state = DetailUiState(loading = false, reminder = PreviewData.reminders[3], vaultName = PreviewData.VAULT_NAME),
             actions = DetailActions(),
             now = PreviewData.now
         )
@@ -328,7 +328,7 @@ private fun DetailPreview() {
 private fun DetailOverduePreview() {
     VaultbellTheme(dynamicColor = false) {
         DetailScreen(
-            state = DetailUiState(loading = false, reminder = PreviewData.reminders[1], vaultName = "SebiMain"),
+            state = DetailUiState(loading = false, reminder = PreviewData.reminders[1], vaultName = PreviewData.VAULT_NAME),
             actions = DetailActions(),
             now = PreviewData.now
         )
@@ -343,7 +343,7 @@ private fun DetailSnoozedPreview() {
             state = DetailUiState(
                 loading = false,
                 reminder = PreviewData.reminders[4].copy(originalDue = PreviewData.now.withHour(18)),
-                vaultName = "SebiMain"
+                vaultName = PreviewData.VAULT_NAME
             ),
             actions = DetailActions(),
             now = PreviewData.now

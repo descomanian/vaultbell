@@ -10,6 +10,8 @@
     <string name="onboarding_background_text">Android pauses apps to save battery. Let Vaultbell run unrestricted so it notices new reminders in your vault while the phone is idle.</string>
     <string name="onboarding_background_why">Vaultbell only wakes up briefly at the scan interval to check for changed notes. It uses no network and hardly any battery.</string>
     <string name="action_allow_background">Allow background activity</string>
+    <string name="onboarding_syntax_example">- [ ] Call the dentist (@2026-11-14 18:30)
+- [ ] Take out the trash (@2026-11-15)</string>
     <string name="nav_reminders">Reminders</string>
     <string name="widget_name">Next reminders</string>
     <string name="widget_description">Your next reminders from the vault at a glance</string>

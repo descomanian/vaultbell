@@ -10,6 +10,8 @@
     <string name="onboarding_background_text">Android pausiert Apps, um Akku zu sparen. Lass Vaultbell uneingeschränkt laufen, damit neue Erinnerungen im Vault auch bei ruhendem Handy erkannt werden.</string>
     <string name="onboarding_background_why">Vaultbell wacht nur kurz im Scan-Intervall auf und prüft geänderte Notizen. Kein Netzwerk, kaum Akku.</string>
     <string name="action_allow_background">Hintergrundaktivität erlauben</string>
+    <string name="onboarding_syntax_example">- [ ] Zahnarzt anrufen (@2026-11-14 18:30)
+- [ ] Müll rausbringen (@2026-11-15)</string>
     <string name="nav_reminders">Erinnerungen</string>
     <string name="widget_name">Nächste Erinnerungen</string>
     <string name="widget_description">Deine nächsten Erinnerungen aus dem Vault auf einen Blick</string>

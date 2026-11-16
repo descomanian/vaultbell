@@ -105,6 +105,7 @@ import io.github.descomanian.vaultbell.system.SystemStatus
 import io.github.descomanian.vaultbell.ui.common.ChoiceDialog
 import io.github.descomanian.vaultbell.ui.common.formatMinutes
 import io.github.descomanian.vaultbell.ui.common.inSentence
+import io.github.descomanian.vaultbell.ui.preview.PreviewData
 import java.time.LocalTime
 
 data class SettingsActions(
@@ -745,7 +746,7 @@ private val previewState =
         AppSettings(
             onboardingDone = true,
             vaultUri = "content://preview",
-            vaultName = "SebiMain",
+            vaultName = PreviewData.VAULT_NAME,
             excludeFolders = listOf("Archiv", "Templates"),
             preReminderEnabled = true,
             lastScanAt = System.currentTimeMillis() - 3 * 60_000,
@@ -753,7 +754,7 @@ private val previewState =
         ),
         status = SystemStatus(notificationsAllowed = true, exactAlarmsAllowed = false, batteryUnrestricted = false),
         activeCount = 12,
-        vaultFolderName = "SebiMain"
+        vaultFolderName = PreviewData.VAULT_NAME
     )
 
 @ThemePreviews
