@@ -59,46 +59,7 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 - Incremental scans (only changed files), alarms restored after reboot, time-zone changes handled.
 - German and English.
 
-## Build
 
-Requirements: JDK 17+ (Android Studio's bundled JDK works), Android SDK 35.
-
-```bash
-./gradlew build          # unit tests, lint, ktlint/detekt reports, debug + release APKs
-./gradlew installDebug   # install on a connected device (USB debugging on)
-```
-
-The debug build installs side by side with a release build (`.debug` suffix).
-
-### Rename the app
-
-The name is not final. Change it in **one place**: `gradle.properties` → `vaultbell.appName` (and optionally `vaultbell.applicationId`, `vaultbell.repoUrl`).
-
-### Release signing
-
-Create `keystore.properties` in the project root (never commit it):
-
-```properties
-storeFile=release.jks
-storePassword=…
-keyAlias=vaultbell
-keyPassword=…
-```
-
-Without it, `assembleRelease` produces an unsigned APK (what F-Droid expects).
-
-## Project structure
-
-| Module | Purpose |
-|---|---|
-| `core-parser` | Pure Kotlin/JVM. Parses Markdown lines into reminders, edits task lines. No Android dependency, reusable elsewhere. |
-| `vault-access` | Storage Access Framework: list Markdown files via `DocumentsContract`, read/write. |
-| `scheduler` | Thin `AlarmManager` wrapper with exact/inexact fallback. |
-| `designsystem` | Theme, colors, typography, shared Compose components. |
-| `app` | UI (Compose), Room index, DataStore settings, WorkManager scan, notifications. |
-| `sample-vault` | Fixture vault used by tests and for manual testing on a device. |
-
-Architecture: MVVM with `ViewModel` + `StateFlow`, manual dependency injection (`AppContainer`), no annotation-processing DI.
 
 ## Contributing
 
