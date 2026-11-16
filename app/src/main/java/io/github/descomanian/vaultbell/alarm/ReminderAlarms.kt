@@ -37,6 +37,16 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
         scheduler.schedule(code(id, KIND_REPEAT), at, extras(id, KIND_REPEAT, count))
     }
 
+    /**
+     * Wakes the app for a vault scan even in Doze. Inexact on purpose: Android batches it,
+     * which keeps the battery impact tiny while being far more reliable than WorkManager alone.
+     */
+    fun scheduleScanHeartbeat(at: Long) {
+        scheduler.schedule(SCAN_CODE, at, extras(-1L, KIND_SCAN, 0), exact = false)
+    }
+
+    fun cancelScanHeartbeat() = scheduler.cancel(SCAN_CODE)
+
     fun cancelRepeat(id: Long) = scheduler.cancel(code(id, KIND_REPEAT))
 
     fun cancel(id: Long) {
@@ -59,6 +69,10 @@ class ReminderAlarms(private val scheduler: AlarmScheduler) {
         const val KIND_MAIN = 0
         const val KIND_PRE = 1
         const val KIND_REPEAT = 2
+        const val KIND_SCAN = 3
+
+        /** Outside the id * 4 + kind range of real reminders. */
+        const val SCAN_CODE = Int.MAX_VALUE - 7
         const val MAX_REPEATS = 3
         const val REPEAT_INTERVAL_MINUTES = 10
 

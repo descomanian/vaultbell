@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Celebration
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudOff
@@ -73,6 +74,7 @@ data class OnboardingActions(
     val onVaultNameChange: (String) -> Unit = {},
     val onRequestNotifications: () -> Unit = {},
     val onRequestExactAlarms: () -> Unit = {},
+    val onRequestBackground: () -> Unit = {},
     val onFinish: () -> Unit = {}
 )
 
@@ -123,6 +125,7 @@ fun OnboardingScreen(
                             OnboardingStep.VAULT -> VaultPage(state, actions)
                             OnboardingStep.NOTIFICATIONS -> NotificationsPage(state, actions)
                             OnboardingStep.EXACT_ALARMS -> ExactAlarmsPage(state, actions)
+                            OnboardingStep.BACKGROUND -> BackgroundPage(state, actions)
                             OnboardingStep.DONE -> DonePage(state)
                         }
                     }
@@ -323,6 +326,27 @@ private fun ExactAlarmsPage(
 }
 
 @Composable
+private fun BackgroundPage(
+    state: OnboardingUiState,
+    actions: OnboardingActions
+) {
+    PageHeader(
+        Icons.Rounded.BatteryChargingFull,
+        stringResource(R.string.onboarding_background_title),
+        stringResource(R.string.onboarding_background_text)
+    )
+    GrantedRow(state.backgroundAllowed, stringResource(R.string.status_allowed), stringResource(R.string.status_not_allowed))
+    Spacer(Modifier.height(Spacing.md))
+    if (!state.backgroundAllowed) {
+        FilledTonalButton(onClick = actions.onRequestBackground, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Text(stringResource(R.string.action_allow_background))
+        }
+        Spacer(Modifier.height(Spacing.md))
+    }
+    InfoCard(stringResource(R.string.onboarding_background_why))
+}
+
+@Composable
 private fun DonePage(state: OnboardingUiState) {
     PageHeader(Icons.Rounded.Celebration, stringResource(R.string.onboarding_done_title), stringResource(R.string.onboarding_done_text))
     Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
@@ -330,6 +354,7 @@ private fun DonePage(state: OnboardingUiState) {
             SummaryRow(true, stringResource(R.string.onboarding_summary_vault, state.vaultName))
             SummaryRow(state.notificationsGranted, stringResource(R.string.status_notifications))
             SummaryRow(state.exactAlarmsGranted, stringResource(R.string.status_exact_alarms))
+            SummaryRow(state.backgroundAllowed, stringResource(R.string.status_battery))
         }
     }
     Spacer(Modifier.height(Spacing.lg))

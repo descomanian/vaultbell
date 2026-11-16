@@ -36,10 +36,11 @@ class AlarmScheduler(
     fun schedule(
         requestCode: Int,
         triggerAtMillis: Long,
-        extras: Bundle
+        extras: Bundle,
+        exact: Boolean = true
     ): ScheduleMode {
         val pending = pendingIntent(requestCode, extras)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
+        if (exact && Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
             try {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
                 return ScheduleMode.EXACT

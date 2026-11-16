@@ -8,6 +8,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import android.text.format.DateUtils
 import androidx.core.app.NotificationCompat
@@ -34,7 +36,21 @@ class Notifications(private val context: Context) {
                 setSound(null, null)
                 enableVibration(false)
             }
-        context.getSystemService(NotificationManager::class.java).createNotificationChannels(listOf(loud, silent))
+        // Alarm usage: Do Not Disturb lets alarms through by default and silent mode does not mute the alarm stream.
+        val alarm =
+            NotificationChannel(CHANNEL_ALARM, context.getString(R.string.channel_alarm), NotificationManager.IMPORTANCE_HIGH).apply {
+                description = context.getString(R.string.channel_alarm_desc)
+                enableVibration(true)
+                setSound(
+                    RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+                    AudioAttributes
+                        .Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+            }
+        context.getSystemService(NotificationManager::class.java).createNotificationChannels(listOf(loud, silent, alarm))
     }
 
     fun canPost(): Boolean =
@@ -70,13 +86,14 @@ class Notifications(private val context: Context) {
             }
 
         val builder =
-            NotificationCompat.Builder(context, if (s.soundAndVibration) CHANNEL_LOUD else CHANNEL_SILENT)
+            NotificationCompat.Builder(context, channelFor(s))
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(e.title)
                 .setContentText(text)
                 .setSubText(e.relativePath.removeSuffix(".md"))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                // Do Not Disturb filters by category: ALARM passes by default, REMINDER does not.
+                .setCategory(if (s.breakThroughSilence) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(e.triggerAt)
                 .setShowWhen(true)
@@ -134,7 +151,15 @@ class Notifications(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+    private fun channelFor(s: AppSettings): String =
+        when {
+            !s.soundAndVibration -> CHANNEL_SILENT
+            s.breakThroughSilence -> CHANNEL_ALARM
+            else -> CHANNEL_LOUD
+        }
+
     companion object {
+        const val CHANNEL_ALARM = "reminders_alarm"
         const val CHANNEL_LOUD = "reminders"
         const val CHANNEL_SILENT = "reminders_silent"
 

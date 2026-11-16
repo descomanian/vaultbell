@@ -62,6 +62,15 @@ private fun Context.startSafely(intent: Intent) {
     }
 }
 
+/** Direct exemption dialog; some ROMs block it, then the list of all apps opens instead. */
+private fun Context.requestBackground() {
+    try {
+        startActivity(SystemIntents.requestBatteryExemption(this))
+    } catch (e: ActivityNotFoundException) {
+        startSafely(SystemIntents.batterySettings())
+    }
+}
+
 /** SAF picker starts in Documents/ where most Android vaults live. */
 private fun documentsFolderHint(): Uri = DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Documents")
 
@@ -79,7 +88,10 @@ fun HomeRoute(
     val snackbar = remember { SnackbarHostState() }
     var selected by rememberSaveable { mutableStateOf<Long?>(null) }
 
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshStatus() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        vm.refreshStatus()
+        vm.scanSilently()
+    }
     LaunchedEffect(vm) {
         vm.eventFlow.collect { event ->
             when (event) {
@@ -197,6 +209,7 @@ fun OnboardingRoute(onFinished: () -> Unit) {
                 }
             },
             onRequestExactAlarms = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
+            onRequestBackground = { context.requestBackground() },
             onFinish = { vm.finish(onFinished) }
         )
     )
@@ -234,7 +247,7 @@ fun SettingsRoute(
             onScanNow = vm::scanNow,
             onOpenNotificationSettings = { context.startSafely(SystemIntents.notificationSettings(context)) },
             onOpenExactAlarmSettings = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
-            onOpenBatterySettings = { context.startSafely(SystemIntents.batterySettings()) },
+            onOpenBatterySettings = { context.requestBackground() },
             onOpenPrivacy = onOpenPrivacy,
             onOpenAbout = onOpenAbout
         )

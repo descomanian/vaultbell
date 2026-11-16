@@ -16,7 +16,9 @@ import io.github.descomanian.vaultbell.scheduler.ScheduleMode
 import io.github.descomanian.vaultbell.vault.ScanFilter
 import io.github.descomanian.vaultbell.vault.VaultAccess
 import io.github.descomanian.vaultbell.vault.VaultFile
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,6 +69,8 @@ class ReminderRepository(
                 _scanning.value = true
                 try {
                     doScan(force).also { onChanged() }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: SecurityException) {
                     recordScan(error = "permission")
                     ScanOutcome.PermissionLost
@@ -75,6 +79,7 @@ class ReminderRepository(
                     ScanOutcome.Failed(e.message ?: e.javaClass.simpleName)
                 } finally {
                     _scanning.value = false
+                    withContext(NonCancellable) { armScanHeartbeat() }
                 }
             }
         }
@@ -185,8 +190,19 @@ class ReminderRepository(
             val now = clock()
             var mode: ScheduleMode? = null
             dao.allActive().forEach { e -> alarms.schedule(e, s, now)?.let { mode = it } }
+            armScanHeartbeat()
             mode
         }
+
+    /** Next background scan, independent of WorkManager (survives Doze and OEM battery savers better). */
+    private suspend fun armScanHeartbeat() {
+        val s = settings.current()
+        if (s.vaultUri == null || !s.onboardingDone) {
+            alarms.cancelScanHeartbeat()
+        } else {
+            alarms.scheduleScanHeartbeat(clock() + s.scanIntervalMinutes * MINUTE)
+        }
+    }
 
     /** Drops the index, e.g. after switching to another vault. */
     suspend fun clearIndex() =

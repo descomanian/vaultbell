@@ -8,6 +8,6 @@
 - The reminder index (title, note path, line number, time) and your settings are stored only on your device and are excluded from cloud backups (`allowBackup=false`).
 - Notes are only modified if you enable "Write done to note"; then only the checkbox of the task you mark as done is changed.
 
-Permissions: notifications, exact alarms, run after reboot, vibration. WorkManager additionally declares `ACCESS_NETWORK_STATE`, `WAKE_LOCK` and `FOREGROUND_SERVICE`; none of them allows network access.
+Permissions: notifications, exact alarms, run after reboot, vibration, and the request to be exempt from battery optimization (so background scans are not delayed). WorkManager additionally declares `ACCESS_NETWORK_STATE`, `WAKE_LOCK` and `FOREGROUND_SERVICE`; none of them allows network access.
 
 Contact: see the GitHub profile of the maintainer.

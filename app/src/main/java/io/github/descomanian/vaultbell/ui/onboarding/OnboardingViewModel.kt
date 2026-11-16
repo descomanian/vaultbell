@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-enum class OnboardingStep { WELCOME, VAULT, NOTIFICATIONS, EXACT_ALARMS, DONE }
+enum class OnboardingStep { WELCOME, VAULT, NOTIFICATIONS, EXACT_ALARMS, BACKGROUND, DONE }
 
 data class OnboardingUiState(
     val step: OnboardingStep = OnboardingStep.WELCOME,
@@ -25,7 +25,8 @@ data class OnboardingUiState(
     val hasObsidianFolder: Boolean = false,
     val vaultError: Boolean = false,
     val notificationsGranted: Boolean = false,
-    val exactAlarmsGranted: Boolean = false
+    val exactAlarmsGranted: Boolean = false,
+    val backgroundAllowed: Boolean = false
 ) {
     val canContinue: Boolean
         get() = step != OnboardingStep.VAULT || (vaultUri != null && vaultName.isNotBlank())
@@ -44,7 +45,13 @@ class OnboardingViewModel(
 
     fun refreshPermissions() {
         val status = SystemStatus.read(app)
-        _state.update { it.copy(notificationsGranted = status.notificationsAllowed, exactAlarmsGranted = status.exactAlarmsAllowed) }
+        _state.update {
+            it.copy(
+                notificationsGranted = status.notificationsAllowed,
+                exactAlarmsGranted = status.exactAlarmsAllowed,
+                backgroundAllowed = status.batteryUnrestricted
+            )
+        }
     }
 
     fun onVaultPicked(uri: Uri) {

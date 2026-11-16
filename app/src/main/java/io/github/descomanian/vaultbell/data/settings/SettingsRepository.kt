@@ -40,6 +40,7 @@ class SettingsRepository(context: Context) {
         val preMinutes = intPreferencesKey("pre_reminder_minutes")
         val repeatIgnored = booleanPreferencesKey("repeat_if_ignored")
         val sound = booleanPreferencesKey("sound_and_vibration")
+        val breakSilence = booleanPreferencesKey("break_through_silence")
         val showOverdue = booleanPreferencesKey("show_overdue_on_start")
         val vaultUri = stringPreferencesKey("vault_uri")
         val vaultName = stringPreferencesKey("vault_name")
@@ -70,6 +71,7 @@ class SettingsRepository(context: Context) {
             preReminderMinutes = this[K.preMinutes] ?: d.preReminderMinutes,
             repeatIfIgnored = this[K.repeatIgnored] ?: d.repeatIfIgnored,
             soundAndVibration = this[K.sound] ?: d.soundAndVibration,
+            breakThroughSilence = this[K.breakSilence] ?: d.breakThroughSilence,
             showOverdueOnStart = this[K.showOverdue] ?: d.showOverdueOnStart,
             vaultUri = this[K.vaultUri],
             vaultName = this[K.vaultName] ?: d.vaultName,
@@ -99,6 +101,7 @@ class SettingsRepository(context: Context) {
         this[K.preMinutes] = s.preReminderMinutes
         this[K.repeatIgnored] = s.repeatIfIgnored
         this[K.sound] = s.soundAndVibration
+        this[K.breakSilence] = s.breakThroughSilence
         this[K.showOverdue] = s.showOverdueOnStart
         if (s.vaultUri != null) this[K.vaultUri] = s.vaultUri else remove(K.vaultUri)
         this[K.vaultName] = s.vaultName

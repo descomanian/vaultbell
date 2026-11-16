@@ -21,6 +21,8 @@ data class AppSettings(
     val preReminderMinutes: Int = 15,
     val repeatIfIgnored: Boolean = false,
     val soundAndVibration: Boolean = true,
+    /** Deliver as alarm: passes Do Not Disturb and plays on the alarm stream in silent mode. */
+    val breakThroughSilence: Boolean = true,
     val showOverdueOnStart: Boolean = true,
     // Vault
     val vaultUri: String? = null,

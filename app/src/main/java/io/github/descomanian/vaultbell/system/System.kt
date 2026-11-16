@@ -1,6 +1,7 @@
 package io.github.descomanian.vaultbell.system
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
@@ -58,8 +59,16 @@ object SystemIntents {
             appDetails(context)
         }
 
-    /** The list screen, not the direct request dialog: no extra permission and F-Droid/Play friendly. */
+    /** System list of all apps' battery optimization (fallback). */
     fun batterySettings(): Intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+
+    /**
+     * One-tap system dialog "Allow app to always run in background?".
+     * Justified for a reminder app: without it, OEM battery savers (e.g. Nothing OS) delay vault scans for hours.
+     */
+    @SuppressLint("BatteryLife")
+    fun requestBatteryExemption(context: Context): Intent =
+        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}"))
 
     fun appDetails(context: Context): Intent = Intent(
         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,

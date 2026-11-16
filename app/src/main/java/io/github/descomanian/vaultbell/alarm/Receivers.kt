@@ -8,6 +8,7 @@ import io.github.descomanian.vaultbell.VaultbellApplication
 import io.github.descomanian.vaultbell.scheduler.AlarmScheduler
 import io.github.descomanian.vaultbell.work.ScanWork
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** Runs [block] off the main thread while keeping the receiver alive (max ~10 s). */
 private fun BroadcastReceiver.runAsync(
@@ -31,11 +32,23 @@ class AlarmReceiver : BroadcastReceiver() {
         intent: Intent
     ) {
         if (intent.action != AlarmScheduler.ACTION_FIRE) return
+        val kind = intent.getIntExtra(ReminderAlarms.EXTRA_KIND, ReminderAlarms.KIND_MAIN)
+        if (kind == ReminderAlarms.KIND_SCAN) {
+            // Scan inline while the alarm keeps the app awake; large vaults fall back to WorkManager.
+            runAsync(context) { app ->
+                val done = withTimeoutOrNull(SCAN_BUDGET_MS) { app.container.repository.scan() }
+                if (done == null) ScanWork.runNow(context)
+            }
+            return
+        }
         val id = intent.getLongExtra(ReminderAlarms.EXTRA_ID, -1L)
         if (id < 0) return
-        val kind = intent.getIntExtra(ReminderAlarms.EXTRA_KIND, ReminderAlarms.KIND_MAIN)
         val repeat = intent.getIntExtra(ReminderAlarms.EXTRA_REPEAT, 0)
         runAsync(context) { it.container.repository.onAlarmFired(id, kind, repeat) }
+    }
+
+    private companion object {
+        const val SCAN_BUDGET_MS = 8_000L
     }
 }
 

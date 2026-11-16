@@ -53,6 +53,8 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 - Material 3 with Dynamic Color, own fallback palettes (5 accents), light/dark/system and AMOLED black.
 - Two-pane layout and navigation rail on tablets and foldables.
 - Notification actions: done, snooze short, snooze long. Optional early reminder and repeat-if-ignored.
+- Reminders come through Do Not Disturb and silent mode (delivered as alarms, switchable).
+- Reliable background scans: Doze-proof wake-up alarm plus WorkManager, battery exemption in one tap.
 - Home screen widget in three sizes with Dynamic Color.
 - Incremental scans (only changed files), alarms restored after reboot, time-zone changes handled.
 - German and English.
@@ -109,3 +111,14 @@ Vaultbell collects no data. See [PRIVACY.md](PRIVACY.md).
 ## License
 
 [GNU General Public License v3.0](LICENSE)
+
+## FAQ
+
+**A reminder I added on my PC does not show up on the phone.**
+Vaultbell reads the files on the phone. Obsidian Sync (and most sync apps) only update those files while the sync app is running. Open Obsidian on the phone once, then pull down in Vaultbell or wait for the next background scan.
+
+**Notifications do not appear in Do Not Disturb.**
+Keep *Settings → Remind me in silent mode too* on. Reminders are then delivered like an alarm, which Do Not Disturb lets through by default.
+
+**Background scans are late.**
+Allow background activity (*Settings → System → Battery optimization*). Some manufacturers pause apps aggressively; see [dontkillmyapp.com](https://dontkillmyapp.com).

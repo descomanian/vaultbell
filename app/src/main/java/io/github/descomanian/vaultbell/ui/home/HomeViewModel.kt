@@ -61,6 +61,9 @@ class HomeViewModel(
     private val filter = MutableStateFlow(HomeFilter.ALL)
     private val overdueExpanded = MutableStateFlow<Boolean?>(null)
     private val exactAllowed = MutableStateFlow(true)
+
+    /** Only user-initiated scans show the pull-to-refresh spinner; scans on resume stay silent. */
+    private val userRefreshing = MutableStateFlow(false)
     private val events = Channel<HomeEvent>(Channel.BUFFERED)
     val eventFlow: Flow<HomeEvent> = events.receiveAsFlow()
 
@@ -76,7 +79,12 @@ class HomeViewModel(
         combine(query, filter, overdueExpanded, exactAllowed, clock) { q, f, o, e, now -> Inputs(q, f, o, e, now) }
 
     val state: StateFlow<HomeUiState> =
-        combine(repo.activeReminders, container.settings.settings, repo.scanning, inputs) { reminders, s, scanning, i ->
+        combine(repo.activeReminders, container.settings.settings, combine(repo.scanning, userRefreshing) { a, b -> a && b }, inputs) {
+                reminders,
+                s,
+                scanning,
+                i
+            ->
             val q = i.query.trim()
             val filtered =
                 reminders.filter { r ->
@@ -133,6 +141,18 @@ class HomeViewModel(
     }
 
     fun refresh() {
+        viewModelScope.launch {
+            userRefreshing.value = true
+            try {
+                repo.scan()
+            } finally {
+                userRefreshing.value = false
+            }
+        }
+    }
+
+    /** Incremental scan whenever the list becomes visible; cheap because only changed files are read. */
+    fun scanSilently() {
         viewModelScope.launch { repo.scan() }
     }
 

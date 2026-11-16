@@ -263,6 +263,14 @@ fun SettingsScreen(
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
+                        title = stringResource(R.string.settings_break_silence),
+                        description = stringResource(R.string.settings_break_silence_desc),
+                        icon = Icons.Rounded.NotificationsActive,
+                        checked = s.breakThroughSilence,
+                        onCheckedChange = { v -> actions.update { it.copy(breakThroughSilence = v) } }
+                    )
+                    SettingsDivider()
+                    SettingsSwitchRow(
                         title = stringResource(R.string.settings_show_overdue),
                         description = stringResource(R.string.settings_show_overdue_desc),
                         icon = Icons.Rounded.Visibility,
@@ -320,6 +328,10 @@ fun SettingsScreen(
                     )
                     SettingsDivider()
                     ScanNowRow(state, actions.onScanNow)
+                    InfoCard(
+                        text = stringResource(R.string.settings_sync_hint),
+                        modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs)
+                    )
                 }
             }
 
