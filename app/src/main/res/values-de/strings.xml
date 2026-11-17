@@ -71,6 +71,7 @@
     <string name="format_reminder_plugin">Reminder-Plugin</string>
     <string name="format_dataview">Dataview-Feld</string>
     <string name="format_tasks">Tasks-Emoji</string>
+    <string name="format_property">Note-Properties</string>
     <string name="home_summary">%1$s · gescannt %2$s</string>
     <string name="home_summary_never">%1$s · noch nicht gescannt</string>
     <string name="home_exact_warning">Exakte Alarme sind aus. Erinnerungen können einige Minuten zu spät kommen.</string>

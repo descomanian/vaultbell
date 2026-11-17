@@ -131,6 +131,7 @@ fun ReminderFormat.label(): String =
             ReminderFormat.REMINDER_PLUGIN -> R.string.format_reminder_plugin
             ReminderFormat.DATAVIEW -> R.string.format_dataview
             ReminderFormat.TASKS_EMOJI -> R.string.format_tasks
+            ReminderFormat.PROPERTY -> R.string.format_property
         }
     )
 

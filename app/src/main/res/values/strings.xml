@@ -71,6 +71,7 @@
     <string name="format_reminder_plugin">Reminder plugin</string>
     <string name="format_dataview">Dataview field</string>
     <string name="format_tasks">Tasks emoji</string>
+    <string name="format_property">Note properties</string>
     <string name="home_summary">%1$s · scanned %2$s</string>
     <string name="home_summary_never">%1$s · not scanned yet</string>
     <string name="home_exact_warning">Exact alarms are off. Reminders may arrive a few minutes late.</string>

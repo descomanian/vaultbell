@@ -104,7 +104,7 @@ class ReminderRepository(
             seen += uri
             if (!force && known[uri]?.lastModified == file.lastModified) continue
             val content = runCatching { vault.readText(file.documentUri) }.getOrNull() ?: continue
-            syncFile(file, parser.parse(content), s)
+            syncFile(file, parser.parse(content, noteName = file.relativePath.substringAfterLast('/').removeSuffix(".md")), s)
             dao.upsertFile(FileStateEntity(uri, file.relativePath, file.lastModified))
             changed++
         }

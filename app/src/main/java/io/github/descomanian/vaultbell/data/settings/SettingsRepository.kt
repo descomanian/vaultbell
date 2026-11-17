@@ -51,6 +51,8 @@ class SettingsRepository(context: Context) {
         val fmtReminder = booleanPreferencesKey("format_reminder_plugin")
         val fmtDataview = booleanPreferencesKey("format_dataview")
         val fmtTasks = booleanPreferencesKey("format_tasks")
+        val fmtProperties = booleanPreferencesKey("format_properties")
+        val propertyNames = stringPreferencesKey("property_names")
         val writeDone = booleanPreferencesKey("write_done_to_file")
         val lastScanAt = longPreferencesKey("last_scan_at")
         val lastScanError = stringPreferencesKey("last_scan_error")
@@ -83,6 +85,8 @@ class SettingsRepository(context: Context) {
             formatReminderPlugin = this[K.fmtReminder] ?: d.formatReminderPlugin,
             formatDataview = this[K.fmtDataview] ?: d.formatDataview,
             formatTasks = this[K.fmtTasks] ?: d.formatTasks,
+            formatProperties = this[K.fmtProperties] ?: d.formatProperties,
+            propertyNames = this[K.propertyNames]?.toFolderList()?.ifEmpty { null } ?: d.propertyNames,
             writeDoneToFile = this[K.writeDone] ?: d.writeDoneToFile,
             lastScanAt = this[K.lastScanAt] ?: d.lastScanAt,
             lastScanError = this[K.lastScanError],
@@ -114,6 +118,8 @@ class SettingsRepository(context: Context) {
         this[K.fmtReminder] = s.formatReminderPlugin
         this[K.fmtDataview] = s.formatDataview
         this[K.fmtTasks] = s.formatTasks
+        this[K.fmtProperties] = s.formatProperties
+        this[K.propertyNames] = s.propertyNames.joinToString("\n")
         this[K.writeDone] = s.writeDoneToFile
         this[K.lastScanAt] = s.lastScanAt
         if (s.lastScanError != null) this[K.lastScanError] = s.lastScanError else remove(K.lastScanError)

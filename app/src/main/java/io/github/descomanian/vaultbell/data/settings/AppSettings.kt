@@ -36,6 +36,9 @@ data class AppSettings(
     val formatReminderPlugin: Boolean = true,
     val formatDataview: Boolean = false,
     val formatTasks: Boolean = false,
+    val formatProperties: Boolean = false,
+    /** Frontmatter keys read as reminders when [formatProperties] is on. */
+    val propertyNames: List<String> = ParserOptions.DEFAULT_PROPERTY_NAMES,
     // Write-back
     val writeDoneToFile: Boolean = false,
     // Scan status
@@ -52,14 +55,17 @@ data class AppSettings(
                 if (formatReminderPlugin) add(ReminderFormat.REMINDER_PLUGIN)
                 if (formatDataview) add(ReminderFormat.DATAVIEW)
                 if (formatTasks) add(ReminderFormat.TASKS_EMOJI)
+                if (formatProperties) add(ReminderFormat.PROPERTY)
             }
 
-    val parserOptions: ParserOptions get() = ParserOptions(enabledFormats = enabledFormats, defaultTime = defaultTime)
+    val parserOptions: ParserOptions
+        get() = ParserOptions(enabledFormats = enabledFormats, defaultTime = defaultTime, propertyNames = propertyNames)
 
     val parserSignature: String
         get() =
             listOf(
                 enabledFormats.sorted().joinToString(","),
+                propertyNames.joinToString("|"),
                 defaultTimeMinutes,
                 includeFolders.joinToString("|"),
                 excludeFolders.joinToString("|"),

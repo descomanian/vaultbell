@@ -57,7 +57,37 @@ class SampleVaultTest {
         val files = vault.walkTopDown().filter { it.isFile && it.extension == "md" && !it.path.contains("/.") }.toList()
         val count = files.sumOf { ReminderParser().parse(it.readText()).size }
         val countAll = files.sumOf { ReminderParser(allFormats).parse(it.readText()).size }
-        assertEquals(8, count)
-        assertEquals(11, countAll)
+        assertEquals(12, count)
+        assertEquals(21, countAll)
+    }
+
+    @Test
+    fun propertyNote() {
+        val result = ReminderParser(allFormats).parse(File(vault, "Projekte/Abgabe.md").readText(), noteName = "Abgabe")
+        assertEquals(
+            listOf("Abgabe Projektarbeit", "Abgabe Projektarbeit", "Abgabe Projektarbeit", "Folien fertig"),
+            result.map { it.title }
+        )
+        assertEquals(
+            listOf(ReminderSource.PROPERTY, ReminderSource.PROPERTY, ReminderSource.PROPERTY, ReminderSource.TASK_LINE),
+            result.map { it.source }
+        )
+        assertEquals(listOf(3, 5, 6, 11), result.map { it.lineNumber })
+    }
+
+    @Test
+    fun routines() {
+        val result = ReminderParser(allFormats).parse(File(vault, "Routinen.md").readText())
+        assertEquals(
+            listOf(
+                "Müll rausbringen" to Recurrence.WEEKLY,
+                "Standup" to Recurrence.WEEKDAYS,
+                "Miete überweisen" to Recurrence.MONTHLY,
+                "Pflanzen gießen" to Recurrence.DAILY,
+                "Review" to Recurrence.WEEKLY,
+                "Alle zwei Wochen" to null
+            ),
+            result.map { it.title to it.recurrence }
+        )
     }
 }
