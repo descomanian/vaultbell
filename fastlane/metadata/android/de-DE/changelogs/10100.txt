@@ -1,0 +1,1 @@
+Vaultbell 1.1: Vorab-Erinnerungen zu mehreren Zeiten, „Dranbleiben“ am Fälligkeitstag, aktive Zeiten. Wiederkehrende Erinnerungen (täglich, wöchentlich, monatlich, werktags) und Note-Properties als Erinnerung. Option zum Ausblenden auf dem Sperrbildschirm. Behebt einen Absturz auf Android 8–11, Rückschreiben ist jetzt sicherer.

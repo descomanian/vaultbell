@@ -8,8 +8,10 @@
 </ul>
 <p><b>Features</b></p>
 <ul>
-<li>Reminder plugin, Dataview and Tasks emoji syntax</li>
-<li>Exact alarms, snooze, early reminder, repeat if ignored</li>
+<li>Reminder plugin, Dataview and Tasks emoji syntax, note properties</li>
+<li>Repeating reminders: daily, weekly, monthly, weekdays</li>
+<li>Exact alarms, snooze, repeat if ignored</li>
+<li>Reminder plan: several early reminders and "keep nudging" on the due day, with active hours</li>
 <li>Overdue / Today / Tomorrow / Upcoming with search and swipe actions</li>
 <li>Home screen widget in three sizes</li>
 <li>Material You, dark mode, AMOLED black, tablets and foldables</li>

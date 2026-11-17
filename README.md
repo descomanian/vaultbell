@@ -37,6 +37,9 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 | Reminder plugin | `- [ ] Text (@2026-11-14 18:30)` | on |
 | Dataview field | `- [ ] Text [due:: 2026-11-14 18:30]` | off |
 | Tasks emoji | `- [ ] Text ⏰ 2026-11-14 18:30` / `📅 2026-11-14` | off |
+| Note properties | `reminder: 2026-11-14T18:30` in the frontmatter | off |
+
+Repeating reminders work with every task format: `🔁 every day|week|month|weekday` or `| daily|weekly|monthly|weekdays`.
 
 ## Principles
 
@@ -52,7 +55,11 @@ Supported syntaxes (each can be switched on/off) are documented in [docs/syntax.
 - Container transform from list to detail, predictive back, edge-to-edge, haptics.
 - Material 3 with Dynamic Color, own fallback palettes (5 accents), light/dark/system and AMOLED black.
 - Two-pane layout and navigation rail on tablets and foldables.
-- Notification actions: done, snooze short, snooze long. Optional early reminder and repeat-if-ignored.
+- Notification actions: done, snooze short, snooze long. Optional repeat-if-ignored.
+- Reminder plan: several early reminders (e.g. 2 h, 1 h, 30 min, 15 min before) and "keep nudging" stages that get denser towards the due time, with active hours.
+- Repeating reminders (daily, weekly, monthly, weekdays); done completes only the current occurrence.
+- Note properties as reminders (`reminder`, `due`, `remind`, configurable).
+- Lock screen privacy: optionally hide reminders on the lock screen.
 - Reminders come through Do Not Disturb and silent mode (delivered as alarms, switchable).
 - Reliable background scans: Doze-proof wake-up alarm plus WorkManager, battery exemption in one tap.
 - Home screen widget in three sizes with Dynamic Color.
@@ -80,6 +87,9 @@ Vaultbell reads the files on the phone. Obsidian Sync (and most sync apps) only 
 
 **Notifications do not appear in Do Not Disturb.**
 Keep *Settings → Remind me in silent mode too* on. Reminders are then delivered like an alarm, which Do Not Disturb lets through by default.
+
+**My vault is inside `Android/data` (Obsidian's app folder) and cannot be selected.**
+Android does not let other apps open folders inside `Android/data`. Keep the vault in a normal folder such as `Documents/` (Obsidian can open a vault from there).
 
 **Background scans are late.**
 Allow background activity (*Settings → System → Battery optimization*). Some manufacturers pause apps aggressively; see [dontkillmyapp.com](https://dontkillmyapp.com).

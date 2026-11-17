@@ -1,0 +1,1 @@
+Vaultbell 1.1: early reminders at several lead times, "keep nudging" on the due day, active hours. Repeating reminders (daily, weekly, monthly, weekdays) and note properties as reminders. Option to hide reminders on the lock screen. Fixes a crash on Android 8–11 and makes write-back safer.
