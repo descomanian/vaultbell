@@ -103,6 +103,7 @@ fun HomeRoute(
                                 DoneResult.CONFLICT_NOT_WRITTEN -> R.string.snackbar_done_conflict
                                 DoneResult.NOT_UTF8 -> R.string.snackbar_done_not_utf8
                                 DoneResult.WRITE_FAILED -> R.string.snackbar_done_write_failed
+                                DoneResult.NEXT_INSTANCE -> R.string.snackbar_done_series
                                 DoneResult.LOCAL_ONLY -> R.string.snackbar_done
                             }
                         )

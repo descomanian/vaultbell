@@ -87,6 +87,7 @@
     <string name="snackbar_done_conflict">Erledigt. Die Notiz hat sich inzwischen geändert und wurde nicht bearbeitet.</string>
     <string name="snackbar_done_not_utf8">Erledigt. Die Notiz ist nicht als UTF-8 gespeichert und wurde nicht bearbeitet.</string>
     <string name="snackbar_done_write_failed">Erledigt. Schreiben in die Notiz ist fehlgeschlagen, bitte prüfe sie in Obsidian.</string>
+    <string name="snackbar_done_series">Erledigt. Die Serie geht mit dem nächsten Termin weiter.</string>
     <string name="snackbar_snoozed">Um %1$s verschoben</string>
     <string name="detail_file">Notiz</string>
     <string name="detail_line">Zeile</string>

@@ -87,6 +87,7 @@
     <string name="snackbar_done_conflict">Done. The note changed meanwhile, so it was not edited.</string>
     <string name="snackbar_done_not_utf8">Done. The note is not saved as UTF-8, so it was not edited.</string>
     <string name="snackbar_done_write_failed">Done. Writing to the note failed, please check it in Obsidian.</string>
+    <string name="snackbar_done_series">Done. The series continues with the next date.</string>
     <string name="snackbar_snoozed">Snoozed for %1$s</string>
     <string name="detail_file">Note</string>
     <string name="detail_line">Line</string>

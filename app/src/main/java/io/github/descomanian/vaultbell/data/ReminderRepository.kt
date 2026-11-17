@@ -6,10 +6,15 @@ import io.github.descomanian.vaultbell.alarm.ReminderAlarms
 import io.github.descomanian.vaultbell.data.db.FileStateEntity
 import io.github.descomanian.vaultbell.data.db.ReminderDao
 import io.github.descomanian.vaultbell.data.db.ReminderEntity
+import io.github.descomanian.vaultbell.data.db.anchorOrDue
+import io.github.descomanian.vaultbell.data.db.isProperty
+import io.github.descomanian.vaultbell.data.db.isSeries
+import io.github.descomanian.vaultbell.data.db.rule
 import io.github.descomanian.vaultbell.data.db.triggerAt
 import io.github.descomanian.vaultbell.data.settings.AppSettings
 import io.github.descomanian.vaultbell.data.settings.SettingsRepository
 import io.github.descomanian.vaultbell.parser.ParsedReminder
+import io.github.descomanian.vaultbell.parser.Recurrence
 import io.github.descomanian.vaultbell.parser.ReminderParser
 import io.github.descomanian.vaultbell.parser.TaskLineEditor
 import io.github.descomanian.vaultbell.scheduler.ScheduleMode
@@ -40,7 +45,7 @@ sealed interface ScanOutcome {
 }
 
 /** Result of marking a reminder done, so the UI can offer Undo when nothing was written. */
-enum class DoneResult { LOCAL_ONLY, WRITTEN_TO_FILE, CONFLICT_NOT_WRITTEN, NOT_UTF8, WRITE_FAILED }
+enum class DoneResult { LOCAL_ONLY, WRITTEN_TO_FILE, CONFLICT_NOT_WRITTEN, NOT_UTF8, WRITE_FAILED, NEXT_INSTANCE }
 
 /**
  * Single source of truth: keeps the Room index in sync with the vault and the alarms in sync with the index.
@@ -116,12 +121,16 @@ class ReminderRepository(
             dao.deleteFiles(removed.toList())
         }
 
+        rollSeries(s)
         val active = dao.allActive()
         settings.update { it.copy(lastScanAt = clock(), lastScanError = null, lastParserSignature = it.parserSignature) }
         return ScanOutcome.Success(files.size, changed, active.size, alarms.canScheduleExact())
     }
 
-    /** Diff by line hash: unchanged lines keep their id (and snooze/done state), edits become new entries. */
+    /**
+     * Diff by line hash: unchanged lines keep their id (and snooze/done state), edits become new entries.
+     * Series keep their current instance in the index as long as anchor and rule stay the same.
+     */
     private suspend fun syncFile(
         file: VaultFile,
         parsed: List<ParsedReminder>,
@@ -134,25 +143,12 @@ class ReminderRepository(
         val now = clock()
 
         for (p in parsed) {
-            val dueAt = p.dateTime.toEpochMillis()
             val match = pool[p.lineHash]?.removeFirstOrNull()
             if (match != null) {
                 keep += match.id
-                val dueChanged = match.dueAt != dueAt
-                val updated =
-                    match.copy(
-                        relativePath = file.relativePath,
-                        lineNumber = p.lineNumber,
-                        title = p.title,
-                        dueAt = dueAt,
-                        hasExplicitTime = p.hasExplicitTime,
-                        format = p.format.name,
-                        snoozedUntil = if (dueChanged) null else match.snoozedUntil,
-                        firedAt = if (dueChanged) null else match.firedAt
-                    )
-                if (updated != match) dao.update(updated)
-                if (dueChanged) alarms.schedule(updated, s, now)
+                updateMatch(match, p, file, s, now)
             } else {
+                val anchorAt = p.dateTime.toEpochMillis()
                 val entity =
                     ReminderEntity(
                         fileUri = uri,
@@ -161,9 +157,12 @@ class ReminderRepository(
                         title = p.title,
                         rawLine = p.rawLine,
                         lineHash = p.lineHash,
-                        dueAt = dueAt,
+                        dueAt = dueFor(p, anchorAt, stored = null, lastDone = null, now = now),
                         hasExplicitTime = p.hasExplicitTime,
-                        format = p.format.name
+                        format = p.format.name,
+                        source = p.source.name,
+                        recurrence = p.recurrence?.name,
+                        anchorAt = anchorAt
                     )
                 val id = dao.insert(entity)
                 alarms.schedule(entity.copy(id = id), s, now)
@@ -180,6 +179,79 @@ class ReminderRepository(
         }
     }
 
+    private suspend fun updateMatch(
+        match: ReminderEntity,
+        p: ParsedReminder,
+        file: VaultFile,
+        s: AppSettings,
+        now: Long
+    ) {
+        val anchorAt = p.dateTime.toEpochMillis()
+        val rule = p.recurrence?.name
+        val sameSeries = match.anchorOrDue == anchorAt && match.recurrence == rule
+        val dueAt = dueFor(p, anchorAt, stored = match.dueAt.takeIf { sameSeries }, lastDone = match.doneInstanceAt, now = now)
+        val dueChanged = match.dueAt != dueAt
+        val updated =
+            match.copy(
+                relativePath = file.relativePath,
+                lineNumber = p.lineNumber,
+                title = p.title,
+                dueAt = dueAt,
+                hasExplicitTime = p.hasExplicitTime,
+                format = p.format.name,
+                source = p.source.name,
+                recurrence = rule,
+                anchorAt = anchorAt,
+                snoozedUntil = if (dueChanged) null else match.snoozedUntil,
+                firedAt = if (dueChanged) null else match.firedAt,
+                planFiredAt = if (dueChanged) null else match.planFiredAt
+            )
+        if (updated != match) dao.update(updated)
+        if (dueChanged) alarms.schedule(updated, s, now)
+    }
+
+    /** One-off: the date from the note. Series: the current instance (see [Series.currentInstance]). */
+    private fun dueFor(
+        p: ParsedReminder,
+        anchorAt: Long,
+        stored: Long?,
+        lastDone: Long?,
+        now: Long
+    ): Long {
+        val rule = p.recurrence ?: return anchorAt
+        return Series
+            .currentInstance(rule, p.dateTime, stored?.toLocalDateTime(), lastDone?.toLocalDateTime(), now.toLocalDateTime())
+            .toEpochMillis()
+    }
+
+    /**
+     * Moves series whose instance lies before today to the current instance (missed instances are not caught up).
+     * Runs after every scan and on reschedule, because unchanged files are not parsed again.
+     */
+    private suspend fun rollSeries(s: AppSettings) {
+        val now = clock()
+        dao
+            .allActive()
+            .filter { it.isSeries && (it.snoozedUntil ?: 0L) <= now }
+            .forEach { e ->
+                val rule = e.rule() ?: return@forEach
+                val due =
+                    Series
+                        .currentInstance(
+                            rule,
+                            e.anchorOrDue.toLocalDateTime(),
+                            e.dueAt.toLocalDateTime(),
+                            e.doneInstanceAt?.toLocalDateTime(),
+                            now.toLocalDateTime()
+                        ).toEpochMillis()
+                if (due != e.dueAt) {
+                    val rolled = e.copy(dueAt = due, snoozedUntil = null, firedAt = null, planFiredAt = null)
+                    dao.update(rolled)
+                    alarms.schedule(rolled, s, now)
+                }
+            }
+    }
+
     private suspend fun recordScan(error: String?) {
         settings.update { it.copy(lastScanAt = clock(), lastScanError = error) }
     }
@@ -188,6 +260,7 @@ class ReminderRepository(
     suspend fun rescheduleAll(): ScheduleMode? =
         withContext(Dispatchers.IO) {
             val s = settings.current()
+            rollSeries(s)
             val now = clock()
             var mode: ScheduleMode? = null
             dao.allActive().forEach { e -> alarms.schedule(e, s, now)?.let { mode = it } }
@@ -221,17 +294,34 @@ class ReminderRepository(
             val e = dao.get(id) ?: return@withContext null
             alarms.cancel(id)
             notifications.cancel(id)
-            val s = settings.current()
+            val rule = e.rule()
             val result =
-                if (s.writeDoneToFile) {
-                    writeDone(e)
+                if (rule != null) {
+                    // Series: only this instance is done, the note is never changed.
+                    advanceSeries(e, rule)
+                    DoneResult.NEXT_INSTANCE
                 } else {
-                    DoneResult.LOCAL_ONLY
+                    val written = if (settings.current().writeDoneToFile && !e.isProperty) writeDone(e) else DoneResult.LOCAL_ONLY
+                    dao.update(e.copy(completedLocally = true))
+                    written
                 }
-            dao.update(e.copy(completedLocally = true))
             onChanged()
             result
         }
+
+    private suspend fun advanceSeries(
+        e: ReminderEntity,
+        rule: Recurrence
+    ) {
+        val now = clock()
+        val next =
+            Series
+                .nextAfterDone(rule, e.anchorOrDue.toLocalDateTime(), e.dueAt.toLocalDateTime(), now.toLocalDateTime())
+                .toEpochMillis()
+        val advanced = e.copy(dueAt = next, doneInstanceAt = e.dueAt, snoozedUntil = null, firedAt = null, planFiredAt = null)
+        dao.update(advanced)
+        alarms.schedule(advanced, settings.current(), now)
+    }
 
     /**
      * Strict write-back (B2): only valid UTF-8, only the indexed line, original line endings,
@@ -259,7 +349,13 @@ class ReminderRepository(
     suspend fun undoDone(id: Long) =
         withContext<Unit>(Dispatchers.IO) {
             val e = dao.get(id) ?: return@withContext
-            val restored = e.copy(completedLocally = false)
+            val previous = e.doneInstanceAt
+            val restored =
+                if (e.isSeries && previous != null) {
+                    e.copy(dueAt = previous, doneInstanceAt = null, snoozedUntil = null, firedAt = null, planFiredAt = null)
+                } else {
+                    e.copy(completedLocally = false)
+                }
             dao.update(restored)
             alarms.schedule(restored, settings.current(), clock())
             onChanged()

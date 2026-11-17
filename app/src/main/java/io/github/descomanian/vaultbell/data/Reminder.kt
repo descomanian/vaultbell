@@ -1,7 +1,10 @@
 package io.github.descomanian.vaultbell.data
 
 import io.github.descomanian.vaultbell.data.db.ReminderEntity
+import io.github.descomanian.vaultbell.data.db.isProperty
+import io.github.descomanian.vaultbell.data.db.rule
 import io.github.descomanian.vaultbell.data.db.triggerAt
+import io.github.descomanian.vaultbell.parser.Recurrence
 import io.github.descomanian.vaultbell.parser.ReminderFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -18,7 +21,11 @@ data class Reminder(
     val relativePath: String,
     val lineNumber: Int,
     val rawLine: String,
-    val format: ReminderFormat
+    val format: ReminderFormat,
+    /** Repeat rule of a series; [due] is then the current instance. */
+    val recurrence: Recurrence? = null,
+    /** From a note property instead of a task line. */
+    val isProperty: Boolean = false
 ) {
     val fileName: String get() = relativePath.substringAfterLast('/').removeSuffix(".md")
     val folder: String get() = relativePath.substringBeforeLast('/', missingDelimiterValue = "")
@@ -51,5 +58,7 @@ fun ReminderEntity.toModel(): Reminder =
         relativePath = relativePath,
         lineNumber = lineNumber,
         rawLine = rawLine,
-        format = ReminderFormat.entries.firstOrNull { it.name == format } ?: ReminderFormat.REMINDER_PLUGIN
+        format = ReminderFormat.entries.firstOrNull { it.name == format } ?: ReminderFormat.REMINDER_PLUGIN,
+        recurrence = rule(),
+        isProperty = isProperty
     )

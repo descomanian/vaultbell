@@ -30,6 +30,8 @@ android {
         versionCode = providers.gradleProperty("vaultbell.versionCode").get().toInt()
         versionName = providers.gradleProperty("vaultbell.versionName").get()
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         resValue("string", "app_name", appName)
         buildConfigField("String", "REPO_URL", "\"$repoUrl\"")
         buildConfigField("String", "APP_NAME", "\"$appName\"")
@@ -85,6 +87,11 @@ android {
         disable += "MissingTranslation"
     }
 
+    // Room schemas for MigrationTest (instrumented, run with connectedDebugAndroidTest).
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}", "DebugProbesKt.bin")
     }
@@ -134,4 +141,9 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 }
