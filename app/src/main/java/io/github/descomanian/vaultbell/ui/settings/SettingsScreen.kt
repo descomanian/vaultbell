@@ -37,6 +37,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.Palette
@@ -269,6 +270,14 @@ fun SettingsScreen(
                         icon = Icons.Rounded.NotificationsActive,
                         checked = s.breakThroughSilence,
                         onCheckedChange = { v -> actions.update { it.copy(breakThroughSilence = v) } }
+                    )
+                    SettingsDivider()
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.settings_lock_screen_hide),
+                        description = stringResource(R.string.settings_lock_screen_hide_desc),
+                        icon = Icons.Rounded.Lock,
+                        checked = s.hideOnLockScreen,
+                        onCheckedChange = { v -> actions.update { it.copy(hideOnLockScreen = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(

@@ -101,6 +101,8 @@ fun HomeRoute(
                             when (event.result) {
                                 DoneResult.WRITTEN_TO_FILE -> R.string.snackbar_done_written
                                 DoneResult.CONFLICT_NOT_WRITTEN -> R.string.snackbar_done_conflict
+                                DoneResult.NOT_UTF8 -> R.string.snackbar_done_not_utf8
+                                DoneResult.WRITE_FAILED -> R.string.snackbar_done_write_failed
                                 DoneResult.LOCAL_ONLY -> R.string.snackbar_done
                             }
                         )

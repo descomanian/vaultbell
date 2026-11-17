@@ -5,6 +5,9 @@
     <string name="channel_alarm_desc">Erinnerungen wie ein Wecker: Sie kommen auch bei Nicht stören und im Lautlos-Modus durch.</string>
     <string name="settings_break_silence">Auch im Ruhemodus erinnern</string>
     <string name="settings_break_silence_desc">Stellt Erinnerungen als Alarm zu, damit Nicht stören und Lautlos sie nicht verschlucken</string>
+    <string name="settings_lock_screen_hide">Auf dem Sperrbildschirm ausblenden</string>
+    <string name="settings_lock_screen_hide_desc">Ton und Vibration wie gewohnt. Titel und Notizpfad erscheinen erst nach dem Entsperren.</string>
+    <string name="notification_public_title">Erinnerung</string>
     <string name="settings_sync_hint">Obsidian Sync aktualisiert die Notizen auf diesem Handy nur, während Obsidian läuft. Erinnerungen, die du an einem anderen Gerät einträgst, erscheinen hier, sobald Obsidian auf dem Handy synchronisiert hat.</string>
     <string name="onboarding_background_title">Im Hintergrund laufen</string>
     <string name="onboarding_background_text">Android pausiert Apps, um Akku zu sparen. Lass Vaultbell uneingeschränkt laufen, damit neue Erinnerungen im Vault auch bei ruhendem Handy erkannt werden.</string>
@@ -81,6 +84,8 @@
     <string name="snackbar_done">Als erledigt markiert</string>
     <string name="snackbar_done_written">Erledigt und in der Notiz abgehakt</string>
     <string name="snackbar_done_conflict">Erledigt. Die Notiz hat sich inzwischen geändert und wurde nicht bearbeitet.</string>
+    <string name="snackbar_done_not_utf8">Erledigt. Die Notiz ist nicht als UTF-8 gespeichert und wurde nicht bearbeitet.</string>
+    <string name="snackbar_done_write_failed">Erledigt. Schreiben in die Notiz ist fehlgeschlagen, bitte prüfe sie in Obsidian.</string>
     <string name="snackbar_snoozed">Um %1$s verschoben</string>
     <string name="detail_file">Notiz</string>
     <string name="detail_line">Zeile</string>
@@ -104,8 +109,9 @@
     <string name="onboarding_vault_detected">Obsidian-Vault erkannt</string>
     <string name="onboarding_vault_not_detected">Kein .obsidian-Ordner gefunden. Funktioniert trotzdem mit jedem Markdown-Ordner.</string>
     <string name="onboarding_vault_name_hint">Wird für Links genutzt, die Notizen in Obsidian öffnen. Muss dem Vault-Namen in Obsidian entsprechen.</string>
-    <string name="onboarding_vault_error">Dieser Ordner kann nicht gelesen werden. Bitte wähle einen anderen.</string>
+    <string name="onboarding_vault_error">Dieser Ordner kann nicht gelesen werden. Bitte wähle einen anderen. Ordner in Android/data sperrt Android für andere Apps.</string>
     <string name="onboarding_vault_why">Android gibt nur für diesen einen Ordner Zugriff frei. Die App schreibt nur in Notizen, wenn du später \"Erledigt in Notiz schreiben\" aktivierst.</string>
+    <string name="onboarding_vault_android_data">Vaults in Android/data, etwa im eigenen App-Ordner von Obsidian, können andere Apps nicht öffnen. Lege den Vault in einen normalen Ordner wie Documents/.</string>
     <string name="onboarding_notifications_title">Benachrichtigungen erlauben</string>
     <string name="onboarding_notifications_text">Erinnerungen erscheinen als Benachrichtigung, mit Aktionen für Erledigt und Später.</string>
     <string name="onboarding_notifications_why">Ohne diese Berechtigung kann die App deine Notizen zwar lesen, dich aber nicht erinnern.</string>

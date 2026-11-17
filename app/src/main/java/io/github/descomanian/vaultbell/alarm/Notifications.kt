@@ -114,8 +114,21 @@ class Notifications(private val context: Context) {
                     context.getString(R.string.action_snooze_minutes, s.snoozeLongMinutes),
                     actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_LONG, 3)
                 )
+        builder.setVisibility(if (s.hideOnLockScreen) NotificationCompat.VISIBILITY_SECRET else NotificationCompat.VISIBILITY_PRIVATE)
+        // Shown instead of the full notification when Android hides sensitive lock screen content: no title, no path.
+        builder.setPublicVersion(publicVersion(e, s))
         manager.notify(id, builder.build())
     }
+
+    private fun publicVersion(
+        e: ReminderEntity,
+        s: AppSettings
+    ) = NotificationCompat.Builder(context, channelFor(s))
+        .setSmallIcon(R.drawable.ic_notification)
+        .setContentTitle(context.getString(R.string.notification_public_title))
+        .setContentText(DateUtils.formatDateTime(context, e.triggerAt, DateUtils.FORMAT_SHOW_TIME))
+        .setCategory(if (s.breakThroughSilence) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
+        .build()
 
     fun cancel(reminderId: Long) = manager.cancel(notificationId(reminderId))
 

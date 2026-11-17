@@ -5,6 +5,9 @@
     <string name="channel_alarm_desc">Reminders delivered like an alarm: they come through Do Not Disturb and silent mode.</string>
     <string name="settings_break_silence">Remind me in silent mode too</string>
     <string name="settings_break_silence_desc">Delivers reminders as alarms, so Do Not Disturb and silent mode do not swallow them</string>
+    <string name="settings_lock_screen_hide">Hide on lock screen</string>
+    <string name="settings_lock_screen_hide_desc">Sound and vibration as usual. Title and note path only appear after unlocking.</string>
+    <string name="notification_public_title">Reminder</string>
     <string name="settings_sync_hint">Obsidian Sync only updates the notes on this phone while Obsidian is running. Reminders you add on another device appear here once Obsidian has synced on the phone.</string>
     <string name="onboarding_background_title">Run in the background</string>
     <string name="onboarding_background_text">Android pauses apps to save battery. Let Vaultbell run unrestricted so it notices new reminders in your vault while the phone is idle.</string>
@@ -81,6 +84,8 @@
     <string name="snackbar_done">Marked as done</string>
     <string name="snackbar_done_written">Done and checked off in the note</string>
     <string name="snackbar_done_conflict">Done. The note changed meanwhile, so it was not edited.</string>
+    <string name="snackbar_done_not_utf8">Done. The note is not saved as UTF-8, so it was not edited.</string>
+    <string name="snackbar_done_write_failed">Done. Writing to the note failed, please check it in Obsidian.</string>
     <string name="snackbar_snoozed">Snoozed for %1$s</string>
     <string name="detail_file">Note</string>
     <string name="detail_line">Line</string>
@@ -104,8 +109,9 @@
     <string name="onboarding_vault_detected">Obsidian vault detected</string>
     <string name="onboarding_vault_not_detected">No .obsidian folder found. Works anyway with any Markdown folder.</string>
     <string name="onboarding_vault_name_hint">Used for links that open notes in Obsidian. Must match the vault name in Obsidian.</string>
-    <string name="onboarding_vault_error">This folder cannot be read. Please choose another one.</string>
+    <string name="onboarding_vault_error">This folder cannot be read. Please choose another one. Android blocks folders inside Android/data for other apps.</string>
     <string name="onboarding_vault_why">Android grants access to this one folder only. The app writes to notes only if you enable \"Write done to note\" later.</string>
+    <string name="onboarding_vault_android_data">Vaults inside Android/data, such as the app folder of Obsidian, cannot be opened by other apps. Keep the vault in a normal folder like Documents/.</string>
     <string name="onboarding_notifications_title">Allow notifications</string>
     <string name="onboarding_notifications_text">Reminders appear as notifications, with actions for done and snooze.</string>
     <string name="onboarding_notifications_why">Without this permission the app can still index your notes, but it cannot alert you.</string>

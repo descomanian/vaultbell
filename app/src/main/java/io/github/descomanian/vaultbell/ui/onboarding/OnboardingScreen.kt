@@ -284,6 +284,8 @@ private fun VaultPage(
     }
     Spacer(Modifier.height(Spacing.md))
     InfoCard(stringResource(R.string.onboarding_vault_why))
+    Spacer(Modifier.height(Spacing.sm))
+    InfoCard(stringResource(R.string.onboarding_vault_android_data))
 }
 
 @Composable

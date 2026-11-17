@@ -16,6 +16,7 @@ import io.github.descomanian.vaultbell.scheduler.ScheduleMode
 import io.github.descomanian.vaultbell.vault.ScanFilter
 import io.github.descomanian.vaultbell.vault.VaultAccess
 import io.github.descomanian.vaultbell.vault.VaultFile
+import io.github.descomanian.vaultbell.vault.WriteOutcome
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -39,7 +40,7 @@ sealed interface ScanOutcome {
 }
 
 /** Result of marking a reminder done, so the UI can offer Undo when nothing was written. */
-enum class DoneResult { LOCAL_ONLY, WRITTEN_TO_FILE, CONFLICT_NOT_WRITTEN }
+enum class DoneResult { LOCAL_ONLY, WRITTEN_TO_FILE, CONFLICT_NOT_WRITTEN, NOT_UTF8, WRITE_FAILED }
 
 /**
  * Single source of truth: keeps the Room index in sync with the vault and the alarms in sync with the index.
@@ -232,16 +233,23 @@ class ReminderRepository(
             result
         }
 
+    /**
+     * Strict write-back (B2): only valid UTF-8, only the indexed line, original line endings,
+     * verified by reading back and restored on mismatch.
+     */
     private fun writeDone(e: ReminderEntity): DoneResult {
         val uri = Uri.parse(e.fileUri)
         return try {
-            val content = vault.readText(uri)
-            when (val edit = TaskLineEditor.markDoneInContent(content, e.lineNumber, e.lineHash)) {
-                is TaskLineEditor.EditResult.Success -> {
-                    vault.writeText(uri, edit.content)
-                    DoneResult.WRITTEN_TO_FILE
-                }
-                else -> DoneResult.CONFLICT_NOT_WRITTEN
+            val original = vault.readBytes(uri)
+            when (val edit = TaskLineEditor.markDoneInFile(original, e.lineNumber, e.lineHash)) {
+                is TaskLineEditor.FileEditResult.Edited ->
+                    if (vault.replaceVerified(uri, original, edit.bytes) == WriteOutcome.WRITTEN) {
+                        DoneResult.WRITTEN_TO_FILE
+                    } else {
+                        DoneResult.WRITE_FAILED
+                    }
+                is TaskLineEditor.FileEditResult.Rejected ->
+                    if (edit.reason == TaskLineEditor.EditResult.NotUtf8) DoneResult.NOT_UTF8 else DoneResult.CONFLICT_NOT_WRITTEN
             }
         } catch (ex: Exception) {
             DoneResult.CONFLICT_NOT_WRITTEN

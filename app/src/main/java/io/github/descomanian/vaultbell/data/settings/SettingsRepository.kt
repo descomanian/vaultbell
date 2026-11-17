@@ -42,6 +42,7 @@ class SettingsRepository(context: Context) {
         val sound = booleanPreferencesKey("sound_and_vibration")
         val breakSilence = booleanPreferencesKey("break_through_silence")
         val showOverdue = booleanPreferencesKey("show_overdue_on_start")
+        val hideOnLockScreen = booleanPreferencesKey("hide_on_lock_screen")
         val vaultUri = stringPreferencesKey("vault_uri")
         val vaultName = stringPreferencesKey("vault_name")
         val include = stringPreferencesKey("include_folders")
@@ -73,6 +74,7 @@ class SettingsRepository(context: Context) {
             soundAndVibration = this[K.sound] ?: d.soundAndVibration,
             breakThroughSilence = this[K.breakSilence] ?: d.breakThroughSilence,
             showOverdueOnStart = this[K.showOverdue] ?: d.showOverdueOnStart,
+            hideOnLockScreen = this[K.hideOnLockScreen] ?: d.hideOnLockScreen,
             vaultUri = this[K.vaultUri],
             vaultName = this[K.vaultName] ?: d.vaultName,
             includeFolders = this[K.include].toFolderList(),
@@ -103,6 +105,7 @@ class SettingsRepository(context: Context) {
         this[K.sound] = s.soundAndVibration
         this[K.breakSilence] = s.breakThroughSilence
         this[K.showOverdue] = s.showOverdueOnStart
+        this[K.hideOnLockScreen] = s.hideOnLockScreen
         if (s.vaultUri != null) this[K.vaultUri] = s.vaultUri else remove(K.vaultUri)
         this[K.vaultName] = s.vaultName
         this[K.include] = s.includeFolders.joinToString("\n")

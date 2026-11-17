@@ -5,6 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
 
 /** A Markdown file inside the vault. */
 data class VaultFile(
@@ -55,6 +59,7 @@ data class ScanFilter(
  */
 class VaultAccess(context: Context) {
     private val resolver = context.applicationContext.contentResolver
+    private val backupDir = File(context.applicationContext.cacheDir, "write-backup")
 
     fun persistPermission(treeUri: Uri) {
         val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -114,17 +119,55 @@ class VaultAccess(context: Context) {
         return result
     }
 
-    fun readText(documentUri: Uri): String =
-        resolver.openInputStream(documentUri)?.use { it.readBytes().toString(Charsets.UTF_8) }
-            ?: error("Cannot open $documentUri")
+    /** Lenient read for scanning. Files above [MAX_FILE_BYTES] throw [FileTooLargeException] and are skipped by the scan. */
+    fun readText(documentUri: Uri): String = readBytes(documentUri).toString(Charsets.UTF_8)
 
-    /** Overwrites the file (truncate). Only called for explicit user actions with a verified line hash. */
-    fun writeText(
+    fun readBytes(
         documentUri: Uri,
-        text: String
+        maxBytes: Int = MAX_FILE_BYTES
+    ): ByteArray =
+        resolver.openInputStream(documentUri)?.use { readLimited(it, maxBytes) }
+            ?: throw IOException("Cannot open $documentUri")
+
+    /**
+     * Replaces the file content for an explicit user action (write-back).
+     *
+     * SAF offers no atomic replace (no rename-over, and delete + create would change the document identity
+     * that sync tools track). So: back up [original] to the app cache, write, read back and compare.
+     * On any mismatch the original bytes are written back. The backup is deleted unless the restore failed too.
+     */
+    fun replaceVerified(
+        documentUri: Uri,
+        original: ByteArray,
+        updated: ByteArray
+    ): WriteOutcome {
+        val backup = backup(original)
+        val outcome =
+            VerifiedWrite(
+                write = { bytes -> write(documentUri, bytes) },
+                read = { readBytes(documentUri, maxOf(MAX_FILE_BYTES, original.size, updated.size)) }
+            ).replace(original, updated)
+        if (outcome != WriteOutcome.DAMAGED) backup?.delete()
+        return outcome
+    }
+
+    private fun write(
+        documentUri: Uri,
+        bytes: ByteArray
     ) {
-        val out = resolver.openOutputStream(documentUri, "wt") ?: error("Cannot write $documentUri")
-        out.use { it.write(text.toByteArray(Charsets.UTF_8)) }
+        val out = resolver.openOutputStream(documentUri, "wt") ?: throw IOException("Cannot write $documentUri")
+        out.use { it.write(bytes) }
+    }
+
+    private fun backup(bytes: ByteArray): File? =
+        runCatching {
+            backupDir.mkdirs()
+            File(backupDir, "note-${System.currentTimeMillis()}.md.bak").apply { writeBytes(bytes) }
+        }.getOrNull()
+
+    companion object {
+        /** Notes above this size are not read (protects memory on huge or binary files named `.md`). */
+        const val MAX_FILE_BYTES = 4 * 1024 * 1024
     }
 
     private data class Child(val id: String, val name: String, val isDirectory: Boolean, val lastModified: Long)
@@ -148,4 +191,57 @@ class VaultAccess(context: Context) {
         }
         return list
     }
+}
+
+class FileTooLargeException(limit: Int) : IOException("File is larger than $limit bytes")
+
+/** Reads at most [maxBytes]; throws [FileTooLargeException] instead of loading larger streams. */
+fun readLimited(
+    input: InputStream,
+    maxBytes: Int
+): ByteArray {
+    val out = ByteArrayOutputStream()
+    val chunk = ByteArray(READ_CHUNK)
+    var total = 0
+    while (true) {
+        val n = input.read(chunk)
+        if (n < 0) break
+        total += n
+        if (total > maxBytes) throw FileTooLargeException(maxBytes)
+        out.write(chunk, 0, n)
+    }
+    return out.toByteArray()
+}
+
+private const val READ_CHUNK = 64 * 1024
+
+enum class WriteOutcome {
+    /** New content written and verified by reading it back. */
+    WRITTEN,
+
+    /** Writing failed or read back differently; the original content was restored and verified. */
+    ROLLED_BACK,
+
+    /** Writing and restoring failed. A backup of the original stays in the app cache. */
+    DAMAGED
+}
+
+/** Write, read back, compare, and restore on mismatch. Pure logic, unit-tested without Android. */
+class VerifiedWrite(
+    private val write: (ByteArray) -> Unit,
+    private val read: () -> ByteArray
+) {
+    fun replace(
+        original: ByteArray,
+        updated: ByteArray
+    ): WriteOutcome {
+        if (attempt(updated)) return WriteOutcome.WRITTEN
+        return if (attempt(original)) WriteOutcome.ROLLED_BACK else WriteOutcome.DAMAGED
+    }
+
+    private fun attempt(bytes: ByteArray): Boolean =
+        runCatching {
+            write(bytes)
+            read().contentEquals(bytes)
+        }.getOrDefault(false)
 }

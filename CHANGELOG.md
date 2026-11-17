@@ -4,6 +4,20 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+Target: 1.1.0 (version code 10100).
+
+### Fixed
+- Crash on Android 8–11 after every scan and after boot (`NoSuchMethodError`): wrong operator precedence when deciding between exact and inexact alarms. The scan heartbeat on Android 12+ is no longer scheduled as an exact alarm by mistake.
+- Write-back ("Write done to note") is now strict: only valid UTF-8 notes are edited, only the indexed line changes, mixed line endings and a BOM stay as they were, and the result is read back and compared. On a mismatch the original content is restored; a backup is kept in the app cache until the write is verified.
+
+### Added
+- Option "Hide on lock screen": sound and vibration as usual, title and note path appear only after unlocking. When Android hides sensitive lock screen content, reminders now show a short version without title and path.
+- Onboarding explains that vaults inside `Android/data` (e.g. the app folder of Obsidian) cannot be opened by other apps.
+
+### Security
+- Notes larger than 4 MiB are no longer read.
+- Gradle wrapper verifies the distribution checksum (`distributionSha256Sum`).
+
 ## [1.0.0] - 2026-11-16
 
 First stable release after field tests on a Nothing Phone (3a) Lite.

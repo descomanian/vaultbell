@@ -24,6 +24,8 @@ data class AppSettings(
     /** Deliver as alarm: passes Do Not Disturb and plays on the alarm stream in silent mode. */
     val breakThroughSilence: Boolean = true,
     val showOverdueOnStart: Boolean = true,
+    /** Hide reminders on the lock screen (title and note path appear after unlocking). */
+    val hideOnLockScreen: Boolean = false,
     // Vault
     val vaultUri: String? = null,
     val vaultName: String = "",

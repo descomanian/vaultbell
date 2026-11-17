@@ -8,6 +8,20 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 
+/**
+ * Whether an alarm is set as exact alarm.
+ * [canScheduleExactAlarms] is only called on Android 12+ (API 31), where the method exists,
+ * and never for inexact requests such as the scan heartbeat.
+ */
+fun shouldScheduleExact(
+    exact: Boolean,
+    sdkInt: Int,
+    canScheduleExactAlarms: () -> Boolean
+): Boolean = exact && (sdkInt < API_EXACT_ALARM_PERMISSION || canScheduleExactAlarms())
+
+/** Android 12 (S): exact alarms need the SCHEDULE_EXACT_ALARM permission from here on. */
+const val API_EXACT_ALARM_PERMISSION = 31
+
 enum class ScheduleMode {
     /** setExactAndAllowWhileIdle: fires on the minute, even in Doze. */
     EXACT,
@@ -40,7 +54,7 @@ class AlarmScheduler(
         exact: Boolean = true
     ): ScheduleMode {
         val pending = pendingIntent(requestCode, extras)
-        if (exact && Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
+        if (shouldScheduleExact(exact, Build.VERSION.SDK_INT, ::canScheduleExact)) {
             try {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
                 return ScheduleMode.EXACT
