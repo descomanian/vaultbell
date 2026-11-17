@@ -230,22 +230,8 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_pre_reminder),
                         description = stringResource(R.string.settings_pre_reminder_desc),
                         icon = Icons.Rounded.Timer,
-                        checked = s.preReminderEnabled,
-                        onCheckedChange = { v -> actions.updateAndReschedule { it.copy(preReminderEnabled = v) } }
-                    )
-                    var preMinutes by remember(s.preReminderMinutes) { mutableFloatStateOf(s.preReminderMinutes.toFloat()) }
-                    SettingsSliderRow(
-                        title = stringResource(R.string.settings_pre_reminder_minutes),
-                        value = preMinutes,
-                        valueLabel = formatMinutes(context, preMinutes.toInt()),
-                        onValueChange = { preMinutes = it },
-                        onValueChangeFinished = {
-                            val v = preMinutes.toInt()
-                            actions.updateAndReschedule { it.copy(preReminderMinutes = v) }
-                        },
-                        valueRange = 5f..120f,
-                        steps = 22,
-                        visible = s.preReminderEnabled
+                        checked = s.planEnabled,
+                        onCheckedChange = { v -> actions.updateAndReschedule { it.copy(planEnabled = v) } }
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
@@ -757,7 +743,7 @@ private val previewState =
             vaultUri = "content://preview",
             vaultName = PreviewData.VAULT_NAME,
             excludeFolders = listOf("Archiv", "Templates"),
-            preReminderEnabled = true,
+            planEnabled = true,
             lastScanAt = System.currentTimeMillis() - 3 * 60_000,
             dynamicColor = false
         ),

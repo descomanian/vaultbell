@@ -11,8 +11,18 @@ Target: 1.1.0 (version code 10100).
 - Write-back ("Write done to note") is now strict: only valid UTF-8 notes are edited, only the indexed line changes, mixed line endings and a BOM stay as they were, and the result is read back and compared. On a mismatch the original content is restored; a backup is kept in the app cache until the write is verified.
 
 ### Added
+- Reminder plan: several early reminders at configurable lead times (default 2 h, 1 h, 30 min, 15 min; off by default). Replaces the single early reminder; an existing early reminder setting is carried over.
+- "Keep nudging": repeated reminders on the due day that get denser towards the due time, as editable stages (default: every 2 h from the start of the day, hourly from 2 h before, every 30 min from 1 h before). Only for reminders with an explicit time; stops when done, snoozed, opened or swiped away.
+- Active hours (default 08:00–22:00) for early reminders and nudges; the main alarm always rings. Early reminders are normal notifications unless "break through Do Not Disturb" is switched on for them too.
+- Note properties as reminders (`reminder`, `due`, `remind`; names configurable; off by default). Done is kept in the app only and resets when the property changes.
+- Repeating reminders: `🔁 every day|week|month|weekday` (Tasks plugin) and `| daily|weekly|monthly|weekdays`. Done completes only the current instance; missed instances are skipped, the note is never changed.
 - Option "Hide on lock screen": sound and vibration as usual, title and note path appear only after unlocking. When Android hides sensitive lock screen content, reminders now show a short version without title and path.
 - Onboarding explains that vaults inside `Android/data` (e.g. the app folder of Obsidian) cannot be opened by other apps.
+
+### Changed
+- Early reminders, nudges and the main alarm share one notification per reminder, so a later one replaces the earlier one. Early reminders offer "Done" but no snooze.
+- Alarms are chained (only the next early reminder is armed) and reminders more than 14 days away are armed later, which keeps the app far below Android's limit of concurrent alarms.
+- Index database schema 2 (migrated, done and snooze states are kept). YAML frontmatter without a closing `---` is now read as normal text.
 
 ### Security
 - Notes larger than 4 MiB are no longer read.

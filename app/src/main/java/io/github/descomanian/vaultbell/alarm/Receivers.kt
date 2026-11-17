@@ -96,7 +96,11 @@ class SystemEventReceiver : BroadcastReceiver() {
             }
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED
-            -> ScanWork.runNow(context, force = true)
+            -> {
+                // Plan points and series are local times: re-arm now, the forced scan recomputes due times.
+                runAsync(context) { app -> app.container.repository.rescheduleAll() }
+                ScanWork.runNow(context, force = true)
+            }
         }
     }
 }

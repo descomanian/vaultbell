@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import io.github.descomanian.vaultbell.VaultbellApplication
 import io.github.descomanian.vaultbell.ui.MainActivity
+import kotlinx.coroutines.launch
 
 /**
  * Invisible activity behind a notification tap.
@@ -16,7 +17,10 @@ class OpenNoteActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val id = intent.getLongExtra(ReminderAlarms.EXTRA_ID, -1L)
-        if (id >= 0) (application as VaultbellApplication).container.repository.onNotificationHandled(id)
+        if (id >= 0) {
+            val container = (application as VaultbellApplication).container
+            container.appScope.launch { container.repository.onNotificationHandled(id) }
+        }
 
         val obsidian = intent.getStringExtra(EXTRA_OBSIDIAN_URI)?.let(Uri::parse)
         val document = intent.getStringExtra(EXTRA_DOCUMENT_URI)?.let(Uri::parse)

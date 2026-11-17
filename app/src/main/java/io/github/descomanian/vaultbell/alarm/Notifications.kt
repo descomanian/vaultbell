@@ -20,6 +20,7 @@ import io.github.descomanian.vaultbell.data.db.ReminderEntity
 import io.github.descomanian.vaultbell.data.db.triggerAt
 import io.github.descomanian.vaultbell.data.settings.AppSettings
 import io.github.descomanian.vaultbell.system.ObsidianLinks
+import io.github.descomanian.vaultbell.ui.common.formatMinutes
 
 class Notifications(private val context: Context) {
     private val manager = NotificationManagerCompat.from(context)
@@ -60,40 +61,42 @@ class Notifications(private val context: Context) {
                     ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
                 )
 
+    /**
+     * Main alarm, repeat or early reminder ([ReminderAlarms.KIND_PLAN], [minutesLeft] until due).
+     * All kinds share one notification per reminder, so a later one replaces the earlier one instead of stacking.
+     */
     @SuppressLint("MissingPermission")
     fun show(
         e: ReminderEntity,
         kind: Int,
-        s: AppSettings
+        s: AppSettings,
+        minutesLeft: Int = 0
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
-        val id = notificationId(e.id)
+        val early = kind == ReminderAlarms.KIND_PLAN
+        // Early reminders are normal notifications unless the user lets them pass Do Not Disturb too.
+        val alarmLike = s.breakThroughSilence && (!early || s.planBreakThrough)
         val whenText =
             DateUtils.formatDateTime(
                 context,
                 e.triggerAt,
                 DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL
             )
-        val text =
-            if (kind == ReminderAlarms.KIND_PRE) {
-                context.getString(R.string.notification_pre, s.preReminderMinutes, whenText)
-            } else {
-                whenText
-            }
+        val text = if (early) context.getString(R.string.notification_pre, formatMinutes(context, minutesLeft), whenText) else whenText
 
         val builder =
-            NotificationCompat.Builder(context, channelFor(s))
+            NotificationCompat.Builder(context, channelFor(s, alarmLike))
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(e.title)
                 .setContentText(text)
                 .setSubText(e.relativePath.removeSuffix(".md"))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 // Do Not Disturb filters by category: ALARM passes by default, REMINDER does not.
-                .setCategory(if (s.breakThroughSilence) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
+                .setCategory(if (alarmLike) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(e.triggerAt)
                 .setShowWhen(true)
@@ -105,29 +108,40 @@ class Notifications(private val context: Context) {
                     R.drawable.ic_notification,
                     context.getString(R.string.action_done),
                     actionIntent(e.id, NotificationActionReceiver.ACTION_DONE, 1)
-                ).addAction(
-                    R.drawable.ic_notification,
-                    context.getString(R.string.action_snooze_minutes, s.snoozeShortMinutes),
-                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_SHORT, 2)
-                ).addAction(
-                    R.drawable.ic_notification,
-                    context.getString(R.string.action_snooze_minutes, s.snoozeLongMinutes),
-                    actionIntent(e.id, NotificationActionReceiver.ACTION_SNOOZE_LONG, 3)
-                )
-        builder.setVisibility(if (s.hideOnLockScreen) NotificationCompat.VISIBILITY_SECRET else NotificationCompat.VISIBILITY_PRIVATE)
-        // Shown instead of the full notification when Android hides sensitive lock screen content: no title, no path.
-        builder.setPublicVersion(publicVersion(e, s))
-        manager.notify(id, builder.build())
+                ).setVisibility(if (s.hideOnLockScreen) NotificationCompat.VISIBILITY_SECRET else NotificationCompat.VISIBILITY_PRIVATE)
+                // Shown instead of the full notification when Android hides sensitive lock screen content: no title, no path.
+                .setPublicVersion(publicVersion(e, s, alarmLike))
+        // Snoozing an early reminder would move the due time forward, so only the main alarm offers it.
+        if (!early) addSnoozeActions(builder, e.id, s)
+        manager.notify(notificationId(e.id), builder.build())
+    }
+
+    private fun addSnoozeActions(
+        builder: NotificationCompat.Builder,
+        id: Long,
+        s: AppSettings
+    ) {
+        builder
+            .addAction(
+                R.drawable.ic_notification,
+                context.getString(R.string.action_snooze_minutes, s.snoozeShortMinutes),
+                actionIntent(id, NotificationActionReceiver.ACTION_SNOOZE_SHORT, 2)
+            ).addAction(
+                R.drawable.ic_notification,
+                context.getString(R.string.action_snooze_minutes, s.snoozeLongMinutes),
+                actionIntent(id, NotificationActionReceiver.ACTION_SNOOZE_LONG, 3)
+            )
     }
 
     private fun publicVersion(
         e: ReminderEntity,
-        s: AppSettings
-    ) = NotificationCompat.Builder(context, channelFor(s))
+        s: AppSettings,
+        alarmLike: Boolean
+    ) = NotificationCompat.Builder(context, channelFor(s, alarmLike))
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(context.getString(R.string.notification_public_title))
         .setContentText(DateUtils.formatDateTime(context, e.triggerAt, DateUtils.FORMAT_SHOW_TIME))
-        .setCategory(if (s.breakThroughSilence) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
+        .setCategory(if (alarmLike) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
         .build()
 
     fun cancel(reminderId: Long) = manager.cancel(notificationId(reminderId))
@@ -164,10 +178,13 @@ class Notifications(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-    private fun channelFor(s: AppSettings): String =
+    private fun channelFor(
+        s: AppSettings,
+        alarmLike: Boolean
+    ): String =
         when {
             !s.soundAndVibration -> CHANNEL_SILENT
-            s.breakThroughSilence -> CHANNEL_ALARM
+            alarmLike -> CHANNEL_ALARM
             else -> CHANNEL_LOUD
         }
 

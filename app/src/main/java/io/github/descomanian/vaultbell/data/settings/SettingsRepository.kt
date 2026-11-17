@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.github.descomanian.vaultbell.alarm.NagStage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -36,8 +37,18 @@ class SettingsRepository(context: Context) {
         val defaultTime = intPreferencesKey("default_time_minutes")
         val snoozeShort = intPreferencesKey("snooze_short")
         val snoozeLong = intPreferencesKey("snooze_long")
+        // v1.0 early reminder, migrated into the reminder plan on first read
         val preEnabled = booleanPreferencesKey("pre_reminder_enabled")
         val preMinutes = intPreferencesKey("pre_reminder_minutes")
+        val planEnabled = booleanPreferencesKey("plan_enabled")
+        val planOffsets = stringPreferencesKey("plan_offsets")
+        val nagEnabled = booleanPreferencesKey("nag_enabled")
+        val nagStages = stringPreferencesKey("nag_stages")
+        val nagDayStart = intPreferencesKey("nag_day_start_minutes")
+        val activeHours = booleanPreferencesKey("active_hours_enabled")
+        val activeFrom = intPreferencesKey("active_from_minutes")
+        val activeUntil = intPreferencesKey("active_until_minutes")
+        val planBreakThrough = booleanPreferencesKey("plan_break_through")
         val repeatIgnored = booleanPreferencesKey("repeat_if_ignored")
         val sound = booleanPreferencesKey("sound_and_vibration")
         val breakSilence = booleanPreferencesKey("break_through_silence")
@@ -70,8 +81,15 @@ class SettingsRepository(context: Context) {
             defaultTimeMinutes = this[K.defaultTime] ?: d.defaultTimeMinutes,
             snoozeShortMinutes = this[K.snoozeShort] ?: d.snoozeShortMinutes,
             snoozeLongMinutes = this[K.snoozeLong] ?: d.snoozeLongMinutes,
-            preReminderEnabled = this[K.preEnabled] ?: d.preReminderEnabled,
-            preReminderMinutes = this[K.preMinutes] ?: d.preReminderMinutes,
+            planEnabled = this[K.planEnabled] ?: this[K.preEnabled] ?: d.planEnabled,
+            planOffsetsMinutes = this[K.planOffsets]?.let(::parseOffsets) ?: this[K.preMinutes]?.let(::listOf) ?: d.planOffsetsMinutes,
+            nagEnabled = this[K.nagEnabled] ?: d.nagEnabled,
+            nagStages = this[K.nagStages]?.let(::parseStages) ?: d.nagStages,
+            nagDayStartMinutes = this[K.nagDayStart],
+            activeHoursEnabled = this[K.activeHours] ?: d.activeHoursEnabled,
+            activeFromMinutes = this[K.activeFrom] ?: d.activeFromMinutes,
+            activeUntilMinutes = this[K.activeUntil] ?: d.activeUntilMinutes,
+            planBreakThrough = this[K.planBreakThrough] ?: d.planBreakThrough,
             repeatIfIgnored = this[K.repeatIgnored] ?: d.repeatIfIgnored,
             soundAndVibration = this[K.sound] ?: d.soundAndVibration,
             breakThroughSilence = this[K.breakSilence] ?: d.breakThroughSilence,
@@ -103,8 +121,17 @@ class SettingsRepository(context: Context) {
         this[K.defaultTime] = s.defaultTimeMinutes
         this[K.snoozeShort] = s.snoozeShortMinutes
         this[K.snoozeLong] = s.snoozeLongMinutes
-        this[K.preEnabled] = s.preReminderEnabled
-        this[K.preMinutes] = s.preReminderMinutes
+        remove(K.preEnabled)
+        remove(K.preMinutes)
+        this[K.planEnabled] = s.planEnabled
+        this[K.planOffsets] = s.planOffsetsMinutes.joinToString(",")
+        this[K.nagEnabled] = s.nagEnabled
+        this[K.nagStages] = s.nagStages.joinToString(",") { "${it.startMinutesBefore}:${it.everyMinutes}" }
+        if (s.nagDayStartMinutes != null) this[K.nagDayStart] = s.nagDayStartMinutes else remove(K.nagDayStart)
+        this[K.activeHours] = s.activeHoursEnabled
+        this[K.activeFrom] = s.activeFromMinutes
+        this[K.activeUntil] = s.activeUntilMinutes
+        this[K.planBreakThrough] = s.planBreakThrough
         this[K.repeatIgnored] = s.repeatIfIgnored
         this[K.sound] = s.soundAndVibration
         this[K.breakSilence] = s.breakThroughSilence
@@ -125,6 +152,16 @@ class SettingsRepository(context: Context) {
         if (s.lastScanError != null) this[K.lastScanError] = s.lastScanError else remove(K.lastScanError)
         this[K.parserSignature] = s.lastParserSignature
     }
+
+    /** "120,60,30,15"; empty string = empty list (all lead times removed). */
+    private fun parseOffsets(text: String): List<Int> = text.split(',').mapNotNull { it.trim().toIntOrNull() }.filter { it > 0 }
+
+    /** "1440:120,120:60,60:30" */
+    private fun parseStages(text: String): List<NagStage> =
+        text.split(',').mapNotNull { part ->
+            val (start, every) = part.split(':').map { it.trim().toIntOrNull() }.let { it.getOrNull(0) to it.getOrNull(1) }
+            if (start != null && every != null && start > 0 && every > 0) NagStage(start, every) else null
+        }
 
     private fun String?.toFolderList(): List<String> = this?.split('\n')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
 

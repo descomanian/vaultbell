@@ -27,7 +27,10 @@ enum class ScheduleMode {
     EXACT,
 
     /** setAndAllowWhileIdle: may be delayed by the system (exact alarms not permitted). */
-    INEXACT
+    INEXACT,
+
+    /** Not set: the app reached Android's limit of concurrent alarms (about 500 on Android 12+). */
+    FAILED
 }
 
 /**
@@ -60,11 +63,27 @@ class AlarmScheduler(
                 return ScheduleMode.EXACT
             } catch (e: SecurityException) {
                 // Permission revoked between check and call: fall through to inexact.
+            } catch (e: IllegalStateException) {
+                return ScheduleMode.FAILED
             }
         }
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
-        return ScheduleMode.INEXACT
+        return try {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
+            ScheduleMode.INEXACT
+        } catch (e: IllegalStateException) {
+            // "Maximum limit of concurrent alarms reached": chain scheduling keeps us far below, never crash on it.
+            ScheduleMode.FAILED
+        }
     }
+
+    /** Whether an alarm with [requestCode] is pending (set and neither fired-and-cancelled nor cancelled). */
+    fun isScheduled(requestCode: Int): Boolean =
+        PendingIntent.getBroadcast(
+            appContext,
+            requestCode,
+            baseIntent(requestCode),
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        ) != null
 
     fun cancel(requestCode: Int) {
         val intent = baseIntent(requestCode)

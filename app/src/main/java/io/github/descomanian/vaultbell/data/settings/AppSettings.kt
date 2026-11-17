@@ -1,5 +1,8 @@
 package io.github.descomanian.vaultbell.data.settings
 
+import io.github.descomanian.vaultbell.alarm.ActiveHours
+import io.github.descomanian.vaultbell.alarm.NagStage
+import io.github.descomanian.vaultbell.alarm.PlanSettings
 import io.github.descomanian.vaultbell.designsystem.theme.AccentColor
 import io.github.descomanian.vaultbell.designsystem.theme.ThemeMode
 import io.github.descomanian.vaultbell.parser.ParserOptions
@@ -17,8 +20,20 @@ data class AppSettings(
     val defaultTimeMinutes: Int = 9 * 60,
     val snoozeShortMinutes: Int = 10,
     val snoozeLongMinutes: Int = 60,
-    val preReminderEnabled: Boolean = false,
-    val preReminderMinutes: Int = 15,
+    /** Reminder plan: early reminders at fixed lead times (replaces the single v1.0 early reminder). */
+    val planEnabled: Boolean = false,
+    val planOffsetsMinutes: List<Int> = DEFAULT_PLAN_OFFSETS,
+    /** "Dranbleiben": repeated reminders on the due day, denser towards the due time. Only with an explicit time. */
+    val nagEnabled: Boolean = false,
+    val nagStages: List<NagStage> = DEFAULT_NAG_STAGES,
+    /** Start of "Dranbleiben" on the due day; null = default time. */
+    val nagDayStartMinutes: Int? = null,
+    /** Early reminders and "Dranbleiben" only inside these hours; the main alarm always rings. */
+    val activeHoursEnabled: Boolean = true,
+    val activeFromMinutes: Int = DEFAULT_ACTIVE_FROM,
+    val activeUntilMinutes: Int = DEFAULT_ACTIVE_UNTIL,
+    /** Early reminders and "Dranbleiben" also pass Do Not Disturb (off: normal notification). */
+    val planBreakThrough: Boolean = false,
     val repeatIfIgnored: Boolean = false,
     val soundAndVibration: Boolean = true,
     /** Deliver as alarm: passes Do Not Disturb and plays on the alarm stream in silent mode. */
@@ -47,7 +62,17 @@ data class AppSettings(
     /** Fingerprint of everything that changes parse results; a change forces a full rescan. */
     val lastParserSignature: String = ""
 ) {
-    val defaultTime: LocalTime get() = LocalTime.of(defaultTimeMinutes / 60, defaultTimeMinutes % 60)
+    val defaultTime: LocalTime get() = minutesToTime(defaultTimeMinutes)
+
+    val planSettings: PlanSettings
+        get() =
+            PlanSettings(
+                offsetsMinutes = if (planEnabled) planOffsetsMinutes else emptyList(),
+                nagStages = if (nagEnabled) nagStages else emptyList(),
+                dayStart = minutesToTime(nagDayStartMinutes ?: defaultTimeMinutes),
+                activeHours =
+                if (activeHoursEnabled) ActiveHours(minutesToTime(activeFromMinutes), minutesToTime(activeUntilMinutes)) else null
+            )
 
     val enabledFormats: Set<ReminderFormat>
         get() =
@@ -73,6 +98,18 @@ data class AppSettings(
             ).joinToString(";")
 
     companion object {
+        val DEFAULT_PLAN_OFFSETS = listOf(120, 60, 30, 15)
+        val DEFAULT_NAG_STAGES = listOf(NagStage(24 * 60, 120), NagStage(120, 60), NagStage(60, 30))
+        val PLAN_OFFSET_OPTIONS = listOf(5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 720, 1440)
+        val NAG_INTERVAL_OPTIONS = listOf(15, 30, 60, 120, 180, 240)
+
+        val DEFAULT_ACTIVE_FROM = 8 * 60
+        val DEFAULT_ACTIVE_UNTIL = 22 * 60
+        private const val MINUTES_PER_HOUR = 60
+        private const val HOURS_PER_DAY = 24
+
+        fun minutesToTime(minutes: Int): LocalTime = LocalTime.of(minutes / MINUTES_PER_HOUR % HOURS_PER_DAY, minutes % MINUTES_PER_HOUR)
+
         val SCAN_INTERVALS = listOf(15, 30, 60, 120, 240)
         val SNOOZE_SHORT_OPTIONS = listOf(5, 10, 15, 30)
         val SNOOZE_LONG_OPTIONS = listOf(30, 60, 120, 180)

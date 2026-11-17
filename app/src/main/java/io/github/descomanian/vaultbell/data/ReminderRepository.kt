@@ -3,6 +3,7 @@ package io.github.descomanian.vaultbell.data
 import android.net.Uri
 import io.github.descomanian.vaultbell.alarm.Notifications
 import io.github.descomanian.vaultbell.alarm.ReminderAlarms
+import io.github.descomanian.vaultbell.alarm.ReminderPlan
 import io.github.descomanian.vaultbell.data.db.FileStateEntity
 import io.github.descomanian.vaultbell.data.db.ReminderDao
 import io.github.descomanian.vaultbell.data.db.ReminderEntity
@@ -123,6 +124,9 @@ class ReminderRepository(
 
         rollSeries(s)
         val active = dao.allActive()
+        // Reminders that moved into the arm window since the last scan (see ReminderAlarms.ARM_WINDOW_DAYS).
+        val now = clock()
+        active.forEach { alarms.ensureArmed(it, s, now) }
         settings.update { it.copy(lastScanAt = clock(), lastScanError = null, lastParserSignature = it.parserSignature) }
         return ScanOutcome.Success(files.size, changed, active.size, alarms.canScheduleExact())
     }
@@ -382,22 +386,54 @@ class ReminderRepository(
         val e = dao.get(id) ?: return@withContext
         if (e.completedLocally) return@withContext
         val now = clock()
+        val s = settings.current()
+        if (kind == ReminderAlarms.KIND_PLAN) {
+            onPlanFired(e, s, now)
+            return@withContext
+        }
         // Stale alarm (time changed after scheduling): the new alarm is already armed.
         if (kind == ReminderAlarms.KIND_MAIN && e.triggerAt > now + MINUTE) return@withContext
-        val s = settings.current()
+        alarms.cancelPlan(id)
         notifications.show(e, kind, s)
-        if (kind != ReminderAlarms.KIND_PRE) {
-            dao.update(e.copy(firedAt = now))
-            if (s.repeatIfIgnored && repeatCount < ReminderAlarms.MAX_REPEATS) {
-                alarms.scheduleRepeat(id, now + ReminderAlarms.REPEAT_INTERVAL_MINUTES * MINUTE, repeatCount + 1)
-            }
+        dao.update(e.copy(firedAt = now))
+        if (s.repeatIfIgnored && repeatCount < ReminderAlarms.MAX_REPEATS) {
+            alarms.scheduleRepeat(id, now + ReminderAlarms.REPEAT_INTERVAL_MINUTES * MINUTE, repeatCount + 1)
         }
     }
 
-    /** User swiped the notification away or opened it: stop nagging. */
-    fun onNotificationHandled(id: Long) {
-        alarms.cancelRepeat(id)
+    /**
+     * Chain scheduling: shows the plan point that is due now (the latest one if several were missed, e.g. phone off)
+     * and arms the next one. Missed points are never shown late in a row.
+     */
+    private suspend fun onPlanFired(
+        e: ReminderEntity,
+        s: AppSettings,
+        now: Long
+    ) {
+        val firedUpTo = e.planFiredAt ?: 0L
+        val point =
+            ReminderPlan
+                .points(e.dueAt.toLocalDateTime(), e.hasExplicitTime, s.planSettings)
+                .map { it.toEpochMillis() }
+                .lastOrNull { it in (firedUpTo + 1)..(now + MINUTE) }
+        val current =
+            if (point != null && e.snoozedUntil == null && e.dueAt > now) {
+                notifications.show(e, ReminderAlarms.KIND_PLAN, s, minutesLeft = ((e.dueAt - now + MINUTE / 2) / MINUTE).toInt())
+                e.copy(planFiredAt = point).also { dao.update(it) }
+            } else {
+                e
+            }
+        alarms.scheduleNextPlan(current, s, now)
     }
+
+    /** User swiped the notification away, opened it, snoozed or completed it: stop nagging for this instance. */
+    suspend fun onNotificationHandled(id: Long) =
+        withContext<Unit>(Dispatchers.IO) {
+            alarms.cancelRepeat(id)
+            alarms.cancelPlan(id)
+            // Marks every plan point up to the due time as handled; the main alarm stays armed.
+            dao.get(id)?.let { e -> dao.update(e.copy(planFiredAt = e.dueAt)) }
+        }
 
     /** Next active reminders by effective time (overdue first), for the widget. */
     suspend fun upcoming(limit: Int): List<Reminder> =

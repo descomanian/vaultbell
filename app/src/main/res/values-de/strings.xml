@@ -26,7 +26,7 @@
     <string name="channel_reminders_desc">Erinnerungen aus deinem Vault, mit Ton und Vibration.</string>
     <string name="channel_silent">Stille Erinnerungen</string>
     <string name="channel_silent_desc">Erinnerungen ohne Ton und Vibration.</string>
-    <string name="notification_pre">In %1$d Min. · %2$s</string>
+    <string name="notification_pre">In %1$s · %2$s</string>
     <string name="action_allow">Erlauben</string>
     <string name="action_allow_exact">Exakte Alarme erlauben</string>
     <string name="action_allow_notifications">Benachrichtigungen erlauben</string>
