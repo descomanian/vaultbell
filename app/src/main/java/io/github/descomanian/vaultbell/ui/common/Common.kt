@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import io.github.descomanian.vaultbell.R
 import io.github.descomanian.vaultbell.data.ReminderGroup
 import io.github.descomanian.vaultbell.data.toEpochMillis
+import io.github.descomanian.vaultbell.parser.Recurrence
 import io.github.descomanian.vaultbell.parser.ReminderFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -121,6 +122,17 @@ fun ReminderGroup.label(): String =
             ReminderGroup.TODAY -> R.string.group_today
             ReminderGroup.TOMORROW -> R.string.group_tomorrow
             ReminderGroup.UPCOMING -> R.string.group_upcoming
+        }
+    )
+
+@Composable
+fun Recurrence.label(): String =
+    stringResource(
+        when (this) {
+            Recurrence.DAILY -> R.string.recurrence_daily
+            Recurrence.WEEKLY -> R.string.recurrence_weekly
+            Recurrence.MONTHLY -> R.string.recurrence_monthly
+            Recurrence.WEEKDAYS -> R.string.recurrence_weekdays
         }
     )
 

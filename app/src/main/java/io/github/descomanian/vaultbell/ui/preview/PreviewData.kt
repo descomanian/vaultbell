@@ -1,6 +1,7 @@
 package io.github.descomanian.vaultbell.ui.preview
 
 import io.github.descomanian.vaultbell.data.Reminder
+import io.github.descomanian.vaultbell.parser.Recurrence
 import io.github.descomanian.vaultbell.parser.ReminderFormat
 import java.time.LocalDateTime
 
@@ -15,7 +16,8 @@ object PreviewData {
         path: String,
         explicit: Boolean = true,
         snoozed: Boolean = false,
-        format: ReminderFormat = ReminderFormat.REMINDER_PLUGIN
+        format: ReminderFormat = ReminderFormat.REMINDER_PLUGIN,
+        recurrence: Recurrence? = null
     ) = Reminder(
         id = id,
         title = title,
@@ -25,8 +27,9 @@ object PreviewData {
         isSnoozed = snoozed,
         relativePath = path,
         lineNumber = id.toInt() + 6,
-        rawLine = "- [ ] $title (@${due.toLocalDate()} ${due.toLocalTime()})",
-        format = format
+        rawLine = "- [ ] $title (@${due.toLocalDate()} ${due.toLocalTime()})" + (recurrence?.let { " | ${it.name.lowercase()}" } ?: ""),
+        format = format,
+        recurrence = recurrence
     )
 
     private data class Item(
@@ -56,9 +59,9 @@ object PreviewData {
             r(1, t(0), now.minusDays(1).withHour(17).withMinute(0), p(0)),
             r(2, t(1), now.minusMinutes(24), p(1)),
             r(3, t(2), now.withHour(13).withMinute(0), p(2), explicit = false),
-            r(4, t(3), now.withHour(18).withMinute(30), p(3), format = ReminderFormat.DATAVIEW),
+            r(4, t(3), now.withHour(18).withMinute(30), p(3), format = ReminderFormat.DATAVIEW, recurrence = Recurrence.DAILY),
             r(5, t(4), now.withHour(19).withMinute(15), p(4), snoozed = true),
-            r(6, t(5), now.plusDays(1).withHour(10).withMinute(0), p(5)),
+            r(6, t(5), now.plusDays(1).withHour(10).withMinute(0), p(5), recurrence = Recurrence.WEEKLY),
             r(7, t(6), now.plusDays(3).withHour(16).withMinute(30), p(6)),
             r(8, t(7), now.plusDays(6).withHour(20).withMinute(0), p(7))
         )

@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.NotificationsNone
+import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Snooze
@@ -517,6 +518,7 @@ fun ReminderCard(
                     )
                     if (reminder.isSnoozed) SnoozedBadge()
                     if (!reminder.hasExplicitTime) AllDayBadge()
+                    reminder.recurrence?.let { RepeatBadge(it.label()) }
                 }
             }
         }
@@ -542,6 +544,26 @@ private fun SnoozedBadge() {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
+        }
+    }
+}
+
+/** Series: the list shows the current instance; the badge names the rule. */
+@Composable
+private fun RepeatBadge(label: String) {
+    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
+        Row(
+            Modifier.padding(horizontal = Spacing.xs, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Icon(
+                Icons.Rounded.Repeat,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }

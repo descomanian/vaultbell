@@ -23,6 +23,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Event
+import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Snooze
 import androidx.compose.material3.Button
@@ -183,6 +184,9 @@ private fun DetailContent(
                     InfoRow(Icons.Rounded.Description, stringResource(R.string.detail_file), reminder.relativePath)
                     InfoRow(Icons.Rounded.Event, stringResource(R.string.detail_line), (reminder.lineNumber + 1).toString())
                     InfoRow(Icons.Rounded.Code, stringResource(R.string.detail_format), reminder.format.label())
+                    reminder.recurrence?.let { rule ->
+                        InfoRow(Icons.Rounded.Repeat, stringResource(R.string.detail_recurrence), rule.label())
+                    }
                     if (reminder.isSnoozed) {
                         InfoRow(
                             Icons.Rounded.Snooze,

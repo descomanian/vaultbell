@@ -45,7 +45,6 @@ import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Snooze
 import androidx.compose.material.icons.rounded.Sync
-import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.Wallpaper
@@ -101,6 +100,7 @@ import io.github.descomanian.vaultbell.designsystem.theme.ThemeMode
 import io.github.descomanian.vaultbell.designsystem.theme.VaultbellTheme
 import io.github.descomanian.vaultbell.designsystem.theme.supportsDynamicColor
 import io.github.descomanian.vaultbell.designsystem.theme.swatch
+import io.github.descomanian.vaultbell.parser.ParserOptions
 import io.github.descomanian.vaultbell.system.AppLanguage
 import io.github.descomanian.vaultbell.system.SystemStatus
 import io.github.descomanian.vaultbell.ui.common.ChoiceDialog
@@ -125,7 +125,18 @@ data class SettingsActions(
     val onOpenAbout: () -> Unit = {}
 )
 
-private enum class SettingsDialog { THEME, LANGUAGE, DEFAULT_TIME, SNOOZE_SHORT, SNOOZE_LONG, VAULT_NAME, INCLUDE, EXCLUDE, WRITE_BACK }
+private enum class SettingsDialog {
+    THEME,
+    LANGUAGE,
+    DEFAULT_TIME,
+    SNOOZE_SHORT,
+    SNOOZE_LONG,
+    VAULT_NAME,
+    INCLUDE,
+    EXCLUDE,
+    WRITE_BACK,
+    PROPERTY_NAMES
+}
 
 @Composable
 fun SettingsScreen(
@@ -227,14 +238,6 @@ fun SettingsScreen(
                     )
                     SettingsDivider()
                     SettingsSwitchRow(
-                        title = stringResource(R.string.settings_pre_reminder),
-                        description = stringResource(R.string.settings_pre_reminder_desc),
-                        icon = Icons.Rounded.Timer,
-                        checked = s.planEnabled,
-                        onCheckedChange = { v -> actions.updateAndReschedule { it.copy(planEnabled = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
                         title = stringResource(R.string.settings_repeat_ignored),
                         description = stringResource(R.string.settings_repeat_ignored_desc),
                         icon = Icons.Rounded.Repeat,
@@ -275,6 +278,9 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            // ---------------------------------------------------------------- Reminder plan
+            item(key = "plan") { PlanSettingsGroup(s, actions.updateAndReschedule) }
 
             // ---------------------------------------------------------------- Vault
             item(key = "vault") {
@@ -357,6 +363,22 @@ fun SettingsScreen(
                         checked = s.formatTasks,
                         onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatTasks = v) } }
                     )
+                    SettingsDivider()
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.format_property),
+                        description = stringResource(R.string.settings_format_example, "reminder: 2026-11-14T18:30"),
+                        icon = Icons.Rounded.Code,
+                        checked = s.formatProperties,
+                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatProperties = v) } }
+                    )
+                    if (s.formatProperties) {
+                        SettingsValueRow(
+                            title = stringResource(R.string.settings_property_names),
+                            value = s.propertyNames.joinToString(", "),
+                            icon = Icons.Rounded.Badge,
+                            onClick = { dialog = SettingsDialog.PROPERTY_NAMES }
+                        )
+                    }
                 }
             }
 
@@ -506,6 +528,18 @@ private fun SettingsDialogs(
                 initial = s.excludeFolders.joinToString("\n"),
                 multiline = true,
                 onConfirm = { v -> actions.updateAndRescan { it.copy(excludeFolders = v.toFolders()) } },
+                onDismiss = onDismiss
+            )
+        SettingsDialog.PROPERTY_NAMES ->
+            TextDialog(
+                title = stringResource(R.string.settings_property_names),
+                hint = stringResource(R.string.settings_property_names_hint),
+                initial = s.propertyNames.joinToString("\n"),
+                multiline = true,
+                onConfirm = { v ->
+                    val names = v.split('\n', ',').map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+                    actions.updateAndRescan { it.copy(propertyNames = names.ifEmpty { ParserOptions.DEFAULT_PROPERTY_NAMES }) }
+                },
                 onDismiss = onDismiss
             )
         SettingsDialog.WRITE_BACK ->
@@ -673,16 +707,17 @@ private fun StatusRow(
 }
 
 @Composable
-private fun TimeDialog(
+internal fun TimeDialog(
     initial: LocalTime,
     onConfirm: (LocalTime) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    title: String = stringResource(R.string.settings_default_time)
 ) {
     val context = LocalContext.current
     val picker = rememberTimePickerState(initial.hour, initial.minute, is24Hour = DateFormat.is24HourFormat(context))
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_default_time)) },
+        title = { Text(title) },
         text = { TimePicker(state = picker) },
         confirmButton = {
             TextButton(onClick = {
@@ -695,7 +730,7 @@ private fun TimeDialog(
 }
 
 @Composable
-private fun TextDialog(
+internal fun TextDialog(
     title: String,
     hint: String,
     initial: String,
