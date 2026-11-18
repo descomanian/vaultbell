@@ -37,6 +37,7 @@ class SettingsRepository(context: Context) {
         val defaultTime = intPreferencesKey("default_time_minutes")
         val snoozeShort = intPreferencesKey("snooze_short")
         val snoozeLong = intPreferencesKey("snooze_long")
+
         // v1.0 early reminder, migrated into the reminder plan on first read
         val preEnabled = booleanPreferencesKey("pre_reminder_enabled")
         val preMinutes = intPreferencesKey("pre_reminder_minutes")
