@@ -1,11 +1,12 @@
 package io.github.descomanian.vaultbell.parser
 
-/** Minimal, conflict-aware edits to task lines. */
+/** Minimal, conflict-aware edits to task lines. Only one-time tasks are ever changed. */
 object TaskLineEditor {
     private val OPEN_BOX = Regex("""^([\s>]*(?:[-*+]|\d+[.)])\s+)\[ ]""")
 
-    /** Turns `- [ ] x` into `- [x] x`. Returns null if the line is not an open task. */
+    /** Turns `- [ ] x` into `- [x] x`. Returns null if the line is not an open task or repeats (see [RepeatMarkers]). */
     fun markDone(line: String): String? {
+        if (RepeatMarkers.isRepeating(line)) return null
         val m = OPEN_BOX.find(line) ?: return null
         return line.replaceRange(m.range, m.groupValues[1] + "[x]")
     }
@@ -17,6 +18,9 @@ object TaskLineEditor {
         data object Conflict : EditResult
 
         data object NotATask : EditResult
+
+        /** The task repeats (`🔁`, `| daily`, `[repeat:: …]`): checking it off would end the series. Nothing was changed. */
+        data object Repeating : EditResult
 
         /** The file is not valid UTF-8; rewriting it could change characters. Nothing was changed. */
         data object NotUtf8 : EditResult
@@ -34,6 +38,7 @@ object TaskLineEditor {
         val span = Lines.spans(content).getOrNull(lineNumber) ?: return EditResult.Conflict
         val line = content.substring(span.first, span.last + 1)
         if (Lines.hash(line) != expectedHash) return EditResult.Conflict
+        if (RepeatMarkers.isRepeating(line)) return EditResult.Repeating
         val edited = markDone(line) ?: return EditResult.NotATask
         return EditResult.Success(content.replaceRange(span.first, span.last + 1, edited))
     }

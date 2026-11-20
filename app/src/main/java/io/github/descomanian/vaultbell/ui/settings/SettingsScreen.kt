@@ -2,10 +2,13 @@ package io.github.descomanian.vaultbell.ui.settings
 
 import android.text.format.DateFormat
 import android.text.format.DateUtils
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +37,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.EventRepeat
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
@@ -45,6 +49,8 @@ import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Snooze
 import androidx.compose.material.icons.rounded.Sync
+import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.Wallpaper
@@ -61,6 +67,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,6 +86,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.descomanian.vaultbell.R
@@ -122,7 +131,9 @@ data class SettingsActions(
     val onOpenExactAlarmSettings: () -> Unit = {},
     val onOpenBatterySettings: () -> Unit = {},
     val onOpenPrivacy: () -> Unit = {},
-    val onOpenAbout: () -> Unit = {}
+    val onOpenAbout: () -> Unit = {},
+    /** Opens the "save as" dialog for the repeat log (Markdown file the user puts into the vault). */
+    val onExportRepeatLog: () -> Unit = {}
 )
 
 private enum class SettingsDialog {
@@ -138,26 +149,51 @@ private enum class SettingsDialog {
     PROPERTY_NAMES
 }
 
+/** Settings are split into calm sub-pages: an overview list first, one topic per page. */
+enum class SettingsSection {
+    REMINDERS,
+    PLAN,
+    VAULT,
+    DETECTION,
+    DONE_AND_LOG,
+    APPEARANCE,
+    SYSTEM
+}
+
+/**
+ * Overview with categories (title, icon, one line of current state); a tap opens the page of that category.
+ * [twoPane] (large screens): overview on the left, the selected page on the right.
+ */
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
     actions: SettingsActions,
     modifier: Modifier = Modifier,
-    showBack: Boolean = true
+    showBack: Boolean = true,
+    twoPane: Boolean = false,
+    initialSection: SettingsSection? = null
 ) {
-    val s = state.settings
-    val context = LocalContext.current
+    var section by rememberSaveable { mutableStateOf(initialSection ?: if (twoPane) SettingsSection.REMINDERS else null) }
     var dialog by rememberSaveable { mutableStateOf<SettingsDialog?>(null) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val onPage = section != null && !twoPane
+
+    BackHandler(enabled = onPage) { section = null }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
+                title = { Text(section?.takeIf { onPage }?.let { sectionTitle(it) } ?: stringResource(R.string.settings_title)) },
                 navigationIcon = {
-                    if (showBack) {
-                        IconButton(onClick = actions.onBack) {
+                    if (onPage || showBack) {
+                        IconButton(onClick = {
+                            if (onPage) {
+                                section = null
+                            } else {
+                                actions.onBack()
+                            }
+                        }) {
                             Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                         }
                     }
@@ -167,287 +203,539 @@ fun SettingsScreen(
         },
         contentWindowInsets = WindowInsets(0)
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = Spacing.lg)) {
-            // ---------------------------------------------------------------- Appearance
-            item(key = "appearance") {
-                SettingsGroup(stringResource(R.string.settings_group_appearance)) {
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_theme),
-                        value = themeLabel(s.themeMode),
-                        icon = Icons.Rounded.BrightnessMedium,
-                        onClick = { dialog = SettingsDialog.THEME }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_dynamic_color),
-                        description =
-                        stringResource(
-                            if (supportsDynamicColor) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported
-                        ),
-                        icon = Icons.Rounded.Wallpaper,
-                        checked = s.dynamicColor && supportsDynamicColor,
-                        enabled = supportsDynamicColor,
-                        onCheckedChange = { v -> actions.update { it.copy(dynamicColor = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_amoled),
-                        description = stringResource(R.string.settings_amoled_desc),
-                        icon = Icons.Rounded.DarkMode,
-                        checked = s.amoledBlack,
-                        onCheckedChange = { v -> actions.update { it.copy(amoledBlack = v) } }
-                    )
-                    SettingsDivider()
-                    AccentRow(
-                        selected = s.accent,
-                        enabled = !(s.dynamicColor && supportsDynamicColor),
-                        onSelect = { a -> actions.update { it.copy(accent = a) } }
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_language),
-                        value = languageLabel(state.language),
-                        icon = Icons.Rounded.Language,
-                        onClick = { dialog = SettingsDialog.LANGUAGE }
-                    )
+        val openDialog: (SettingsDialog) -> Unit = { dialog = it }
+        if (twoPane) {
+            Row(Modifier.fillMaxSize().padding(padding)) {
+                SettingsOverview(state, selected = section, onOpen = { section = it }, modifier = Modifier.weight(0.4f))
+                VerticalDivider()
+                SectionPage(section ?: SettingsSection.REMINDERS, state, actions, openDialog, Modifier.weight(0.6f), showTitle = true)
+            }
+        } else {
+            Crossfade(targetState = section, label = "settings-page", modifier = Modifier.fillMaxSize().padding(padding)) { current ->
+                if (current == null) {
+                    SettingsOverview(state, selected = null, onOpen = { section = it })
+                } else {
+                    SectionPage(current, state, actions, openDialog)
                 }
             }
-
-            // ---------------------------------------------------------------- Reminders
-            item(key = "reminders") {
-                SettingsGroup(stringResource(R.string.settings_group_reminders)) {
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_default_time),
-                        value = stringResource(R.string.settings_default_time_value, s.defaultTime.toString()),
-                        icon = Icons.Rounded.AccessTime,
-                        onClick = { dialog = SettingsDialog.DEFAULT_TIME }
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_snooze_short),
-                        value = formatMinutes(context, s.snoozeShortMinutes),
-                        icon = Icons.Rounded.Snooze,
-                        onClick = { dialog = SettingsDialog.SNOOZE_SHORT }
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_snooze_long),
-                        value = formatMinutes(context, s.snoozeLongMinutes),
-                        icon = Icons.Rounded.Snooze,
-                        onClick = { dialog = SettingsDialog.SNOOZE_LONG }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_repeat_ignored),
-                        description = stringResource(R.string.settings_repeat_ignored_desc),
-                        icon = Icons.Rounded.Repeat,
-                        checked = s.repeatIfIgnored,
-                        onCheckedChange = { v -> actions.update { it.copy(repeatIfIgnored = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_sound),
-                        description = stringResource(R.string.settings_sound_desc),
-                        icon = Icons.Rounded.Vibration,
-                        checked = s.soundAndVibration,
-                        onCheckedChange = { v -> actions.update { it.copy(soundAndVibration = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_break_silence),
-                        description = stringResource(R.string.settings_break_silence_desc),
-                        icon = Icons.Rounded.NotificationsActive,
-                        checked = s.breakThroughSilence,
-                        onCheckedChange = { v -> actions.update { it.copy(breakThroughSilence = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_lock_screen_hide),
-                        description = stringResource(R.string.settings_lock_screen_hide_desc),
-                        icon = Icons.Rounded.Lock,
-                        checked = s.hideOnLockScreen,
-                        onCheckedChange = { v -> actions.update { it.copy(hideOnLockScreen = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_show_overdue),
-                        description = stringResource(R.string.settings_show_overdue_desc),
-                        icon = Icons.Rounded.Visibility,
-                        checked = s.showOverdueOnStart,
-                        onCheckedChange = { v -> actions.update { it.copy(showOverdueOnStart = v) } }
-                    )
-                }
-            }
-
-            // ---------------------------------------------------------------- Reminder plan
-            item(key = "plan") { PlanSettingsGroup(s, actions.updateAndReschedule) }
-
-            // ---------------------------------------------------------------- Vault
-            item(key = "vault") {
-                SettingsGroup(stringResource(R.string.settings_group_vault)) {
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_vault_folder),
-                        value = state.vaultFolderName?.takeIf { s.vaultUri != null } ?: stringResource(R.string.settings_vault_none),
-                        icon = Icons.Rounded.Folder,
-                        onClick = actions.onPickVault
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_vault_name),
-                        value = s.vaultName.ifBlank { "–" },
-                        icon = Icons.Rounded.Badge,
-                        onClick = { dialog = SettingsDialog.VAULT_NAME }
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_include),
-                        value = s.includeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_include_all) },
-                        icon = Icons.Rounded.Folder,
-                        onClick = { dialog = SettingsDialog.INCLUDE }
-                    )
-                    SettingsDivider()
-                    SettingsValueRow(
-                        title = stringResource(R.string.settings_exclude),
-                        value = s.excludeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_exclude_none) },
-                        icon = Icons.Rounded.Block,
-                        onClick = { dialog = SettingsDialog.EXCLUDE }
-                    )
-                    SettingsDivider()
-                    val intervals = AppSettings.SCAN_INTERVALS
-                    var intervalIndex by remember(s.scanIntervalMinutes) {
-                        mutableFloatStateOf(intervals.indexOf(s.scanIntervalMinutes).coerceAtLeast(0).toFloat())
-                    }
-                    SettingsSliderRow(
-                        title = stringResource(R.string.settings_scan_interval),
-                        description = stringResource(R.string.settings_scan_interval_desc),
-                        icon = Icons.Rounded.Sync,
-                        value = intervalIndex,
-                        valueLabel = formatMinutes(context, intervals[intervalIndex.toInt()]),
-                        onValueChange = { intervalIndex = it },
-                        onValueChangeFinished = { actions.onScanInterval(intervals[intervalIndex.toInt()]) },
-                        valueRange = 0f..(intervals.size - 1).toFloat(),
-                        steps = intervals.size - 2
-                    )
-                    SettingsDivider()
-                    ScanNowRow(state, actions.onScanNow)
-                    InfoCard(
-                        text = stringResource(R.string.settings_sync_hint),
-                        modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs)
-                    )
-                }
-            }
-
-            // ---------------------------------------------------------------- Detection
-            item(key = "detection") {
-                SettingsGroup(stringResource(R.string.settings_group_detection)) {
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.format_reminder_plugin),
-                        description = stringResource(R.string.settings_format_example, "- [ ] Text (@2026-11-14 18:30)"),
-                        icon = Icons.Rounded.Code,
-                        checked = s.formatReminderPlugin,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatReminderPlugin = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.format_dataview),
-                        description = stringResource(R.string.settings_format_example, "- [ ] Text [due:: 2026-11-14 18:30]"),
-                        icon = Icons.Rounded.Code,
-                        checked = s.formatDataview,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatDataview = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.format_tasks),
-                        description = stringResource(R.string.settings_format_example, "- [ ] Text ⏰ 2026-11-14 18:30 · 📅 2026-11-14"),
-                        icon = Icons.Rounded.Code,
-                        checked = s.formatTasks,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatTasks = v) } }
-                    )
-                    SettingsDivider()
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.format_property),
-                        description = stringResource(R.string.settings_format_example, "reminder: 2026-11-14T18:30"),
-                        icon = Icons.Rounded.Code,
-                        checked = s.formatProperties,
-                        onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatProperties = v) } }
-                    )
-                    if (s.formatProperties) {
-                        SettingsValueRow(
-                            title = stringResource(R.string.settings_property_names),
-                            value = s.propertyNames.joinToString(", "),
-                            icon = Icons.Rounded.Badge,
-                            onClick = { dialog = SettingsDialog.PROPERTY_NAMES }
-                        )
-                    }
-                }
-            }
-
-            // ---------------------------------------------------------------- Write-back
-            item(key = "writeback") {
-                SettingsGroup(stringResource(R.string.settings_group_writeback)) {
-                    SettingsSwitchRow(
-                        title = stringResource(R.string.settings_write_done),
-                        description = stringResource(R.string.settings_write_done_desc),
-                        icon = Icons.Rounded.Edit,
-                        checked = s.writeDoneToFile,
-                        onCheckedChange = { v ->
-                            if (v) dialog = SettingsDialog.WRITE_BACK else actions.update { it.copy(writeDoneToFile = false) }
-                        }
-                    )
-                }
-            }
-
-            // ---------------------------------------------------------------- System
-            item(key = "system") {
-                SettingsGroup(stringResource(R.string.settings_group_system)) {
-                    StatusRow(
-                        icon = Icons.Rounded.Notifications,
-                        title = stringResource(R.string.status_notifications),
-                        ok = state.status.notificationsAllowed,
-                        missingLevel = StatusLevel.ERROR,
-                        onFix = actions.onOpenNotificationSettings
-                    )
-                    SettingsDivider()
-                    StatusRow(
-                        icon = Icons.Rounded.Alarm,
-                        title = stringResource(R.string.status_exact_alarms),
-                        ok = state.status.exactAlarmsAllowed,
-                        missingLevel = StatusLevel.WARNING,
-                        onFix = actions.onOpenExactAlarmSettings
-                    )
-                    SettingsDivider()
-                    StatusRow(
-                        icon = Icons.Rounded.BatteryAlert,
-                        title = stringResource(R.string.status_battery),
-                        ok = state.status.batteryUnrestricted,
-                        missingLevel = StatusLevel.WARNING,
-                        okText = stringResource(R.string.status_battery_ok),
-                        missingText = stringResource(R.string.status_battery_missing),
-                        onFix = actions.onOpenBatterySettings
-                    )
-                    SettingsDivider()
-                    SettingsRow(
-                        title = stringResource(R.string.privacy_title),
-                        description = stringResource(R.string.privacy_short),
-                        icon = Icons.Rounded.PrivacyTip,
-                        onClick = actions.onOpenPrivacy,
-                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
-                    )
-                    SettingsDivider()
-                    SettingsRow(
-                        title = stringResource(R.string.about_title),
-                        description = stringResource(R.string.about_short),
-                        icon = Icons.Rounded.Info,
-                        onClick = actions.onOpenAbout,
-                        trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
-                    )
-                }
-            }
-            item(key = "insets") { Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars)) }
         }
     }
 
     SettingsDialogs(dialog, state, actions, onDismiss = { dialog = null })
+}
+
+// ---------------------------------------------------------------------------------------------
+// Overview
+// ---------------------------------------------------------------------------------------------
+
+@Composable
+private fun SettingsOverview(
+    state: SettingsUiState,
+    selected: SettingsSection?,
+    onOpen: (SettingsSection) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val groups =
+        listOf(
+            R.string.settings_overview_remind to listOf(SettingsSection.REMINDERS, SettingsSection.PLAN),
+            R.string.settings_overview_notes to
+                listOf(SettingsSection.VAULT, SettingsSection.DETECTION, SettingsSection.DONE_AND_LOG),
+            R.string.settings_overview_app to listOf(SettingsSection.APPEARANCE, SettingsSection.SYSTEM)
+        )
+    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.lg)) {
+        groups.forEach { (titleRes, sections) ->
+            item(key = titleRes) {
+                SettingsGroup(stringResource(titleRes)) {
+                    sections.forEachIndexed { index, s ->
+                        if (index > 0) SettingsDivider()
+                        val isSelected = s == selected
+                        SettingsRow(
+                            title = sectionTitle(s),
+                            description = sectionSummary(s, state),
+                            icon = sectionIcon(s),
+                            onClick = { onOpen(s) },
+                            modifier =
+                            if (isSelected) {
+                                Modifier.background(MaterialTheme.colorScheme.secondaryContainer).semantics { this.selected = true }
+                            } else {
+                                Modifier
+                            },
+                            trailing = {
+                                if (s == SettingsSection.SYSTEM && !state.status.allOk) {
+                                    StatusLight(StatusLevel.WARNING, stringResource(R.string.summary_system_attention))
+                                }
+                                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        item(key = "insets") { Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars)) }
+    }
+}
+
+@Composable
+private fun sectionTitle(section: SettingsSection): String =
+    stringResource(
+        when (section) {
+            SettingsSection.REMINDERS -> R.string.settings_group_reminders
+            SettingsSection.PLAN -> R.string.settings_group_plan
+            SettingsSection.VAULT -> R.string.settings_group_vault
+            SettingsSection.DETECTION -> R.string.settings_group_detection
+            SettingsSection.DONE_AND_LOG -> R.string.settings_group_writeback
+            SettingsSection.APPEARANCE -> R.string.settings_group_appearance
+            SettingsSection.SYSTEM -> R.string.settings_group_system
+        }
+    )
+
+private fun sectionIcon(section: SettingsSection): ImageVector =
+    when (section) {
+        SettingsSection.REMINDERS -> Icons.Rounded.Notifications
+        SettingsSection.PLAN -> Icons.Rounded.Timer
+        SettingsSection.VAULT -> Icons.Rounded.Folder
+        SettingsSection.DETECTION -> Icons.Rounded.Code
+        SettingsSection.DONE_AND_LOG -> Icons.Rounded.TaskAlt
+        SettingsSection.APPEARANCE -> Icons.Rounded.Palette
+        SettingsSection.SYSTEM -> Icons.Rounded.Info
+    }
+
+private val SystemStatus.allOk: Boolean get() = notificationsAllowed && exactAlarmsAllowed && batteryUnrestricted
+
+/** One short line of current state per category, so the overview answers "how is it set?" without opening it. */
+@Composable
+private fun sectionSummary(
+    section: SettingsSection,
+    state: SettingsUiState
+): String {
+    val s = state.settings
+    val context = LocalContext.current
+    return when (section) {
+        SettingsSection.REMINDERS ->
+            listOf(
+                stringResource(R.string.summary_default_time, s.defaultTime.toString()),
+                stringResource(
+                    R.string.summary_snooze,
+                    formatMinutes(context, s.snoozeShortMinutes),
+                    formatMinutes(context, s.snoozeLongMinutes)
+                )
+            ).joinToString(SEPARATOR)
+        SettingsSection.PLAN ->
+            listOf(
+                onOff(stringResource(R.string.settings_pre_reminder), s.planEnabled),
+                onOff(stringResource(R.string.settings_nag), s.nagEnabled)
+            ).joinToString(SEPARATOR)
+        SettingsSection.VAULT ->
+            listOf(
+                state.vaultFolderName?.takeIf { s.vaultUri != null } ?: stringResource(R.string.settings_vault_none),
+                stringResource(R.string.summary_scan_every, formatMinutes(context, s.scanIntervalMinutes))
+            ).joinToString(SEPARATOR)
+        SettingsSection.DETECTION ->
+            buildList {
+                if (s.formatReminderPlugin) add(stringResource(R.string.format_reminder_plugin))
+                if (s.formatDataview) add(stringResource(R.string.format_dataview))
+                if (s.formatTasks) add(stringResource(R.string.format_tasks))
+                if (s.formatProperties) add(stringResource(R.string.format_property))
+            }.joinToString(", ").ifEmpty { stringResource(R.string.summary_no_format) }
+        SettingsSection.DONE_AND_LOG ->
+            listOf(
+                onOff(stringResource(R.string.settings_write_done), s.writeDoneToFile),
+                repeatLogState(state.repeatLogPending)
+            ).joinToString(SEPARATOR)
+        SettingsSection.APPEARANCE ->
+            listOf(themeLabel(s.themeMode), languageLabel(state.language)).joinToString(SEPARATOR)
+        SettingsSection.SYSTEM ->
+            if (state.status.allOk) {
+                stringResource(R.string.summary_system_ok)
+            } else {
+                val missing =
+                    buildList {
+                        if (!state.status.notificationsAllowed) add(stringResource(R.string.status_notifications))
+                        if (!state.status.exactAlarmsAllowed) add(stringResource(R.string.status_exact_alarms))
+                        if (!state.status.batteryUnrestricted) add(stringResource(R.string.status_battery))
+                    }
+                stringResource(R.string.summary_system_check, missing.joinToString(", "))
+            }
+    }
+}
+
+@Composable
+private fun onOff(
+    label: String,
+    on: Boolean
+): String = stringResource(if (on) R.string.summary_on else R.string.summary_off, label)
+
+@Composable
+private fun repeatLogState(pending: Int): String =
+    if (pending == 0) {
+        stringResource(R.string.settings_repeat_log_none)
+    } else {
+        pluralStringResource(R.plurals.repeat_log_pending, pending, pending)
+    }
+
+private const val SEPARATOR = " · "
+
+// ---------------------------------------------------------------------------------------------
+// Pages
+// ---------------------------------------------------------------------------------------------
+
+@Composable
+private fun SectionPage(
+    section: SettingsSection,
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit,
+    modifier: Modifier = Modifier,
+    showTitle: Boolean = false
+) {
+    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.lg)) {
+        if (showTitle) {
+            item(key = "title") {
+                Text(
+                    sectionTitle(section),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = Spacing.xl, top = Spacing.md).semantics { heading() }
+                )
+            }
+        }
+        item(key = section.name) {
+            Column {
+                when (section) {
+                    SettingsSection.REMINDERS -> RemindersPage(state, actions, openDialog)
+                    SettingsSection.PLAN -> PlanSettingsGroup(state.settings, actions.updateAndReschedule, title = null)
+                    SettingsSection.VAULT -> VaultPage(state, actions, openDialog)
+                    SettingsSection.DETECTION -> DetectionPage(state, actions, openDialog)
+                    SettingsSection.DONE_AND_LOG -> DoneAndLogPage(state, actions, openDialog)
+                    SettingsSection.APPEARANCE -> AppearancePage(state, actions, openDialog)
+                    SettingsSection.SYSTEM -> SystemPage(state, actions)
+                }
+            }
+        }
+        item(key = "insets") { Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars)) }
+    }
+}
+
+@Composable
+private fun AppearancePage(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit
+) {
+    val s = state.settings
+    SettingsGroup(title = null) {
+        SettingsValueRow(
+            title = stringResource(R.string.settings_theme),
+            value = themeLabel(s.themeMode),
+            icon = Icons.Rounded.BrightnessMedium,
+            onClick = { openDialog(SettingsDialog.THEME) }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_dynamic_color),
+            description =
+            stringResource(
+                if (supportsDynamicColor) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported
+            ),
+            icon = Icons.Rounded.Wallpaper,
+            checked = s.dynamicColor && supportsDynamicColor,
+            enabled = supportsDynamicColor,
+            onCheckedChange = { v -> actions.update { it.copy(dynamicColor = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_amoled),
+            description = stringResource(R.string.settings_amoled_desc),
+            icon = Icons.Rounded.DarkMode,
+            checked = s.amoledBlack,
+            onCheckedChange = { v -> actions.update { it.copy(amoledBlack = v) } }
+        )
+        SettingsDivider()
+        AccentRow(
+            selected = s.accent,
+            enabled = !(s.dynamicColor && supportsDynamicColor),
+            onSelect = { a -> actions.update { it.copy(accent = a) } }
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_language),
+            value = languageLabel(state.language),
+            icon = Icons.Rounded.Language,
+            onClick = { openDialog(SettingsDialog.LANGUAGE) }
+        )
+    }
+}
+
+@Composable
+private fun RemindersPage(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit
+) {
+    val s = state.settings
+    val context = LocalContext.current
+    SettingsGroup(stringResource(R.string.settings_sub_times)) {
+        SettingsValueRow(
+            title = stringResource(R.string.settings_default_time),
+            value = stringResource(R.string.settings_default_time_value, s.defaultTime.toString()),
+            icon = Icons.Rounded.AccessTime,
+            onClick = { openDialog(SettingsDialog.DEFAULT_TIME) }
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_snooze_short),
+            value = formatMinutes(context, s.snoozeShortMinutes),
+            icon = Icons.Rounded.Snooze,
+            onClick = { openDialog(SettingsDialog.SNOOZE_SHORT) }
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_snooze_long),
+            value = formatMinutes(context, s.snoozeLongMinutes),
+            icon = Icons.Rounded.Snooze,
+            onClick = { openDialog(SettingsDialog.SNOOZE_LONG) }
+        )
+    }
+    SettingsGroup(stringResource(R.string.settings_sub_notification)) {
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_repeat_ignored),
+            description = stringResource(R.string.settings_repeat_ignored_desc),
+            icon = Icons.Rounded.Repeat,
+            checked = s.repeatIfIgnored,
+            onCheckedChange = { v -> actions.update { it.copy(repeatIfIgnored = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_sound),
+            description = stringResource(R.string.settings_sound_desc),
+            icon = Icons.Rounded.Vibration,
+            checked = s.soundAndVibration,
+            onCheckedChange = { v -> actions.update { it.copy(soundAndVibration = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_break_silence),
+            description = stringResource(R.string.settings_break_silence_desc),
+            icon = Icons.Rounded.NotificationsActive,
+            checked = s.breakThroughSilence,
+            onCheckedChange = { v -> actions.update { it.copy(breakThroughSilence = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_lock_screen_hide),
+            description = stringResource(R.string.settings_lock_screen_hide_desc),
+            icon = Icons.Rounded.Lock,
+            checked = s.hideOnLockScreen,
+            onCheckedChange = { v -> actions.update { it.copy(hideOnLockScreen = v) } }
+        )
+    }
+    SettingsGroup(stringResource(R.string.settings_sub_list)) {
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_show_overdue),
+            description = stringResource(R.string.settings_show_overdue_desc),
+            icon = Icons.Rounded.Visibility,
+            checked = s.showOverdueOnStart,
+            onCheckedChange = { v -> actions.update { it.copy(showOverdueOnStart = v) } }
+        )
+    }
+}
+
+@Composable
+private fun VaultPage(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit
+) {
+    val s = state.settings
+    val context = LocalContext.current
+    SettingsGroup(stringResource(R.string.settings_sub_folders)) {
+        SettingsValueRow(
+            title = stringResource(R.string.settings_vault_folder),
+            value = state.vaultFolderName?.takeIf { s.vaultUri != null } ?: stringResource(R.string.settings_vault_none),
+            icon = Icons.Rounded.Folder,
+            onClick = actions.onPickVault
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_vault_name),
+            value = s.vaultName.ifBlank { "–" },
+            icon = Icons.Rounded.Badge,
+            onClick = { openDialog(SettingsDialog.VAULT_NAME) }
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_include),
+            value = s.includeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_include_all) },
+            icon = Icons.Rounded.Folder,
+            onClick = { openDialog(SettingsDialog.INCLUDE) }
+        )
+        SettingsDivider()
+        SettingsValueRow(
+            title = stringResource(R.string.settings_exclude),
+            value = s.excludeFolders.joinToString(", ").ifEmpty { stringResource(R.string.settings_exclude_none) },
+            icon = Icons.Rounded.Block,
+            onClick = { openDialog(SettingsDialog.EXCLUDE) }
+        )
+    }
+    SettingsGroup(stringResource(R.string.settings_sub_scan)) {
+        val intervals = AppSettings.SCAN_INTERVALS
+        var intervalIndex by remember(s.scanIntervalMinutes) {
+            mutableFloatStateOf(intervals.indexOf(s.scanIntervalMinutes).coerceAtLeast(0).toFloat())
+        }
+        SettingsSliderRow(
+            title = stringResource(R.string.settings_scan_interval),
+            description = stringResource(R.string.settings_scan_interval_desc),
+            icon = Icons.Rounded.Sync,
+            value = intervalIndex,
+            valueLabel = formatMinutes(context, intervals[intervalIndex.toInt()]),
+            onValueChange = { intervalIndex = it },
+            onValueChangeFinished = { actions.onScanInterval(intervals[intervalIndex.toInt()]) },
+            valueRange = 0f..(intervals.size - 1).toFloat(),
+            steps = intervals.size - 2
+        )
+        SettingsDivider()
+        ScanNowRow(state, actions.onScanNow)
+        InfoCard(
+            text = stringResource(R.string.settings_sync_hint),
+            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs)
+        )
+    }
+}
+
+@Composable
+private fun DetectionPage(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit
+) {
+    val s = state.settings
+    SettingsGroup(title = null) {
+        SettingsSwitchRow(
+            title = stringResource(R.string.format_reminder_plugin),
+            description = stringResource(R.string.settings_format_example, "- [ ] Text (@2026-11-14 18:30)"),
+            icon = Icons.Rounded.Code,
+            checked = s.formatReminderPlugin,
+            onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatReminderPlugin = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.format_dataview),
+            description = stringResource(R.string.settings_format_example, "- [ ] Text [due:: 2026-11-14 18:30]"),
+            icon = Icons.Rounded.Code,
+            checked = s.formatDataview,
+            onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatDataview = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.format_tasks),
+            description = stringResource(R.string.settings_format_example, "- [ ] Text ⏰ 2026-11-14 18:30 · 📅 2026-11-14"),
+            icon = Icons.Rounded.Code,
+            checked = s.formatTasks,
+            onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatTasks = v) } }
+        )
+        SettingsDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.format_property),
+            description = stringResource(R.string.settings_format_example, "reminder: 2026-11-14T18:30"),
+            icon = Icons.Rounded.Code,
+            checked = s.formatProperties,
+            onCheckedChange = { v -> actions.updateAndRescan { it.copy(formatProperties = v) } }
+        )
+        if (s.formatProperties) {
+            SettingsValueRow(
+                title = stringResource(R.string.settings_property_names),
+                value = s.propertyNames.joinToString(", "),
+                icon = Icons.Rounded.Badge,
+                onClick = { openDialog(SettingsDialog.PROPERTY_NAMES) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DoneAndLogPage(
+    state: SettingsUiState,
+    actions: SettingsActions,
+    openDialog: (SettingsDialog) -> Unit
+) {
+    val s = state.settings
+    SettingsGroup(stringResource(R.string.settings_sub_one_time)) {
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_write_done),
+            description = stringResource(R.string.settings_write_done_desc),
+            icon = Icons.Rounded.Edit,
+            checked = s.writeDoneToFile,
+            onCheckedChange = { v ->
+                if (v) openDialog(SettingsDialog.WRITE_BACK) else actions.update { it.copy(writeDoneToFile = false) }
+            }
+        )
+    }
+    SettingsGroup(stringResource(R.string.settings_sub_repeating)) {
+        SettingsRow(
+            title = stringResource(R.string.settings_repeat_log),
+            description = repeatLogState(state.repeatLogPending),
+            icon = Icons.Rounded.EventRepeat,
+            trailing = {
+                FilledTonalButton(onClick = actions.onExportRepeatLog, enabled = state.repeatLogPending > 0) {
+                    Text(stringResource(R.string.action_export))
+                }
+            }
+        )
+        InfoCard(
+            text = stringResource(R.string.settings_repeat_log_info),
+            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs)
+        )
+    }
+}
+
+@Composable
+private fun SystemPage(
+    state: SettingsUiState,
+    actions: SettingsActions
+) {
+    SettingsGroup(stringResource(R.string.settings_sub_status)) {
+        StatusRow(
+            icon = Icons.Rounded.Notifications,
+            title = stringResource(R.string.status_notifications),
+            ok = state.status.notificationsAllowed,
+            missingLevel = StatusLevel.ERROR,
+            onFix = actions.onOpenNotificationSettings
+        )
+        SettingsDivider()
+        StatusRow(
+            icon = Icons.Rounded.Alarm,
+            title = stringResource(R.string.status_exact_alarms),
+            ok = state.status.exactAlarmsAllowed,
+            missingLevel = StatusLevel.WARNING,
+            onFix = actions.onOpenExactAlarmSettings
+        )
+        SettingsDivider()
+        StatusRow(
+            icon = Icons.Rounded.BatteryAlert,
+            title = stringResource(R.string.status_battery),
+            ok = state.status.batteryUnrestricted,
+            missingLevel = StatusLevel.WARNING,
+            okText = stringResource(R.string.status_battery_ok),
+            missingText = stringResource(R.string.status_battery_missing),
+            onFix = actions.onOpenBatterySettings
+        )
+    }
+    SettingsGroup(stringResource(R.string.settings_sub_info)) {
+        SettingsRow(
+            title = stringResource(R.string.privacy_title),
+            description = stringResource(R.string.privacy_short),
+            icon = Icons.Rounded.PrivacyTip,
+            onClick = actions.onOpenPrivacy,
+            trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
+        )
+        SettingsDivider()
+        SettingsRow(
+            title = stringResource(R.string.about_title),
+            description = stringResource(R.string.about_short),
+            icon = Icons.Rounded.Info,
+            onClick = actions.onOpenAbout,
+            trailing = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) }
+        )
+    }
 }
 
 @Composable
@@ -743,7 +1031,7 @@ internal fun TextDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            androidx.compose.foundation.layout.Column {
+            Column {
                 InfoCard(hint)
                 Spacer(Modifier.size(Spacing.sm))
                 OutlinedTextField(
@@ -784,11 +1072,18 @@ private val previewState =
         ),
         status = SystemStatus(notificationsAllowed = true, exactAlarmsAllowed = false, batteryUnrestricted = false),
         activeCount = 12,
-        vaultFolderName = PreviewData.VAULT_NAME
+        vaultFolderName = PreviewData.VAULT_NAME,
+        repeatLogPending = 3
     )
 
 @ThemePreviews
 @Composable
 private fun SettingsPreview() {
     VaultbellTheme(dynamicColor = false) { SettingsScreen(previewState, SettingsActions()) }
+}
+
+@ThemePreviews
+@Composable
+private fun SettingsDoneAndLogPreview() {
+    VaultbellTheme(dynamicColor = false) { SettingsScreen(previewState, SettingsActions(), initialSection = SettingsSection.DONE_AND_LOG) }
 }

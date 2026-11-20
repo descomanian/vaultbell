@@ -87,7 +87,7 @@
     <string name="snackbar_done_conflict">Erledigt. Die Notiz hat sich inzwischen geändert und wurde nicht bearbeitet.</string>
     <string name="snackbar_done_not_utf8">Erledigt. Die Notiz ist nicht als UTF-8 gespeichert und wurde nicht bearbeitet.</string>
     <string name="snackbar_done_write_failed">Erledigt. Schreiben in die Notiz ist fehlgeschlagen, bitte prüfe sie in Obsidian.</string>
-    <string name="snackbar_done_series">Erledigt. Die Serie geht mit dem nächsten Termin weiter.</string>
+    <string name="snackbar_done_series">Erledigt und im Log vermerkt. Die Serie geht mit dem nächsten Termin weiter.</string>
     <string name="snackbar_snoozed">Um %1$s verschoben</string>
     <string name="detail_file">Notiz</string>
     <string name="detail_line">Zeile</string>
@@ -151,8 +151,8 @@
     <string name="settings_group_reminders">Erinnerungen</string>
     <string name="settings_group_vault">Vault</string>
     <string name="settings_group_detection">Erkennung</string>
-    <string name="settings_group_writeback">Erledigt und Rückschreiben</string>
-    <string name="settings_group_system">System</string>
+    <string name="settings_group_writeback">Erledigt und Log</string>
+    <string name="settings_group_system">System und Info</string>
     <string name="settings_theme">Design</string>
     <string name="theme_system">Wie System</string>
     <string name="theme_light">Hell</string>
@@ -231,9 +231,9 @@
     <string name="scan_status">Letzter Scan %1$s · %2$s</string>
     <string name="settings_format_example">Beispiel: %1$s</string>
     <string name="settings_write_done">Erledigt in Notiz schreiben</string>
-    <string name="settings_write_done_desc">Hakt die Aufgabe mit [x] ab. Standardmäßig aus wegen Sync-Konflikten.</string>
+    <string name="settings_write_done_desc">Hakt einmalige Aufgaben mit [x] ab. Wiederkehrende bleiben unverändert. Standardmäßig aus wegen Sync-Konflikten.</string>
     <string name="writeback_dialog_title">In deine Notizen schreiben?</string>
-    <string name="writeback_dialog_text">Wenn du eine Erinnerung erledigst, ändert die App - [ ] zu - [x] in der Notiz. Vorher prüft sie, ob die Zeile unverändert ist. Hat ein Sync-Tool sie inzwischen geändert, wird nichts geschrieben. Achte darauf, dass dein Sync (Obsidian Sync, Syncthing, …) aktuell ist.</string>
+    <string name="writeback_dialog_text">Wenn du eine einmalige Erinnerung erledigst, ändert die App - [ ] zu - [x] in der Notiz. Vorher prüft sie, ob die Zeile unverändert ist. Hat ein Sync-Tool sie inzwischen geändert, wird nichts geschrieben. Wiederkehrende Aufgaben (🔁, | daily …) bleiben immer unverändert, sie landen stattdessen im Log. Achte darauf, dass dein Sync (Obsidian Sync, Syncthing, …) aktuell ist.</string>
     <string name="status_notifications">Benachrichtigungen</string>
     <string name="status_exact_alarms">Exakte Alarme</string>
     <string name="status_battery">Akku-Optimierung</string>
@@ -248,5 +248,42 @@
     <plurals name="reminders_count">
         <item quantity="one">%d Erinnerung</item>
         <item quantity="other">%d Erinnerungen</item>
+    </plurals>
+    <string name="snackbar_done_repeating">Erledigt und im Log vermerkt. Wiederkehrende Aufgaben werden nie in der Notiz abgehakt.</string>
+    <string name="action_export">Exportieren</string>
+    <string name="settings_overview_remind">Erinnern</string>
+    <string name="settings_overview_notes">Notizen</string>
+    <string name="settings_overview_app">App</string>
+    <string name="settings_sub_times">Zeiten</string>
+    <string name="settings_sub_notification">Benachrichtigung</string>
+    <string name="settings_sub_list">Liste</string>
+    <string name="settings_sub_folders">Ordner</string>
+    <string name="settings_sub_scan">Scan</string>
+    <string name="settings_sub_one_time">Einmalige Aufgaben</string>
+    <string name="settings_sub_repeating">Wiederkehrende Aufgaben</string>
+    <string name="settings_sub_status">Status</string>
+    <string name="settings_sub_info">Info</string>
+    <string name="summary_on">%1$s an</string>
+    <string name="summary_off">%1$s aus</string>
+    <string name="summary_default_time">Standardzeit %1$s</string>
+    <string name="summary_snooze">Verschieben %1$s / %2$s</string>
+    <string name="summary_scan_every">Scan alle %1$s</string>
+    <string name="summary_no_format">Kein Format aktiv</string>
+    <string name="summary_system_ok">Alles in Ordnung</string>
+    <string name="summary_system_check">Bitte prüfen: %1$s</string>
+    <string name="summary_system_attention">Bitte prüfen</string>
+    <string name="settings_repeat_log">Log für wiederkehrende Aufgaben</string>
+    <string name="settings_repeat_log_none">Keine neuen Einträge</string>
+    <string name="settings_repeat_log_info">Wiederkehrende Aufgaben (🔁, | daily …) werden nie in der Notiz abgehakt. Jedes Erledigen wird stattdessen hier gesammelt. Exportiere das Log als Markdown-Datei und lege sie in deinen Vault: Die Einträge sind erledigte Aufgaben mit Datum, Regel und Link zur Notiz, Tasks und Dataview können sie abfragen.</string>
+    <string name="repeat_log_export_failed">Export fehlgeschlagen. Die Einträge bleiben für den nächsten Export erhalten.</string>
+    <string name="repeat_log_heading">Vaultbell-Log</string>
+    <string name="repeat_log_intro">Erledigte Termine wiederkehrender Aufgaben, exportiert aus Vaultbell. Die Notizen selbst wurden nicht verändert.</string>
+    <plurals name="repeat_log_pending">
+        <item quantity="one">%d neuer Eintrag</item>
+        <item quantity="other">%d neue Einträge</item>
+    </plurals>
+    <plurals name="repeat_log_exported">
+        <item quantity="one">%d Eintrag exportiert</item>
+        <item quantity="other">%d Einträge exportiert</item>
     </plurals>
 </resources>

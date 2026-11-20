@@ -40,4 +40,23 @@ class TaskLineEditorTest {
         val line = "- [x] a"
         assertEquals(TaskLineEditor.EditResult.NotATask, TaskLineEditor.markDoneInContent(line, 0, lineHashOf(line)))
     }
+
+    @Test
+    fun neverChecksOffRepeatingTasks() {
+        val lines =
+            listOf(
+                "- [ ] Pflanzen gießen (@2026-11-20 09:00) | daily",
+                "- [ ] Team-Retro ⏰ 2026-11-20 16:00 🔁 every week",
+                "- [ ] Müll rausbringen 📅 2026-11-20 🔁 every 2 weeks",
+                "- [ ] Bericht [due:: 2026-11-20] [repeat:: every month on the 1st]"
+            )
+        for (line in lines) {
+            assertNull(line, TaskLineEditor.markDone(line))
+            val content = "# Routinen\n$line\n"
+            assertEquals(line, TaskLineEditor.EditResult.Repeating, TaskLineEditor.markDoneInContent(content, 1, lineHashOf(line)))
+            val bytes = Utf8.encode(content)
+            val file = TaskLineEditor.markDoneInFile(bytes, 1, lineHashOf(line))
+            assertEquals(TaskLineEditor.FileEditResult.Rejected(TaskLineEditor.EditResult.Repeating), file)
+        }
+    }
 }

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.descomanian.vaultbell.R
 import io.github.descomanian.vaultbell.VaultbellApplication
 import io.github.descomanian.vaultbell.data.DoneResult
+import io.github.descomanian.vaultbell.data.RepeatLogFormat
 import io.github.descomanian.vaultbell.system.SystemIntents
 import io.github.descomanian.vaultbell.system.SystemStatus
 import io.github.descomanian.vaultbell.ui.common.formatMinutes
@@ -104,6 +107,7 @@ fun HomeRoute(
                                 DoneResult.NOT_UTF8 -> R.string.snackbar_done_not_utf8
                                 DoneResult.WRITE_FAILED -> R.string.snackbar_done_write_failed
                                 DoneResult.NEXT_INSTANCE -> R.string.snackbar_done_series
+                                DoneResult.REPEATING_LOGGED -> R.string.snackbar_done_repeating
                                 DoneResult.LOCAL_ONLY -> R.string.snackbar_done
                             }
                         )
@@ -221,6 +225,7 @@ fun OnboardingRoute(onFinished: () -> Unit) {
 @Composable
 fun SettingsRoute(
     showBack: Boolean,
+    twoPane: Boolean,
     onBack: () -> Unit,
     onOpenPrivacy: () -> Unit,
     onOpenAbout: () -> Unit
@@ -233,11 +238,30 @@ fun SettingsRoute(
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
             if (uri != null) vm.changeVault(uri)
         }
+    val logLabels = RepeatLogFormat.Labels(stringResource(R.string.repeat_log_heading), stringResource(R.string.repeat_log_intro))
+    // "Save as" starts in the vault, so the log can go straight next to the notes.
+    val exportLog =
+        rememberLauncherForActivityResult(CreateMarkdownDocument { state.settings.vaultUri?.let(::vaultRootDocument) }) { uri ->
+            if (uri != null) vm.exportRepeatLog(uri, logLabels)
+        }
+    LaunchedEffect(vm) {
+        vm.exportResults.collect { result ->
+            val count = result.count
+            val text =
+                if (count == null) {
+                    context.getString(R.string.repeat_log_export_failed)
+                } else {
+                    context.resources.getQuantityString(R.plurals.repeat_log_exported, count, count)
+                }
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+        }
+    }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshStatus() }
 
     SettingsScreen(
         state = state,
         showBack = showBack,
+        twoPane = twoPane,
         actions =
         SettingsActions(
             onBack = onBack,
@@ -252,7 +276,25 @@ fun SettingsRoute(
             onOpenExactAlarmSettings = { context.startSafely(SystemIntents.exactAlarmSettings(context)) },
             onOpenBatterySettings = { context.requestBackground() },
             onOpenPrivacy = onOpenPrivacy,
-            onOpenAbout = onOpenAbout
+            onOpenAbout = onOpenAbout,
+            onExportRepeatLog = { exportLog.launch(vm.repeatLogFileName()) }
         )
     )
 }
+
+/** "Save as" for Markdown with an optional start folder ([DocumentsContract.EXTRA_INITIAL_URI]). */
+private class CreateMarkdownDocument(
+    private val initialUri: () -> Uri?
+) : ActivityResultContracts.CreateDocument("text/markdown") {
+    override fun createIntent(
+        context: Context,
+        input: String
+    ): Intent = super.createIntent(context, input).apply { initialUri()?.let { putExtra(DocumentsContract.EXTRA_INITIAL_URI, it) } }
+}
+
+/** Document URI of the vault root, usable as start folder for system file dialogs. */
+private fun vaultRootDocument(treeUri: String): Uri? =
+    runCatching {
+        val tree = Uri.parse(treeUri)
+        DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
+    }.getOrNull()

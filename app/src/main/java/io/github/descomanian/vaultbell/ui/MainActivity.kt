@@ -217,6 +217,7 @@ fun VaultbellNavHost(
                         CompositionLocalProvider(LocalNavAnimatedScope provides this) {
                             SettingsRoute(
                                 showBack = !wide,
+                                twoPane = twoPane,
                                 onBack = { nav.popBackStack() },
                                 onOpenPrivacy = { nav.navigate(Routes.PRIVACY) },
                                 onOpenAbout = { nav.navigate(Routes.ABOUT) }

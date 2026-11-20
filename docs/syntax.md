@@ -98,7 +98,7 @@ Add a repeat rule to any task line, in either syntax:
 - "Done" completes only the current occurrence, the series continues with the next date (Undo is possible).
 - Missed occurrences are skipped, not caught up. An occurrence that is overdue today stays overdue until midnight.
 - Times are local: 09:00 stays 09:00 across daylight saving changes. Monthly series keep their day where the month has it (31st → 30th/28th/29th, back to the 31st later).
-- Other Tasks rules (`every 2 weeks`, `every Monday`, …) are not supported yet; such a line is a one-off reminder and the rule text is removed from the title.
+- Other Tasks rules (`every 2 weeks`, `every Monday`, …) are not supported yet; such a line is a one-off reminder and the rule text is removed from the title. "Done" hides it in the app until the line changes, the note stays unchanged.
 - If the Tasks plugin itself completes a repeating task in Obsidian, it writes a new line with the next date. Vaultbell sees the new line as a new reminder.
 
 ## Early reminders and keeping you on it
@@ -117,14 +117,38 @@ Lines with impossible dates (`2026-02-30`) or times (`25:00`) are skipped silent
 
 ## Marking done
 
-With **Settings → Write done to note** enabled, "Done" changes `- [ ]` to `- [x]` in the note. Before writing, Vaultbell compares a hash of the line with the indexed version. If the line changed (edited on another device, sync in progress), nothing is written and only the notification is dismissed.
+With **Settings → Done and log → Write done to note** enabled, "Done" changes `- [ ]` to `- [x]` in the note. Before writing, Vaultbell compares a hash of the line with the indexed version. If the line changed (edited on another device, sync in progress), nothing is written and only the notification is dismissed.
 
 Write-back is careful on purpose:
 
 - Only notes saved as UTF-8 are edited; other encodings are left alone.
 - Only the checkbox of that one line changes; line endings (also mixed CRLF/LF) and a BOM stay as they are.
 - The note is read back after writing. If it differs, the original content is written back. A copy of the original is kept in the app cache until the write is confirmed.
-- Repeating reminders and note properties are never written back.
+- **Only one-time tasks are written back.** A task with any repeat marker (`🔁 …` including rules Vaultbell does not support, `| daily` and the other short forms, `[repeat:: …]`) is never changed, and neither are note properties. Checking off a repeating task would end the series in Obsidian.
+
+## Repeat log
+
+Completing a repeating task (series or unsupported rule) adds an entry to the **repeat log** in the app; the note stays as it is. *Settings → Done and log → Export* saves all new entries as a Markdown file. The "save as" dialog starts in your vault, so you can put the file right next to your notes:
+
+```markdown
+---
+tags: [vaultbell-log]
+exported: 2026-11-20T18:05
+entries: 2
+---
+
+# Vaultbell log · 2026-11-20 18:05
+
+Completed dates of repeating tasks, exported from Vaultbell. The notes themselves were not changed.
+
+- [x] Water the plants ✅ 2026-11-20 [instance:: 2026-11-20 08:00] [rule:: daily] [done-at:: 2026-11-20 08:12] [note:: [[Routines]]]
+- [x] Take out the trash ✅ 2026-11-20 [instance:: 2026-11-20] [rule:: every 2 weeks] [done-at:: 2026-11-20 17:40] [note:: [[Home/Chores]]]
+```
+
+- Entries are done tasks (`[x]` with `✅` date), so the Tasks plugin (`done on 2026-11-20`) and Dataview can query them, and Vaultbell's own scan ignores them.
+- Field names avoid `due`, `repeat` and `completed` on purpose, so an entry never becomes a reminder, a new Tasks series or clashes with Dataview's task fields.
+- Each export contains only entries that were not exported before; a failed export keeps them for the next try. Undo right after "Done" removes the entry again.
+- The file name is unique per minute: `vaultbell-log-2026-11-20-1805.md`.
 
 ## Planned
 

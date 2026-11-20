@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,20 +33,24 @@ import androidx.compose.ui.unit.dp
 import io.github.descomanian.vaultbell.designsystem.rememberHaptics
 import io.github.descomanian.vaultbell.designsystem.theme.Spacing
 
-/** A titled card that groups related settings rows. */
+/** A card that groups related settings rows, with an optional title (null when the screen title already names it). */
 @Composable
 fun SettingsGroup(
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier.fillMaxWidth().padding(horizontal = Spacing.md)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = Spacing.md, top = Spacing.lg, bottom = Spacing.xs).semantics { heading() }
-        )
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = Spacing.md, top = Spacing.lg, bottom = Spacing.xs).semantics { heading() }
+            )
+        } else {
+            Spacer(Modifier.height(Spacing.md))
+        }
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
             Column(Modifier.padding(vertical = Spacing.xxs), content = content)
         }

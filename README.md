@@ -58,6 +58,7 @@ Repeating reminders work with every task format: `🔁 every day|week|month|week
 - Notification actions: done, snooze short, snooze long. Optional repeat-if-ignored.
 - Reminder plan: several early reminders (e.g. 2 h, 1 h, 30 min, 15 min before) and "keep nudging" stages that get denser towards the due time, with active hours.
 - Repeating reminders (daily, weekly, monthly, weekdays); done completes only the current occurrence.
+- Only one-time tasks are ever checked off in the note. Completed dates of repeating tasks go to a log you can export as Markdown into your vault.
 - Note properties as reminders (`reminder`, `due`, `remind`, configurable).
 - Lock screen privacy: optionally hide reminders on the lock screen.
 - Reminders come through Do Not Disturb and silent mode (delivered as alarms, switchable).
@@ -86,10 +87,10 @@ Vaultbell collects no data. See [PRIVACY.md](PRIVACY.md).
 Vaultbell reads the files on the phone. Obsidian Sync (and most sync apps) only update those files while the sync app is running. Open Obsidian on the phone once, then pull down in Vaultbell or wait for the next background scan.
 
 **Notifications do not appear in Do Not Disturb.**
-Keep *Settings → Remind me in silent mode too* on. Reminders are then delivered like an alarm, which Do Not Disturb lets through by default.
+Keep *Settings → Reminders → Remind me in silent mode too* on. Reminders are then delivered like an alarm, which Do Not Disturb lets through by default.
 
 **My vault is inside `Android/data` (Obsidian's app folder) and cannot be selected.**
 Android does not let other apps open folders inside `Android/data`. Keep the vault in a normal folder such as `Documents/` (Obsidian can open a vault from there).
 
 **Background scans are late.**
-Allow background activity (*Settings → System → Battery optimization*). Some manufacturers pause apps aggressively; see [dontkillmyapp.com](https://dontkillmyapp.com).
+Allow background activity (*Settings → System and info → Battery optimization*). Some manufacturers pause apps aggressively; see [dontkillmyapp.com](https://dontkillmyapp.com).

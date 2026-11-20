@@ -67,6 +67,59 @@ data class FileStateEntity(
     val lastModified: Long
 )
 
+/**
+ * One completed date of a repeating task (since schema 3). The note is never changed for repeating tasks,
+ * so the app keeps these entries and exports them as a Markdown file (see [io.github.descomanian.vaultbell.data.RepeatLog]).
+ * No foreign key: entries outlive the reminder (vault switch, deleted note) until they are exported.
+ */
+@Entity(tableName = "repeat_log", indices = [Index("reminderId"), Index("exportedAt")])
+data class RepeatLogEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val reminderId: Long,
+    val title: String,
+    val relativePath: String,
+    /** Rule as shown in the log: `daily`, `weekly`, … or the text written in the note (`every 2 weeks`). */
+    val rule: String,
+    /** Due time of the completed instance. */
+    val instanceAt: Long,
+    val hasExplicitTime: Boolean,
+    val doneAt: Long,
+    /** Set after a successful export; exported entries are pruned after [RepeatLogDao.KEEP_EXPORTED_DAYS]. */
+    val exportedAt: Long? = null
+)
+
+@Dao
+interface RepeatLogDao {
+    @Insert
+    suspend fun insert(entry: RepeatLogEntity): Long
+
+    @Query("SELECT * FROM repeat_log WHERE exportedAt IS NULL ORDER BY doneAt, id")
+    suspend fun pending(): List<RepeatLogEntity>
+
+    @Query("SELECT COUNT(*) FROM repeat_log WHERE exportedAt IS NULL")
+    fun observePendingCount(): Flow<Int>
+
+    @Query("UPDATE repeat_log SET exportedAt = :at WHERE id IN (:ids)")
+    suspend fun markExported(
+        ids: List<Long>,
+        at: Long
+    )
+
+    /** Undo: removes the newest entry of this reminder that was not exported yet. */
+    @Query(
+        "DELETE FROM repeat_log WHERE id = " +
+            "(SELECT id FROM repeat_log WHERE reminderId = :reminderId AND exportedAt IS NULL ORDER BY id DESC LIMIT 1)"
+    )
+    suspend fun deleteNewestPending(reminderId: Long)
+
+    @Query("DELETE FROM repeat_log WHERE exportedAt IS NOT NULL AND exportedAt < :before")
+    suspend fun pruneExported(before: Long)
+
+    companion object {
+        const val KEEP_EXPORTED_DAYS = 90
+    }
+}
+
 @Dao
 interface ReminderDao {
     @Query("SELECT * FROM reminders WHERE completedLocally = 0 ORDER BY COALESCE(snoozedUntil, dueAt), title")
@@ -115,9 +168,11 @@ interface ReminderDao {
     suspend fun clearFiles()
 }
 
-@Database(entities = [ReminderEntity::class, FileStateEntity::class], version = 2, exportSchema = true)
+@Database(entities = [ReminderEntity::class, FileStateEntity::class, RepeatLogEntity::class], version = 3, exportSchema = true)
 abstract class VaultbellDatabase : RoomDatabase() {
     abstract fun reminderDao(): ReminderDao
+
+    abstract fun repeatLogDao(): RepeatLogDao
 
     companion object {
         const val NAME = "vaultbell.db"
@@ -134,9 +189,24 @@ abstract class VaultbellDatabase : RoomDatabase() {
                 }
             }
 
+        /** v1.1: repeat log for repeating tasks (they are never written back). */
+        val MIGRATION_2_3 =
+            object : Migration(2, 3) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS `repeat_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`reminderId` INTEGER NOT NULL, `title` TEXT NOT NULL, `relativePath` TEXT NOT NULL, " +
+                            "`rule` TEXT NOT NULL, `instanceAt` INTEGER NOT NULL, `hasExplicitTime` INTEGER NOT NULL, " +
+                            "`doneAt` INTEGER NOT NULL, `exportedAt` INTEGER)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_repeat_log_reminderId` ON `repeat_log` (`reminderId`)")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_repeat_log_exportedAt` ON `repeat_log` (`exportedAt`)")
+                }
+            }
+
         fun create(context: Context): VaultbellDatabase =
             Room.databaseBuilder(context.applicationContext, VaultbellDatabase::class.java, NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 // The index is a cache of the vault: rebuilding it is always safe if no migration path exists.
                 .fallbackToDestructiveMigration()
                 .build()

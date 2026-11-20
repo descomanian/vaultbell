@@ -87,7 +87,7 @@
     <string name="snackbar_done_conflict">Done. The note changed meanwhile, so it was not edited.</string>
     <string name="snackbar_done_not_utf8">Done. The note is not saved as UTF-8, so it was not edited.</string>
     <string name="snackbar_done_write_failed">Done. Writing to the note failed, please check it in Obsidian.</string>
-    <string name="snackbar_done_series">Done. The series continues with the next date.</string>
+    <string name="snackbar_done_series">Done and added to the repeat log. The series continues with the next date.</string>
     <string name="snackbar_snoozed">Snoozed for %1$s</string>
     <string name="detail_file">Note</string>
     <string name="detail_line">Line</string>
@@ -151,8 +151,8 @@
     <string name="settings_group_reminders">Reminders</string>
     <string name="settings_group_vault">Vault</string>
     <string name="settings_group_detection">Detection</string>
-    <string name="settings_group_writeback">Done and write-back</string>
-    <string name="settings_group_system">System</string>
+    <string name="settings_group_writeback">Done and log</string>
+    <string name="settings_group_system">System and info</string>
     <string name="settings_theme">Theme</string>
     <string name="theme_system">Follow system</string>
     <string name="theme_light">Light</string>
@@ -231,9 +231,9 @@
     <string name="scan_status">Last scan %1$s · %2$s</string>
     <string name="settings_format_example">Example: %1$s</string>
     <string name="settings_write_done">Write done to note</string>
-    <string name="settings_write_done_desc">Checks off the task with [x]. Off by default because of sync conflicts.</string>
+    <string name="settings_write_done_desc">Checks off one-time tasks with [x]. Repeating tasks are never changed. Off by default because of sync conflicts.</string>
     <string name="writeback_dialog_title">Write to your notes?</string>
-    <string name="writeback_dialog_text">When you mark a reminder as done, the app changes - [ ] to - [x] in the note. It first checks that the line is unchanged; if a sync tool changed it meanwhile, nothing is written. Make sure your sync (Obsidian Sync, Syncthing, …) is up to date.</string>
+    <string name="writeback_dialog_text">When you mark a one-time reminder as done, the app changes - [ ] to - [x] in the note. It first checks that the line is unchanged; if a sync tool changed it meanwhile, nothing is written. Repeating tasks (🔁, | daily …) are never changed, they go to the repeat log instead. Make sure your sync (Obsidian Sync, Syncthing, …) is up to date.</string>
     <string name="status_notifications">Notifications</string>
     <string name="status_exact_alarms">Exact alarms</string>
     <string name="status_battery">Battery optimization</string>
@@ -248,5 +248,42 @@
     <plurals name="reminders_count">
         <item quantity="one">%d reminder</item>
         <item quantity="other">%d reminders</item>
+    </plurals>
+    <string name="snackbar_done_repeating">Done and added to the repeat log. Repeating tasks are never checked off in the note.</string>
+    <string name="action_export">Export</string>
+    <string name="settings_overview_remind">Reminding</string>
+    <string name="settings_overview_notes">Notes</string>
+    <string name="settings_overview_app">App</string>
+    <string name="settings_sub_times">Times</string>
+    <string name="settings_sub_notification">Notification</string>
+    <string name="settings_sub_list">List</string>
+    <string name="settings_sub_folders">Folders</string>
+    <string name="settings_sub_scan">Scan</string>
+    <string name="settings_sub_one_time">One-time tasks</string>
+    <string name="settings_sub_repeating">Repeating tasks</string>
+    <string name="settings_sub_status">Status</string>
+    <string name="settings_sub_info">Info</string>
+    <string name="summary_on">%1$s on</string>
+    <string name="summary_off">%1$s off</string>
+    <string name="summary_default_time">Default time %1$s</string>
+    <string name="summary_snooze">Snooze %1$s / %2$s</string>
+    <string name="summary_scan_every">Scan every %1$s</string>
+    <string name="summary_no_format">No format enabled</string>
+    <string name="summary_system_ok">All good</string>
+    <string name="summary_system_check">Please check: %1$s</string>
+    <string name="summary_system_attention">Needs attention</string>
+    <string name="settings_repeat_log">Repeat log</string>
+    <string name="settings_repeat_log_none">No new entries</string>
+    <string name="settings_repeat_log_info">Repeating tasks (🔁, | daily …) are never checked off in the note. Every completion is kept here instead. Export the log as a Markdown file and put it into your vault: entries are done tasks with date, rule and a link to the note, so Tasks and Dataview can query them.</string>
+    <string name="repeat_log_export_failed">Export failed. The entries stay for the next export.</string>
+    <string name="repeat_log_heading">Vaultbell log</string>
+    <string name="repeat_log_intro">Completed dates of repeating tasks, exported from Vaultbell. The notes themselves were not changed.</string>
+    <plurals name="repeat_log_pending">
+        <item quantity="one">%d new entry</item>
+        <item quantity="other">%d new entries</item>
+    </plurals>
+    <plurals name="repeat_log_exported">
+        <item quantity="one">%d entry exported</item>
+        <item quantity="other">%d entries exported</item>
     </plurals>
 </resources>

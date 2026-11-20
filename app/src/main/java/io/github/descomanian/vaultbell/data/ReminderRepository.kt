@@ -17,6 +17,7 @@ import io.github.descomanian.vaultbell.data.settings.SettingsRepository
 import io.github.descomanian.vaultbell.parser.ParsedReminder
 import io.github.descomanian.vaultbell.parser.Recurrence
 import io.github.descomanian.vaultbell.parser.ReminderParser
+import io.github.descomanian.vaultbell.parser.RepeatMarkers
 import io.github.descomanian.vaultbell.parser.TaskLineEditor
 import io.github.descomanian.vaultbell.scheduler.ScheduleMode
 import io.github.descomanian.vaultbell.vault.ScanFilter
@@ -46,7 +47,19 @@ sealed interface ScanOutcome {
 }
 
 /** Result of marking a reminder done, so the UI can offer Undo when nothing was written. */
-enum class DoneResult { LOCAL_ONLY, WRITTEN_TO_FILE, CONFLICT_NOT_WRITTEN, NOT_UTF8, WRITE_FAILED, NEXT_INSTANCE }
+enum class DoneResult {
+    LOCAL_ONLY,
+    WRITTEN_TO_FILE,
+    CONFLICT_NOT_WRITTEN,
+    NOT_UTF8,
+    WRITE_FAILED,
+
+    /** Series with a supported rule: next instance in the index, entry in the repeat log, note unchanged. */
+    NEXT_INSTANCE,
+
+    /** Repeating task with a rule Vaultbell cannot compute (`🔁 every 2 weeks`): done in the app, logged, note unchanged. */
+    REPEATING_LOGGED
+}
 
 /**
  * Single source of truth: keeps the Room index in sync with the vault and the alarms in sync with the index.
@@ -57,6 +70,8 @@ class ReminderRepository(
     private val vault: VaultAccess,
     private val alarms: ReminderAlarms,
     private val notifications: Notifications,
+    /** Completed dates of repeating tasks; they are never written back. */
+    private val repeatLog: RepeatLog,
     private val clock: () -> Long = System::currentTimeMillis,
     /** Called after the index changed (scan, done, snooze), e.g. to refresh the home screen widget. */
     private val onChanged: suspend () -> Unit = {}
@@ -300,14 +315,25 @@ class ReminderRepository(
             notifications.cancel(id)
             val rule = e.rule()
             val result =
-                if (rule != null) {
-                    // Series: only this instance is done, the note is never changed.
-                    advanceSeries(e, rule)
-                    DoneResult.NEXT_INSTANCE
-                } else {
-                    val written = if (settings.current().writeDoneToFile && !e.isProperty) writeDone(e) else DoneResult.LOCAL_ONLY
-                    dao.update(e.copy(completedLocally = true))
-                    written
+                when {
+                    rule != null -> {
+                        // Series: only this instance is done, the note is never changed.
+                        repeatLog.record(e, rule.name.lowercase())
+                        advanceSeries(e, rule)
+                        DoneResult.NEXT_INSTANCE
+                    }
+                    e.isRepeatingTask -> {
+                        // Repeat rule Vaultbell cannot compute: checking it off would end the series in Obsidian.
+                        repeatLog.record(e, rule = null)
+                        dao.update(e.copy(completedLocally = true))
+                        DoneResult.REPEATING_LOGGED
+                    }
+                    else -> {
+                        // Only one-time task lines are ever written back.
+                        val written = if (settings.current().writeDoneToFile && !e.isProperty) writeDone(e) else DoneResult.LOCAL_ONLY
+                        dao.update(e.copy(completedLocally = true))
+                        written
+                    }
                 }
             onChanged()
             result
@@ -343,6 +369,7 @@ class ReminderRepository(
                         DoneResult.WRITE_FAILED
                     }
                 is TaskLineEditor.FileEditResult.Rejected ->
+                    // Repeating is a second guard (the editor refuses repeating lines itself); nothing was written.
                     if (edit.reason == TaskLineEditor.EditResult.NotUtf8) DoneResult.NOT_UTF8 else DoneResult.CONFLICT_NOT_WRITTEN
             }
         } catch (ex: Exception) {
@@ -353,6 +380,7 @@ class ReminderRepository(
     suspend fun undoDone(id: Long) =
         withContext<Unit>(Dispatchers.IO) {
             val e = dao.get(id) ?: return@withContext
+            repeatLog.undo(id)
             val previous = e.doneInstanceAt
             val restored =
                 if (e.isSeries && previous != null) {
@@ -447,3 +475,6 @@ class ReminderRepository(
         const val MINUTE = 60_000L
     }
 }
+
+/** A task line with any repeat marker, also rules Vaultbell cannot compute. Never written back (see [RepeatMarkers]). */
+private val ReminderEntity.isRepeatingTask: Boolean get() = !isProperty && RepeatMarkers.isRepeating(rawLine)

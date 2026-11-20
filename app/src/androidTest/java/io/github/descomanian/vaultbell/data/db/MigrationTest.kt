@@ -9,7 +9,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Schema 1 (v1.0) → 2 (v1.1). Run on a device or emulator: `./gradlew connectedDebugAndroidTest`. */
+/** Schema 1 (v1.0) → 2 → 3 (v1.1). Run on a device or emulator: `./gradlew connectedDebugAndroidTest`. */
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
     @get:Rule
@@ -47,6 +47,37 @@ class MigrationTest {
             assertTrue(c.moveToFirst())
             assertEquals(42L, c.getLong(0))
         }
+    }
+
+    @Test
+    fun migrate2To3AddsEmptyRepeatLogAndKeepsReminders() {
+        helper.createDatabase(DB, 2).apply {
+            execSQL(
+                "INSERT INTO reminders (id, fileUri, relativePath, lineNumber, title, rawLine, lineHash, dueAt, " +
+                    "hasExplicitTime, format, completedLocally, recurrence, anchorAt, doneInstanceAt) VALUES " +
+                    "(7, 'content://vault/r', 'Routinen.md', 2, 'Pflanzen gießen', " +
+                    "'- [ ] Pflanzen gießen (@2026-11-02 09:00) | daily', 'cccc', 3000, 1, 'REMINDER_PLUGIN', 0, 'DAILY', 1000, 2000)"
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(DB, 3, true, VaultbellDatabase.MIGRATION_2_3)
+
+        db.query("SELECT recurrence, doneInstanceAt FROM reminders WHERE id = 7").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals("DAILY", c.getString(0))
+            assertEquals(2000L, c.getLong(1))
+        }
+        db.query("SELECT COUNT(*) FROM repeat_log").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals(0, c.getInt(0))
+        }
+    }
+
+    @Test
+    fun migrate1To3InOneGo() {
+        helper.createDatabase(DB, 1).close()
+        helper.runMigrationsAndValidate(DB, 3, true, VaultbellDatabase.MIGRATION_1_2, VaultbellDatabase.MIGRATION_2_3).close()
     }
 
     private companion object {

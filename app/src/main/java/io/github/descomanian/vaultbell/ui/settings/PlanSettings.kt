@@ -64,13 +64,14 @@ private val STAGE_START_OPTIONS = listOf(FROM_DAY_START, 6 * 60, 4 * 60, 3 * 60,
 @Composable
 fun PlanSettingsGroup(
     s: AppSettings,
-    update: ((AppSettings) -> AppSettings) -> Unit
+    update: ((AppSettings) -> AppSettings) -> Unit,
+    title: String? = stringResource(R.string.settings_group_plan)
 ) {
     var dialog by rememberSaveable { mutableStateOf<PlanDialog?>(null) }
     // Index of the stage being edited, -1 = new stage.
     var editStage by rememberSaveable { mutableIntStateOf(-1) }
 
-    SettingsGroup(stringResource(R.string.settings_group_plan)) {
+    SettingsGroup(title) {
         SettingsSwitchRow(
             title = stringResource(R.string.settings_pre_reminder),
             description = stringResource(R.string.settings_pre_reminder_desc),
